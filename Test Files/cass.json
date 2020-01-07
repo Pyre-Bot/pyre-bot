@@ -1,0 +1,16 @@
+{
+  "pipeline": {
+    "Cache": {},
+
+    "SimpleKVDiskStore": {
+      "package": "cassiopeia_diskstore"
+	  "path": "Z:\Data\Discord"
+    },
+
+    "DDragon": {},
+
+    "RiotAPI": {
+      "api_key": "RGAPI-1eb42454-70d3-42d2-a0a7-63261fbff325"
+    },
+
+}

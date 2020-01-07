@@ -1,0 +1,7 @@
+psutil==5.6.7
+discord.py==1.2.5
+cassiopeia==4.0.8
+python_valve==0.2.1
+discord==1.0.1
+python-dotenv==0.10.3
+valve==0.0.0
