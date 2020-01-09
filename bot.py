@@ -17,6 +17,7 @@ import valve.source.a2s
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
 rtoken = os.getenv('RIOT_TOKEN')
+
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'))
 
 # Riot API and Cassiopeia info
