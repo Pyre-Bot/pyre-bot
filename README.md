@@ -52,7 +52,7 @@ After adding the API keys and creating a .env file you can get started by runnin
 * start : Starts the specified server, by default Risk of Rain 2
 * stop : Stops the specified server, by default Risk of Rain 2
 * update : Updates the specified server, by default Risk of Rain 2
-* status : Lists the game server status riot Steamworks API
+* status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
 * link : Outputs the Steam connect link to chat
 * config : Outputs the current server config to chat
@@ -69,14 +69,13 @@ By default the bot is configured to manage a Risk of Rain 2 server. This can be 
 
 ## Contributing
 
-**Coming Soon**
 Please read [CONTRIBUTING.md](https://github.com/InfernalPlacebo/ig-bot) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
 * **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo)
 
-See also the list of [contributors]https://github.com/InfernalPlacebo/ig-bot/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/graphs/contributors) who participated in this project.
 
 ## License
 

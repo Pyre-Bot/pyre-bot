@@ -6,7 +6,6 @@ import asyncio
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-from discord.ext.commands import has_role
 # Cassiopeia / LoL imports
 import cassiopeia as cass
 from cassiopeia import Summoner
@@ -108,24 +107,37 @@ async def mods(ctx):
 @bot.command(name='status', help='Displays the status of current session')
 async def status(ctx):
     for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
+        # Create embed
+        embed = discord.Embed(
+            title='Risk of Rain 2 Server Information',
+            colour=discord.Colour.blue()
+        )
+        # Use Steamworks API to query server
         with valve.source.a2s.ServerQuerier(SERVER_ADDRESS) as server:
             info = server.info()
             players = server.players()
             ping = server.ping()
 
-        await ctx.send("{player_count}/{max_players} {server_name}".format(**info))
+        # Embed information
+        embed.set_footer(text='Steam query is not always accurate')
+        embed.set_thumbnail(url='http://files.softicons.com/download/application-icons/variations-icons-3-by-guillen-design/png/256x256/steam.png')
+        embed.set_author(name='InfernalGaming')
+        embed.add_field(name='Player Count and Server Name', value="{player_count}/{max_players} {server_name}".format(**info), inline=False)
         for player in sorted(players["players"],
                              key=lambda p: p["score"], reverse=True):
-            await ctx.send("{name}".format(**player))
-        await ctx.send("\nServer ping is {:n}.".format(ping))
+            embed.add_field(name='Players', value="{name}".format(**player), inline=True)
+        embed.add_field(name='Server Ping', value="{:n}".format(ping), inline=False)
+
+        # Send embed
+        await ctx.send(embed=embed)
         break
     else:
-        await ctx.send('Server is currently running...')
+        await ctx.send('Server is currently stopped...')
 
 # Sends the Steam connection link
 @bot.command(name='link', help='Get the Steam connection link')
 async def link(ctx):
-    await ctx.send('steam://connect/76.25.137.127:27015')
+    await ctx.send('steam://connect/ror2.infernal.wtf:27015')
 
 # Print server configuration
 @bot.command(name='config', help='Prints the server configuration')
@@ -144,5 +156,5 @@ async def summoner(ctx, arg):
 # Discord bot token
 try:
     bot.run(token)
-except discord.errors.LoginFailure as e:
+except discord.errors.LoginFailure:
     print("Login unsuccessful.")
