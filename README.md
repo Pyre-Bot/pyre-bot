@@ -1,6 +1,6 @@
 # InfernalGaming Discord Bot
 
-This Discord bot was created primarily to be used by the InfernalGaming server to manage game servers and add other functionality to the server that wasn't available elsewhere or could be improved upon to serve the community.
+This Discord bot was created primarily to be used by the InfernalGaming server to manage game servers and add other functionality to the server that wasn't available elsewhere or could be improved upon to serve the community. Feel free to join our [Discord](https://discord.gg/YewZwpc) if you want to discuss the bot or hang out!
 
 ## Getting Started
 
@@ -81,6 +81,10 @@ See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/gr
 
 This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details
 
-## Acknowledgments
+## Changelog
 
-* Everyone in the [Discord](https://discord.gg/YewZwpc) server helping test and recommend features
+### 0.2.0
+* "Overhaul"
+* **Added Cogs**
+    * Added cogs to the code to provide expandable in future releases and allow cleaner reading and writing of code.
+    * Cogs allow development and test of features and changes without having to completely restart bot.
