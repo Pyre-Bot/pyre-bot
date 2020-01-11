@@ -10,6 +10,8 @@ import valve.source.a2s
 SERVER_ADDRESS = ('ror2.infernal.wtf', 27016)
 steamcmd = Path("C:/steamcmd")
 ror2ds = Path("C:/steamcmd/ror2ds/BepInEx")
+role = "RoR2 Admin"
+
 
 class RoR2(commands.Cog):
     def __init__(self, bot):
@@ -18,7 +20,7 @@ class RoR2(commands.Cog):
     # Commands
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
-    @commands.has_role('RoR2 Admin')
+    @commands.has_role(role)
     async def start(self, ctx):
         # Checks to make sure the server is not running before starting it
         for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
@@ -45,7 +47,7 @@ class RoR2(commands.Cog):
                         break
     # Exits the server
     @commands.command(name='stop', help='Stops the server if currently running')
-    @commands.has_role('RoR2 Admin')
+    @commands.has_role(role)
     async def stop(self, ctx):
         for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
             process.kill()
@@ -56,7 +58,7 @@ class RoR2(commands.Cog):
 
     # Runs the update bat file, updates server via SteamCMD
     @commands.command(name='update', help='Updates the server, must be off before running this')
-    @commands.has_role('RoR2 Admin')
+    @commands.has_role(role)
     async def update(self, ctx):
         # Checks to make sure the server is not running before updating it
         for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
@@ -118,7 +120,7 @@ class RoR2(commands.Cog):
 
     # Print server configuration
     @commands.command(name='config', help='Prints the server configuration')
-    @commands.has_role('RoR2 Admin')
+    @commands.has_role(role)
     async def config(self, ctx):
         await ctx.send('Coming soon!')
 
