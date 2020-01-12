@@ -25,7 +25,11 @@ python-dotenv==0.10.3
 valve==0.0.0
 ```
 
-If you get an aiohttp error while attempting to
+If you get an aiohttp error while attempting to install discord.py, run the following command:
+
+```
+pip install --no-use-pep517 discord.py
+```
 
 ### Installing
 
