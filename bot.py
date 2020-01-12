@@ -18,16 +18,19 @@ async def on_ready():
 
 # Load and Unload cogs stuff
 @bot.command()
+@commands.is_owner()
 async def load(ctx, extension):
     bot.load_extension(f'cogs.{extension}')
 
 
 @bot.command()
+@commands.is_owner()
 async def unload(ctx, extension):
     bot.unload_extension(f'cogs.{extension}')
 
 
 @bot.command()
+@commands.is_owner()
 async def reload(ctx, extension):
     bot.unload_extension(f'cogs.{extension}')
     bot.load_extension(f'cogs.{extension}')
