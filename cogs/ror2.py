@@ -9,7 +9,8 @@ import valve.source.a2s
 # Server information
 SERVER_ADDRESS = ('ror2.infernal.wtf', 27016)
 steamcmd = Path("C:/steamcmd")
-ror2ds = Path("C:/steamcmd/ror2ds/BepInEx")
+ror2ds = Path("C:/steamcmd/ror2ds")
+BepInEx = Path("C:/steamcmd/ror2ds/BepInEx")
 role = "RoR2 Admin"
 
 # Global variables for restart vote
@@ -32,17 +33,17 @@ class RoR2(commands.Cog):
         else:
             started = 1
         # Path of log file, removes before starting
-        if os.path.exists(ror2ds / "LogOutput.log"):
-            os.remove(ror2ds / "LogOutput.log")
+        if os.path.exists(BepInEx / "LogOutput.log"):
+            os.remove(BepInEx / "LogOutput.log")
 
         # Starts the server
-        os.startfile(steamcmd / "ror2ds/Risk of Rain 2.exe")
+        os.startfile(ror2ds / "Risk of Rain 2.exe")
         await ctx.send('Starting Risk of Rain 2 Server, please wait...')
         await asyncio.sleep(15)
 
         # After 15 seconds checks logs to see if server started
         while started == 1:
-            with open(ror2ds / "LogOutput.log") as f:
+            with open(BepInEx / "LogOutput.log") as f:
                 for line in f:
                     if "Loaded scene lobby" in line:
                         await ctx.send('Server started successfully...')
@@ -97,34 +98,44 @@ class RoR2(commands.Cog):
                 await message.add_reaction(emoji)
             await asyncio.sleep(time)
 
-            if(yes == no):
-                await ctx.send('It was a tie! There must be a majority to restart the server!')
-            elif(yes > no):
-                started = 1
-                for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
-                    process.kill()
-                    await asyncio.sleep(5)
+            # Queries Steamworks to get total players
+            with valve.source.a2s.ServerQuerier(SERVER_ADDRESS) as query:
+                players = []
+                for player in query.players()["players"]:
+                    if player["name"]:
+                        players.append(player)
+                player_count = len(players)
+                # Counts vote, if tie does nothing
+                if(yes == no):
+                    await ctx.send('It was a tie! There must be a majority to restart the server!')
+                # If 75% of player count wants to restart it will
+                elif((yes-1) >= (player_count*0.75)):
+                    started = 1
+                    for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
+                        process.kill()
+                        await asyncio.sleep(5)
 
-                # Path of log file, removes before starting
-                if os.path.exists(ror2ds / "LogOutput.log"):
-                    os.remove(ror2ds / "LogOutput.log")
+                    # Path of log file, removes before starting
+                    if os.path.exists(BepInEx / "LogOutput.log"):
+                        os.remove(BepInEx / "LogOutput.log")
 
-                # Starts the server
-                os.startfile(steamcmd / "ror2ds/Risk of Rain 2.exe")
-                await ctx.send('Starting Risk of Rain 2 Server, please wait...')
-                await asyncio.sleep(15)
+                    # Starts the server
+                    os.startfile(ror2ds / "Risk of Rain 2.exe")
+                    await ctx.send('Starting Risk of Rain 2 Server, please wait...')
+                    await asyncio.sleep(15)
 
-                # After 15 seconds checks logs to see if server started
-                while started == 1:
-                    with open(ror2ds / "LogOutput.log") as f:
-                        for line in f:
-                            if "Loaded scene lobby" in line:
-                                await ctx.send('Server started successfully...')
-                                started = 2
-                                break
-            elif(no > yes):
-                await ctx.send('Restart vote failed!')
-            break
+                    # After 15 seconds checks logs to see if server started
+                    while started == 1:
+                        with open(BepInEx / "LogOutput.log") as f:
+                            for line in f:
+                                if "Loaded scene lobby" in line:
+                                    await ctx.send('Server started successfully...')
+                                    started = 2
+                                    break
+                # All other options
+                else:
+                    await ctx.send('Restart vote failed!')
+                break
         else:
             await ctx.send('Server is not running, unable to restart...')
 
@@ -158,7 +169,7 @@ class RoR2(commands.Cog):
             embed.set_footer(text='Steam query is not always accurate')
             embed.set_thumbnail(
                 url='http://files.softicons.com/download/application-icons/variations-icons-3-by-guillen-design/png/256x256/steam.png')
-            embed.set_author(name='InfernalGaming')
+            embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Player Count and Server Name',
                             value="{player_count}/{max_players} {server_name}".format(**info), inline=False)
             for player in sorted(players["players"],
@@ -175,9 +186,9 @@ class RoR2(commands.Cog):
             await ctx.send('Server is currently stopped...')
 
     # Sends the Steam connection link
-    @commands.command(name='link', help='Get the Steam connection link')
-    async def link(self, ctx):
-        await ctx.send('steam://connect/ror2.infernal.wtf:27015')
+    # @commands.command(name='link', help='Get the Steam connection link')
+    # async def link(self, ctx):
+    #     await ctx.send('steam://connect/ror2.infernal.wtf:27015')
 
     # Print server configuration
     @commands.command(name='config', help='Prints the server configuration')

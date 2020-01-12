@@ -25,6 +25,8 @@ python-dotenv==0.10.3
 valve==0.0.0
 ```
 
+If you get an aiohttp error while attempting to
+
 ### Installing
 
 Clone the repo to wherever you want the bot to reside. You can run the bot by calling bot.py. You will also need [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) installed on your machine to run the updates for the game servers.
@@ -72,7 +74,6 @@ After adding the API keys and creating a .env file you can get started by runnin
 * status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
   * Coming soon!
-* link : Outputs the Steam connect link to chat
 * config : Outputs the current server config to chat
   * Coming soon!
 
@@ -104,6 +105,8 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENS
 
 ### 0.3.1
 * Removed League of Legends support and dependencies... for now.
+* Added a new variable for the Risk of Rain server location
+* Removed link command until I can figure out how to fix it
 
 ### 0.3.0
 * Added the restart feature
