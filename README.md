@@ -50,13 +50,15 @@ Some variables need to be set before using the bot to make sure it is looking in
 # Server information
 SERVER_ADDRESS = ('ror2.infernal.wtf', 27016)
 steamcmd = Path("C:/steamcmd")
-ror2ds = Path("C:/steamcmd/ror2ds/BepInEx")
+ror2ds = Path("C:/steamcmd/ror2ds")
+BepInEx = Path("C:/steamcmd/ror2ds/BepInEx")
 role = "RoR2 Admin"
 ```
 
 * SERVER_ADDRESS: the IP/domain of your server and the Steam query port
 * steamcmd: The path to the steamcmd folder
 * ror2ds: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
+* BepInEx: Path to the BepInEx folder
 * role: The Discord role you want using protected commands
 
 ## Running and using the bot
@@ -85,7 +87,6 @@ By default the bot is configured to manage a Risk of Rain 2 server. This can be 
 
 * [Discord.py](https://github.com/Rapptz/discord.py) - Discord API wrapper for Python
 * [Python-valve](https://github.com/serverstf/python-valve) - Steamworks API wrapper for Python
-* [Cassiopeia](https://github.com/meraki-analytics/cassiopeia) - Riot Games API wrapper for Python
 
 ## Contributing
 
@@ -103,10 +104,16 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENS
 
 ## Changelog
 
-### 0.3.1
-* Removed League of Legends support and dependencies... for now.
+### 0.3.2
+* Thanks to Rayss for testing the bot and providing valuable feedback!
 * Added a new variable for the Risk of Rain server location
 * Removed link command until I can figure out how to fix it
+* Fixed the status command to show the guild name vs being hard coded
+* Load, unload, and reload commands can now only be used by the bot owner
+* Changed restart vote to require 75% of the server player count (via Steamworks)
+
+### 0.3.1
+* Removed League of Legends support and dependencies... for now.
 
 ### 0.3.0
 * Added the restart feature
