@@ -12,6 +12,9 @@ steamcmd = Path("C:/steamcmd")
 ror2ds = Path("C:/steamcmd/ror2ds/BepInEx")
 role = "RoR2 Admin"
 
+# Global variables for restart vote
+yes, no = 0, 0
+
 
 class RoR2(commands.Cog):
     def __init__(self, bot):
@@ -29,17 +32,17 @@ class RoR2(commands.Cog):
         else:
             started = 1
         # Path of log file, removes before starting
-        if os.path.exists(ror2ds/"LogOutput.log"):
-            os.remove(ror2ds/"LogOutput.log")
+        if os.path.exists(ror2ds / "LogOutput.log"):
+            os.remove(ror2ds / "LogOutput.log")
 
         # Starts the server
-        os.startfile(steamcmd/"ror2ds/Risk of Rain 2.exe")
+        os.startfile(steamcmd / "ror2ds/Risk of Rain 2.exe")
         await ctx.send('Starting Risk of Rain 2 Server, please wait...')
-        await asyncio.sleep(30)
+        await asyncio.sleep(15)
 
-        # After 30 seconds checks logs to see if server started
+        # After 15 seconds checks logs to see if server started
         while started == 1:
-            with open(ror2ds/"LogOutput.log") as f:
+            with open(ror2ds / "LogOutput.log") as f:
                 for line in f:
                     if "Loaded scene lobby" in line:
                         await ctx.send('Server started successfully...')
@@ -65,22 +68,76 @@ class RoR2(commands.Cog):
             await ctx.send('Stop the server before running this (r!stop)')
             break
         else:
-            os.startfile(steamcmd/"RoR2DSUpdate.bat")
+            os.startfile(steamcmd / "RoR2DSUpdate.bat")
             await ctx.send('Updating server, please wait...')
             updated = 1
             # Path of log file, removes before starting
-            if os.path.exists(steamcmd/"logs/content_log.txt"):
-                os.remove(steamcmd/"logs/content_log.txt")
-                await asyncio.sleep(30)
+            if os.path.exists(steamcmd / "logs/content_log.txt"):
+                os.remove(steamcmd / "logs/content_log.txt")
+                await asyncio.sleep(15)
 
-            # After 30 seconds checks logs to see if server updated
+            # After 15 seconds checks logs to see if server updated
             while updated == 1:
-                with open(steamcmd/"logs/content_log.txt") as f:
+                with open(steamcmd / "logs/content_log.txt") as f:
                     for line in f:
                         if "AppID 1180760 scheduler finished" in line:
                             await ctx.send('Server updated...')
                             updated = 2
                             break
+
+    # Restart the server with votes
+    @commands.command(name='restart', help='Initializes a vote to restart the RoR2 server')
+    async def restart(self, ctx, time=60):
+        for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
+            global yes, no
+            yes, no = 0, 0
+            author = ctx.author
+            message = await ctx.send('A restart vote has been initiated by {author.mention}, please react to this message!'.format(author=author))
+            for emoji in ('✅', '❌'):
+                await message.add_reaction(emoji)
+            await asyncio.sleep(time)
+
+            if(yes == no):
+                await ctx.send('It was a tie! There must be a majority to restart the server!')
+            elif(yes > no):
+                started = 1
+                for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
+                    process.kill()
+                    await asyncio.sleep(5)
+
+                # Path of log file, removes before starting
+                if os.path.exists(ror2ds / "LogOutput.log"):
+                    os.remove(ror2ds / "LogOutput.log")
+
+                # Starts the server
+                os.startfile(steamcmd / "ror2ds/Risk of Rain 2.exe")
+                await ctx.send('Starting Risk of Rain 2 Server, please wait...')
+                await asyncio.sleep(15)
+
+                # After 15 seconds checks logs to see if server started
+                while started == 1:
+                    with open(ror2ds / "LogOutput.log") as f:
+                        for line in f:
+                            if "Loaded scene lobby" in line:
+                                await ctx.send('Server started successfully...')
+                                started = 2
+                                break
+            elif(no > yes):
+                await ctx.send('Restart vote failed!')
+            break
+        else:
+            await ctx.send('Server is not running, unable to restart...')
+
+    # Used for restart command
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        global yes, no
+        if payload.emoji.name == "✅":
+            yes = yes + 1
+        elif payload.emoji.name == "❌":
+            no = no + 1
+        else:
+            pass
 
     # Displays the status of the Server
     @commands.command(name='status', help='Displays the status of current session')
@@ -99,13 +156,17 @@ class RoR2(commands.Cog):
 
             # Embed information
             embed.set_footer(text='Steam query is not always accurate')
-            embed.set_thumbnail(url='http://files.softicons.com/download/application-icons/variations-icons-3-by-guillen-design/png/256x256/steam.png')
+            embed.set_thumbnail(
+                url='http://files.softicons.com/download/application-icons/variations-icons-3-by-guillen-design/png/256x256/steam.png')
             embed.set_author(name='InfernalGaming')
-            embed.add_field(name='Player Count and Server Name', value="{player_count}/{max_players} {server_name}".format(**info), inline=False)
+            embed.add_field(name='Player Count and Server Name',
+                            value="{player_count}/{max_players} {server_name}".format(**info), inline=False)
             for player in sorted(players["players"],
                                  key=lambda p: p["score"], reverse=True):
-                embed.add_field(name='Players', value="{name}".format(**player), inline=True)
-            embed.add_field(name='Server Ping', value="{:n}".format(ping), inline=False)
+                embed.add_field(name='Players', value="{name}".format(
+                    **player), inline=True)
+            embed.add_field(name='Server Ping',
+                            value="{:n}".format(ping), inline=False)
 
             # Send embed
             await ctx.send(embed=embed)

@@ -38,10 +38,26 @@ After cloning, create a file called ".env" in the same directory as bot.py, this
 ```
 # .env
 DISCORD_TOKEN="YOUR-DISCORD-TOKEN"
-RIOT_TOKEN="YOUR-RIOT-TOKEN"
+RIOT_API_KEY="YOUR-RIOT-TOKEN"
 ```
 
 *Never upload online or share your .env file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
+
+#### Setting variables
+Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. In the cogs/ror2.py file you will see a block near the top with the variables:
+
+```
+# Server information
+SERVER_ADDRESS = ('ror2.infernal.wtf', 27016)
+steamcmd = Path("C:/steamcmd")
+ror2ds = Path("C:/steamcmd/ror2ds/BepInEx")
+role = "RoR2 Admin"
+```
+
+* SERVER_ADDRESS: the IP/domain of your server and the Steam query port
+* steamcmd: The path to the steamcmd folder
+* ror2ds: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
+* role: The Discord role you want using protected commands
 
 ## Running and using the bot
 
@@ -51,11 +67,16 @@ After adding the API keys and creating a .env file you can get started by runnin
 
 * start : Starts the specified server, by default Risk of Rain 2
 * stop : Stops the specified server, by default Risk of Rain 2
+* restart : Initiates a vote to restart the server
+  * Defaults to 60 seconds, but can be changed by adding a number after the command
+  * Example for 30 second timer: restart 30
 * update : Updates the specified server, by default Risk of Rain 2
 * status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
+  * Coming soon!
 * link : Outputs the Steam connect link to chat
 * config : Outputs the current server config to chat
+  * Coming soon!
 
 #### Modifying the commands
 
@@ -83,8 +104,14 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENS
 
 ## Changelog
 
+### 0.3.0
+* Added the restart feature
+  * Allows Discord members to initiate a restart vote for the RoR2 server.
+* Changed the protected features check to a configurable variable
+* Lowered wait time for start and stop commands to 15 seconds
+
 ### 0.2.0
 * "Overhaul"
 * **Added Cogs**
-    * Added cogs to the code to provide expandable in future releases and allow cleaner reading and writing of code.
-    * Cogs allow development and test of features and changes without having to completely restart bot.
+  * Added cogs to the code to provide expandable in future releases and allow cleaner reading and writing of code.
+  * Cogs allow development and test of features and changes without having to completely restart bot.
