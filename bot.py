@@ -3,20 +3,12 @@ import os
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-import cassiopeia as cass
 
 # Get token info from .env file
 load_dotenv()
 token = os.getenv('DISCORD_TOKEN')
-rtoken = os.getenv('RIOT_TOKEN')
 
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'))
-
-# Riot API and Cassiopeia info
-# This overrides the value set in your configuration/settings.
-cass.set_riot_api_key(rtoken)
-cass.set_default_region("NA")
-
 
 # Do this when the bot is ready
 @bot.event

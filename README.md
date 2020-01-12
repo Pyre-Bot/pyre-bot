@@ -19,7 +19,6 @@ As of writing the current requirements are:
 ```
 psutil==5.6.7
 discord.py==1.2.5
-cassiopeia==4.0.8
 python_valve==0.2.1
 discord==1.0.1
 python-dotenv==0.10.3
@@ -31,14 +30,13 @@ valve==0.0.0
 Clone the repo to wherever you want the bot to reside. You can run the bot by calling bot.py. You will also need [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) installed on your machine to run the updates for the game servers.
 
 #### API Tokens
-You need to get API tokens from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro) and [Riot Developer Portal](https://developer.riotgames.com/) to use those respective functions of the bot.
+You need to get API tokens from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro) to use those respective functions of the bot.
 
 After cloning, create a file called ".env" in the same directory as bot.py, this will store your API tokens called by the bot. The .env file should look similar to this:
 
 ```
 # .env
 DISCORD_TOKEN="YOUR-DISCORD-TOKEN"
-RIOT_API_KEY="YOUR-RIOT-TOKEN"
 ```
 
 *Never upload online or share your .env file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
@@ -103,6 +101,9 @@ See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/gr
 This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Changelog
+
+### 0.3.1
+* Removed League of Legends support and dependencies... for now.
 
 ### 0.3.0
 * Added the restart feature
