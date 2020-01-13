@@ -109,7 +109,7 @@ class RoR2(commands.Cog):
                 if(yes == no):
                     await ctx.send('It was a tie! There must be a majority to restart the server!')
                 # If 75% of player count wants to restart it will
-                elif((yes-1) >= (player_count*0.75)):
+                elif((yes - 1) >= (player_count * 0.75)):
                     started = 1
                     for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
                         process.kill()
@@ -156,7 +156,7 @@ class RoR2(commands.Cog):
         for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
             # Create embed
             embed = discord.Embed(
-                title='Risk of Rain 2 Server Information',
+                title='Server Information',
                 colour=discord.Colour.blue()
             )
             # Use Steamworks API to query server
@@ -170,8 +170,10 @@ class RoR2(commands.Cog):
             embed.set_thumbnail(
                 url='http://files.softicons.com/download/application-icons/variations-icons-3-by-guillen-design/png/256x256/steam.png')
             embed.set_author(name=self.bot.guilds[0])
-            embed.add_field(name='Player Count and Server Name',
-                            value="{player_count}/{max_players} {server_name}".format(**info), inline=False)
+            embed.add_field(name='Server Name',
+                            value="{server_name}".format(**info), inline=False)
+            embed.add_field(
+                name='Player Count', value='{player_count}/{max_players}'.format(**info), inline=False)
             for player in sorted(players["players"],
                                  key=lambda p: p["score"], reverse=True):
                 first = 1
@@ -189,7 +191,7 @@ class RoR2(commands.Cog):
             await ctx.send(embed=embed)
             break
         else:
-            await ctx.send('Server is currently stopped...')
+            await ctx.send('Server is currently offline.')
 
     # Sends the Steam connection link
     # @commands.command(name='link', help='Get the Steam connection link')
