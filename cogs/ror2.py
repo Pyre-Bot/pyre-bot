@@ -174,8 +174,14 @@ class RoR2(commands.Cog):
                             value="{player_count}/{max_players} {server_name}".format(**info), inline=False)
             for player in sorted(players["players"],
                                  key=lambda p: p["score"], reverse=True):
-                embed.add_field(name='Players', value="{name}".format(
-                    **player), inline=True)
+                first = 1
+                if(first == 1):
+                    embed.add_field(name='Players', value="{name}".format(
+                        **player), inline=False)
+                    first = 2
+                else:
+                    embed.add_field(name=' ', value="{name}".format(
+                        **player), inline=False)
             embed.add_field(name='Server Ping',
                             value="{:n}".format(ping), inline=False)
 
