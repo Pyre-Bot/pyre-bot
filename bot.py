@@ -1,12 +1,45 @@
 # bot.py
 import os
-from dotenv import load_dotenv
 import discord
 from discord.ext import commands
+from configparser import ConfigParser
+from pathlib import Path
 
-# Get token info from .env file
-load_dotenv()
-token = os.getenv('DISCORD_TOKEN')
+# Configuration settings
+config_file = Path("config/config.ini")
+config_path = Path.cwd().joinpath('config')
+
+# Checks if the config file exists, otherwise makes it
+if config_file.exists():
+    pass
+else:
+    if config_path.exists():
+        pass
+    else:
+        os.makedirs(config_path)
+
+    config_object = ConfigParser()
+    config_object["API"] = {
+                            "DISCORD_TOKEN": "token"
+    }
+    config_object["RoR2"] = {
+                            "SERVER_ADDRESS": "ror2.infernal.wtf",
+                            "SERVER_PORT": "27016",
+                            "steamcmd": "C:/steamcmd",
+                            "ror2ds": "C:/steamcmd/ror2ds",
+                            "BepInEx": "C:/steamcmd/ror2ds/BepInEx",
+                            "role": "RoR2 Admin"
+    }
+    with open('config/config.ini', 'w') as conf:
+        config_object.write(conf)
+
+# Loads the configuartion file
+config_object = ConfigParser()
+config_object.read("config/config.ini")
+api = config_object["API"]
+
+# Load Discord API token from config file
+token = api["DISCORD_TOKEN"]
 
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'))
 
