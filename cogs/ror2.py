@@ -159,11 +159,18 @@ class RoR2(commands.Cog):
                 title='Server Information',
                 colour=discord.Colour.blue()
             )
+
             # Use Steamworks API to query server
             with valve.source.a2s.ServerQuerier(SERVER_ADDRESS) as server:
                 info = server.info()
-                players = server.players()
                 ping = server.ping()
+                players = []
+
+                # Creates the string of player names used in the embed
+                for player in server.players()["players"]:
+                    if player["name"]:
+                        players.append(player["name"])
+                players = ('\n'.join(map(str, players)))
 
             # Embed information
             embed.set_footer(text='Steam query is not always accurate')
@@ -174,16 +181,7 @@ class RoR2(commands.Cog):
                             value="{server_name}".format(**info), inline=False)
             embed.add_field(
                 name='Player Count', value='{player_count}/{max_players}'.format(**info), inline=False)
-            for player in sorted(players["players"],
-                                 key=lambda p: p["score"], reverse=True):
-                first = 1
-                if(first == 1):
-                    embed.add_field(name='Players', value="{name}".format(
-                        **player), inline=False)
-                    first = 2
-                else:
-                    embed.add_field(name=' ', value="{name}".format(
-                        **player), inline=False)
+            embed.add_field(name='Players', value=players, inline=False)
             embed.add_field(name='Server Ping',
                             value="{:n}".format(ping), inline=False)
 
