@@ -38,32 +38,31 @@ Clone the repo to wherever you want the bot to reside. You can run the bot by ca
 #### API Tokens
 You need to get API tokens from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro) to use those respective functions of the bot.
 
-After cloning, create a file called ".env" in the same directory as bot.py, this will store your API tokens called by the bot. The .env file should look similar to this:
-
-```
-# .env
-DISCORD_TOKEN="YOUR-DISCORD-TOKEN"
-```
-
-*Never upload online or share your .env file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
-
 #### Setting variables
-Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. In the cogs/ror2.py file you will see a block near the top with the variables:
+Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. In the **config/config.ini** file you will be able to config the following:
 
 ```
-# Server information
-SERVER_ADDRESS = ('ror2.infernal.wtf', 27016)
-steamcmd = Path("C:/steamcmd")
-ror2ds = Path("C:/steamcmd/ror2ds")
-BepInEx = Path("C:/steamcmd/ror2ds/BepInEx")
-role = "RoR2 Admin"
+[API]
+discord_token = token
+
+[RoR2]
+server_address = your-server-address
+server_port = your-server-port
+steamcmd = path-to-steamcmd
+ror2ds = path-to-ror2ds
+bepinex = path-to-bepinex
+role = privilledged-server-role
 ```
 
-* SERVER_ADDRESS: the IP/domain of your server and the Steam query port
-* steamcmd: The path to the steamcmd folder
-* ror2ds: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
-* BepInEx: Path to the BepInEx folder
-* role: The Discord role you want using protected commands
+* **discord_token**: The API key you retrieved in the earlier step
+* **server_address**: the IP/domain of your server
+* **server_port**: The port configed for queries
+* **steamcmd**: The path to the steamcmd folder
+* **ror2ds**: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
+* **BepInEx**: Path to the BepInEx folder
+* **role**: The Discord role you want using protected commands
+
+*Never upload online or share your config file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
 
 ## Running and using the bot
 
@@ -72,11 +71,14 @@ After adding the API keys and creating a .env file you can get started by runnin
 ### Bot Commands
 
 * start : Starts the specified server, by default Risk of Rain 2
+  * *Protected command*
 * stop : Stops the specified server, by default Risk of Rain 2
+  * *Protected command*
 * restart : Initiates a vote to restart the server
   * Defaults to 60 seconds, but can be changed by adding a number after the command
   * Example for 30 second timer: restart 30
 * update : Updates the specified server, by default Risk of Rain 2
+  *Protected command*
 * status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
   * Coming soon!
@@ -95,6 +97,8 @@ By default the bot is configured to manage a Risk of Rain 2 server. This can be 
 ## Contributing
 
 Please read [CONTRIBUTING.md](https://github.com/InfernalPlacebo/ig-bot) for details on our code of conduct, and the process for submitting pull requests to us.
+
+To add functionality for other games or servers, add a new file in the **cogs** folder.
 
 ## Authors
 

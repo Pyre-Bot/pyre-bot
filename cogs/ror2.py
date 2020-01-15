@@ -5,13 +5,19 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 import valve.source.a2s
+from configparser import ConfigParser
+
+config_object = ConfigParser()
+config_file = Path.cwd().joinpath('config', 'config.ini')
+config_object.read(config_file)
+ror2 = config_object["RoR2"]
 
 # Server information
-SERVER_ADDRESS = ('ror2.infernal.wtf', 27016)
-steamcmd = Path("C:/steamcmd")
-ror2ds = Path("C:/steamcmd/ror2ds")
-BepInEx = Path("C:/steamcmd/ror2ds/BepInEx")
-role = "RoR2 Admin"
+SERVER_ADDRESS = config_object.get('RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
+steamcmd = Path(ror2["steamcmd"])
+ror2ds = Path(ror2["ror2ds"])
+BepInEx = Path(ror2["BepInEx"])
+role = ror2["role"]
 
 # Global variables for restart vote
 yes, no = 0, 0
@@ -170,18 +176,22 @@ class RoR2(commands.Cog):
                 for player in server.players()["players"]:
                     if player["name"]:
                         players.append(player["name"])
+                player_count = len(players)
                 players = ('\n'.join(map(str, players)))
 
             # Embed information
             embed.set_footer(text='Steam query is not always accurate')
             embed.set_thumbnail(
-                url='http://files.softicons.com/download/application-icons/variations-icons-3-by-guillen-design/png/256x256/steam.png')
+                url='http://icons.iconarchive.com/icons/ampeross/smooth/512/Steam-icon.png')
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
                             value="{server_name}".format(**info), inline=False)
             embed.add_field(
                 name='Player Count', value='{player_count}/{max_players}'.format(**info), inline=False)
-            embed.add_field(name='Players', value=players, inline=False)
+            if player_count == 0:
+                pass
+            else:
+                embed.add_field(name='Players', value=players, inline=False)
             embed.add_field(name='Server Ping',
                             value="{:n}".format(ping), inline=False)
 

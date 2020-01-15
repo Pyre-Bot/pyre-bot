@@ -23,12 +23,12 @@ else:
                             "DISCORD_TOKEN": "token"
     }
     config_object["RoR2"] = {
-                            "SERVER_ADDRESS": "ror2.infernal.wtf",
-                            "SERVER_PORT": "27016",
-                            "steamcmd": "C:/steamcmd",
-                            "ror2ds": "C:/steamcmd/ror2ds",
-                            "BepInEx": "C:/steamcmd/ror2ds/BepInEx",
-                            "role": "RoR2 Admin"
+                            "SERVER_ADDRESS": "your-server-address",
+                            "SERVER_PORT": "your-server-port",
+                            "steamcmd": "path-to-steamcmd",
+                            "ror2ds": "path-to-ror2ds",
+                            "BepInEx": "path-to-bepinex",
+                            "role": "privilledged-server-role"
     }
     with open('config/config.ini', 'w') as conf:
         config_object.write(conf)
@@ -47,7 +47,10 @@ bot = commands.Bot(command_prefix=('r!', 'ig!', '>'))
 @bot.event
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game('Waiting for something to do!'))
-    print(f'{bot.user.name} has connected to Discord!')
+    print(
+          f'{bot.user.name} has connected to Discord!\n'
+          f'Using {config_file}'
+    )
 
 # Load and Unload cogs stuff
 @bot.command()
