@@ -48,8 +48,10 @@ bot = commands.Bot(command_prefix=('r!', 'ig!', '>'))
 async def on_ready():
     await bot.change_presence(status=discord.Status.online, activity=discord.Game('Waiting for something to do!'))
     print(
-          f'{bot.user.name} has connected to Discord!\n'
+          f'Connected to Discord as\n'
+          f'{bot.user.name}(id: {bot.user.id})\n'
           f'Using {config_file}'
+          f'----------'
     )
 
 # Load and Unload cogs stuff
