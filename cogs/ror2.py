@@ -215,3 +215,4 @@ class RoR2(commands.Cog):
 
 def setup(bot):
     bot.add_cog(RoR2(bot))
+    print('Loaded RoR2.py cog\n')
