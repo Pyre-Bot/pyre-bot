@@ -28,7 +28,8 @@ else:
                             "steamcmd": "path-to-steamcmd",
                             "ror2ds": "path-to-ror2ds",
                             "BepInEx": "path-to-bepinex",
-                            "role": "privilledged-server-role"
+                            "role": "privilledged-server-role",
+                            "channel": "enter-channel-id"
     }
     with open('config/config.ini', 'w') as conf:
         config_object.write(conf)

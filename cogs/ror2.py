@@ -6,28 +6,50 @@ import discord
 from discord.ext import commands
 import valve.source.a2s
 from configparser import ConfigParser
+import re
+from pygtail import Pygtail
 
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
 config_object.read(config_file)
 ror2 = config_object["RoR2"]
 
-# Server information
-SERVER_ADDRESS = config_object.get('RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
+# Config variables
+SERVER_ADDRESS = config_object.get(
+    'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
 steamcmd = Path(ror2["steamcmd"])
 ror2ds = Path(ror2["ror2ds"])
 BepInEx = Path(ror2["BepInEx"])
 role = ror2["role"]
 
-# Global variables for restart vote
+# Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
+repeat = 0
+
+
+# Function of chat
+async def chat(self):
+    file = (BepInEx / "LogOutput.log")
+    channel = config_object.getint('RoR2', 'channel')
+    channel = self.bot.get_channel(channel)
+    if os.path.exists(file):
+        if os.path.exists(BepInEx / "LogOutput.log.offset"):
+            for line in Pygtail(str(file)):
+                if "say" in line:
+                    line = line[21:]
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    line = line.replace(' issued', '')
+                    line = line.replace(' say ', '')
+                    await channel.send(line)
+        else:
+            for line in Pygtail(str(file)):
+                pass
 
 
 class RoR2(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Commands
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
     @commands.has_role(role)
@@ -201,6 +223,28 @@ class RoR2(commands.Cog):
         else:
             await ctx.send('Server is currently offline.')
 
+        # Output RoR server chat to Discord
+        @commands.command(name='Start Live Chat', help='Displays live chat from the server to the specified channel in Discord')
+        async def start_chat(self, ctx):
+            await ctx.send('Displaying chat messages from the server!')
+            global repeat
+            repeat = 1
+            if os.path.exists(BepInEx / "LogOutput.log.offset"):
+                os.remove(BepInEx / "LogOutput.log.offset")
+            while repeat == 1:
+                await chat(self)
+                await asyncio.sleep(1)
+
+        # Stop outputting live server chat to Discord
+        @commands.command(name='Stop Live Chat', help='Stops outputting live chat from the server')
+        async def stop_chat(self, ctx):
+            global repeat
+            if repeat == 0:
+                await ctx.send('Not outputting chat to Discord!')
+            else:
+                repeat = 0
+                await ctx.send('Stopping outputting live chat to the server...')
+
     # Sends the Steam connection link
     # @commands.command(name='link', help='Get the Steam connection link')
     # async def link(self, ctx):
@@ -215,4 +259,4 @@ class RoR2(commands.Cog):
 
 def setup(bot):
     bot.add_cog(RoR2(bot))
-    print('Loaded RoR2.py cog\n')
+    print('Loaded cog: RoR2.py\n')

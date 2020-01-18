@@ -17,11 +17,11 @@ pip install -r requirements.txt
 As of writing the current requirements are:
 
 ```
+python_valve==0.2.1
 psutil==5.6.7
 discord.py==1.2.5
-python_valve==0.2.1
+pygtail==0.11.1
 discord==1.0.1
-python-dotenv==0.10.3
 valve==0.0.0
 ```
 
@@ -52,6 +52,7 @@ steamcmd = path-to-steamcmd
 ror2ds = path-to-ror2ds
 bepinex = path-to-bepinex
 role = privilledged-server-role
+channel = channel-id-here
 ```
 
 * **discord_token**: The API key you retrieved in the earlier step
@@ -61,6 +62,7 @@ role = privilledged-server-role
 * **ror2ds**: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
 * **BepInEx**: Path to the BepInEx folder
 * **role**: The Discord role you want using protected commands
+* **channel**: The Discord channel ID to output live chat
 
 *Never upload online or share your config file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
 
@@ -84,6 +86,8 @@ After adding the API keys and creating a .env file you can get started by runnin
   * Coming soon!
 * config : Outputs the current server config to chat
   * Coming soon!
+* start_chat : Reads the server logs and outputs live chat from the game to a specified server channel
+* stop_chat : Stops reading for live server chat
 
 #### Modifying the commands
 
