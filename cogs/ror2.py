@@ -60,23 +60,23 @@ class RoR2(commands.Cog):
             break
         else:
             started = 1
-        # Path of log file, removes before starting
-        if os.path.exists(BepInEx / "LogOutput.log"):
-            os.remove(BepInEx / "LogOutput.log")
+            # Path of log file, removes before starting
+            if os.path.exists(BepInEx / "LogOutput.log"):
+                os.remove(BepInEx / "LogOutput.log")
 
-        # Starts the server
-        os.startfile(ror2ds / "Risk of Rain 2.exe")
-        await ctx.send('Starting Risk of Rain 2 Server, please wait...')
-        await asyncio.sleep(15)
+            # Starts the server
+            os.startfile(ror2ds / "Risk of Rain 2.exe")
+            await ctx.send('Starting Risk of Rain 2 Server, please wait...')
+            await asyncio.sleep(15)
 
-        # After 15 seconds checks logs to see if server started
-        while started == 1:
-            with open(BepInEx / "LogOutput.log") as f:
-                for line in f:
-                    if "Loaded scene lobby" in line:
-                        await ctx.send('Server started successfully...')
-                        started = 2
-                        break
+            # After 15 seconds checks logs to see if server started
+            while started == 1:
+                with open(BepInEx / "LogOutput.log") as f:
+                    for line in f:
+                        if "Loaded scene lobby" in line:
+                            await ctx.send('Server started successfully...')
+                            started = 2
+                            break
     # Exits the server
     @commands.command(name='stop', help='Stops the server if currently running')
     @commands.has_role(role)
