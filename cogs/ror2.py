@@ -39,7 +39,7 @@ async def chat(self):
                     line = line[21:]
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     line = line.replace(' issued', '')
-                    line = line.replace(' say ', '')
+                    line = line.replace(' say ', ' ')
                     await channel.send(line)
         else:
             for line in Pygtail(str(file)):
@@ -94,7 +94,7 @@ class RoR2(commands.Cog):
     async def update(self, ctx):
         # Checks to make sure the server is not running before updating it
         for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
-            await ctx.send('Stop the server before running this (r!stop)')
+            await ctx.send('Stop the server before running this')
             break
         else:
             os.startfile(steamcmd / "RoR2DSUpdate.bat")
@@ -223,32 +223,27 @@ class RoR2(commands.Cog):
         else:
             await ctx.send('Server is currently offline.')
 
-        # Output RoR server chat to Discord
-        @commands.command(name='Start Live Chat', help='Displays live chat from the server to the specified channel in Discord')
-        async def start_chat(self, ctx):
-            await ctx.send('Displaying chat messages from the server!')
-            global repeat
-            repeat = 1
-            if os.path.exists(BepInEx / "LogOutput.log.offset"):
-                os.remove(BepInEx / "LogOutput.log.offset")
-            while repeat == 1:
-                await chat(self)
-                await asyncio.sleep(1)
+    # Output RoR server chat to Discord
+    @commands.command(name='start_chat', help='Displays live chat from the server to the specified channel in Discord')
+    async def start_chat(self, ctx):
+        await ctx.send('Displaying chat messages from the server!')
+        global repeat
+        repeat = 1
+        if os.path.exists(BepInEx / "LogOutput.log.offset"):
+            os.remove(BepInEx / "LogOutput.log.offset")
+        while repeat == 1:
+            await chat(self)
+            await asyncio.sleep(1)
 
-        # Stop outputting live server chat to Discord
-        @commands.command(name='Stop Live Chat', help='Stops outputting live chat from the server')
-        async def stop_chat(self, ctx):
-            global repeat
-            if repeat == 0:
-                await ctx.send('Not outputting chat to Discord!')
-            else:
-                repeat = 0
-                await ctx.send('Stopping outputting live chat to the server...')
-
-    # Sends the Steam connection link
-    # @commands.command(name='link', help='Get the Steam connection link')
-    # async def link(self, ctx):
-    #     await ctx.send('steam://connect/ror2.infernal.wtf:27015')
+    # Stop outputting live server chat to Discord
+    @commands.command(name='stop_chat', help='Stops outputting live chat from the server')
+    async def stop_chat(self, ctx):
+        global repeat
+        if repeat == 0:
+            await ctx.send('Not outputting chat to Discord!')
+        else:
+            repeat = 0
+            await ctx.send('Stopping outputting live chat to the server...')
 
     # Print server configuration
     @commands.command(name='config', help='Prints the server configuration')
