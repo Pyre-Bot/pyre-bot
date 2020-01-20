@@ -80,14 +80,16 @@ After adding the API keys and creating a .env file you can get started by runnin
   * Defaults to 60 seconds, but can be changed by adding a number after the command
   * Example for 30 second timer: restart 30
 * update : Updates the specified server, by default Risk of Rain 2
-  *Protected command*
+  * *Protected command*
 * status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
   * Coming soon!
 * config : Outputs the current server config to chat
   * Coming soon!
 * start_chat : Reads the server logs and outputs live chat from the game to a specified server channel
+  * *Protected command*
 * stop_chat : Stops reading for live server chat
+  * *Protected command*
 
 #### Modifying the commands
 
@@ -106,7 +108,8 @@ To add functionality for other games or servers, add a new file in the **cogs** 
 
 ## Authors
 
-* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo)
+* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.infernal.wtf)
+* **Rayss** - *Contributor*
 
 See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/graphs/contributors) who participated in this project.
 
@@ -115,6 +118,16 @@ See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/gr
 This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Changelog
+
+### 0.4.0
+* We welcome **Rayss** as a contributor to the project!
+* Added config.ini
+* New function to allow commands to output to a specified Discord channel
+  * Requires the role specified in config.ini to use these commands
+  * Discord channel is specified in config.ini
+* ror2.py now outputs to terminal when it is loaded
+* Minor fix to update command, removes log file *before* starting the update now
+
 
 ### 0.3.2
 * Thanks to Rayss for testing the bot and providing valuable feedback!

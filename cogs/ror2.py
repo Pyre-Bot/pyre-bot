@@ -97,13 +97,14 @@ class RoR2(commands.Cog):
             await ctx.send('Stop the server before running this')
             break
         else:
-            os.startfile(steamcmd / "RoR2DSUpdate.bat")
             await ctx.send('Updating server, please wait...')
             updated = 1
             # Path of log file, removes before starting
             if os.path.exists(steamcmd / "logs/content_log.txt"):
                 os.remove(steamcmd / "logs/content_log.txt")
-                await asyncio.sleep(15)
+                await asyncio.sleep(2)
+            os.startfile(steamcmd / "RoR2DSUpdate.bat")
+            await asyncio.sleep(15)
 
             # After 15 seconds checks logs to see if server updated
             while updated == 1:
@@ -225,6 +226,7 @@ class RoR2(commands.Cog):
 
     # Output RoR server chat to Discord
     @commands.command(name='start_chat', help='Displays live chat from the server to the specified channel in Discord')
+    @commands.has_role(role)
     async def start_chat(self, ctx):
         await ctx.send('Displaying chat messages from the server!')
         global repeat
@@ -237,6 +239,7 @@ class RoR2(commands.Cog):
 
     # Stop outputting live server chat to Discord
     @commands.command(name='stop_chat', help='Stops outputting live chat from the server')
+    @commands.has_role(role)
     async def stop_chat(self, ctx):
         global repeat
         if repeat == 0:
