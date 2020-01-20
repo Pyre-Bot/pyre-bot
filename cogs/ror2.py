@@ -53,7 +53,6 @@ class RoR2(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print('Loaded cog: RoR2.py\n')
         if chat_autostart == 'true':
             global repeat
             repeat = 1
@@ -285,3 +284,8 @@ class RoR2(commands.Cog):
 
 def setup(bot):
     bot.add_cog(RoR2(bot))
+    print('Loaded cog: RoR2.py\n')
+
+
+def teardown(bot):
+    print('Unloaded cog: RoR2.py')
