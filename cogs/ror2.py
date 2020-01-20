@@ -21,27 +21,50 @@ steamcmd = Path(ror2["steamcmd"])
 ror2ds = Path(ror2["ror2ds"])
 BepInEx = Path(ror2["BepInEx"])
 role = ror2["role"]
-chat_autostart = ror2["auto-start-chat"]
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 repeat = 0
 
+stagenum = 0
 
 # Function of chat
 async def chat(self):
     file = (BepInEx / "LogOutput.log")
     channel = config_object.getint('RoR2', 'channel')
     channel = self.bot.get_channel(channel)
+    global stagenum
     if os.path.exists(file):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
             for line in Pygtail(str(file)):
-                if "say" in line:
-                    line = line[21:]
+                # Player chat
+                if "issued: say" in line:
+                    line = line.replace('[Info   : Unity Log] ', '**')
                     line = re.sub(r" ?\([^)]+\)", "", line)
-                    line = line.replace(' issued', '')
-                    line = line.replace(' say ', ' ')
+                    line = line.replace(' issued:', ':** ')
+                    line = line.replace(' say ', '')
                     await channel.send(line)
+                # Stage change
+                elif "Active scene changed from" in line:
+                    if("bazaar" in line):
+                        stagenum = stagenum
+                    elif("lobby" in line):
+                        stagenum = 0
+                    else:
+                        stagenum = stagenum + 1
+                    line = line.replace('[Info   : Unity Log] Active scene changed from  to ', '**ENTERING STAGE ' + str(stagenum) + ' - ')
+                    await channel.send(line + '**')
+                # Player joins
+                elif "[Info   :     R2DSE] New player : " in line:
+                    line = line.replace('[Info   :     R2DSE] New player : ', '**PLAYER JOINED - ')
+                    line = line.replace(' connected. ', '')
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    await channel.send(line + '**')
+                # Player leaves
+                elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
+                    line = line.replace('[Info   :     R2DSE] Ending AuthSession with : ', '**PLAYER LEFT - ')
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    await channel.send(line + '**')
         else:
             for line in Pygtail(str(file)):
                 pass
@@ -50,21 +73,6 @@ async def chat(self):
 class RoR2(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.Cog.listener()
-    async def on_ready(self):
-        print('Loaded cog: RoR2.py\n')
-        if chat_autostart == 'true':
-            global repeat
-            repeat = 1
-            if os.path.exists(BepInEx / "LogOutput.log.offset"):
-                try:
-                    os.remove(BepInEx / "LogOutput.log.offset")
-                except Exception:
-                    print('Unable to remove offset! Old messages may be displayed.')
-            while repeat == 1:
-                await chat(self)
-                await asyncio.sleep(1)
 
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
@@ -78,10 +86,7 @@ class RoR2(commands.Cog):
             started = 1
             # Path of log file, removes before starting
             if os.path.exists(BepInEx / "LogOutput.log"):
-                try:
-                    os.remove(BepInEx / "LogOutput.log")
-                except Exception:
-                    print('Unable to remove log file')
+                os.remove(BepInEx / "LogOutput.log")
 
             # Starts the server
             os.startfile(ror2ds / "Risk of Rain 2.exe")
@@ -113,20 +118,16 @@ class RoR2(commands.Cog):
     async def update(self, ctx):
         # Checks to make sure the server is not running before updating it
         for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
-            await ctx.send('Stop the server before running this')
+            await ctx.send('Stop the server before running this (r!stop)')
             break
         else:
+            os.startfile(steamcmd / "RoR2DSUpdate.bat")
             await ctx.send('Updating server, please wait...')
             updated = 1
             # Path of log file, removes before starting
             if os.path.exists(steamcmd / "logs/content_log.txt"):
-                try:
-                    os.remove(steamcmd / "logs/content_log.txt")
-                except Exception:
-                    print('Unable to remove log file')
-                await asyncio.sleep(2)
-            os.startfile(steamcmd / "RoR2DSUpdate.bat")
-            await asyncio.sleep(15)
+                os.remove(steamcmd / "logs/content_log.txt")
+                await asyncio.sleep(15)
 
             # After 15 seconds checks logs to see if server updated
             while updated == 1:
@@ -168,10 +169,7 @@ class RoR2(commands.Cog):
 
                     # Path of log file, removes before starting
                     if os.path.exists(BepInEx / "LogOutput.log"):
-                        try:
-                            os.remove(BepInEx / "LogOutput.log")
-                        except Exception:
-                            print('Unable to remove log file')
+                        os.remove(BepInEx / "LogOutput.log")
 
                     # Starts the server
                     os.startfile(ror2ds / "Risk of Rain 2.exe")
@@ -251,23 +249,18 @@ class RoR2(commands.Cog):
 
     # Output RoR server chat to Discord
     @commands.command(name='start_chat', help='Displays live chat from the server to the specified channel in Discord')
-    @commands.has_role(role)
     async def start_chat(self, ctx):
         await ctx.send('Displaying chat messages from the server!')
         global repeat
         repeat = 1
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
-            try:
-                os.remove(BepInEx / "LogOutput.log.offset")
-            except Exception:
-                print('Unable to remove offset! Old messages may be displayed.')
+            os.remove(BepInEx / "LogOutput.log.offset")
         while repeat == 1:
             await chat(self)
             await asyncio.sleep(1)
 
     # Stop outputting live server chat to Discord
     @commands.command(name='stop_chat', help='Stops outputting live chat from the server')
-    @commands.has_role(role)
     async def stop_chat(self, ctx):
         global repeat
         if repeat == 0:
@@ -275,6 +268,11 @@ class RoR2(commands.Cog):
         else:
             repeat = 0
             await ctx.send('Stopping outputting live chat to the server...')
+
+    # Sends the Steam connection link
+    # @commands.command(name='link', help='Get the Steam connection link')
+    # async def link(self, ctx):
+    #     await ctx.send('steam://connect/ror2.infernal.wtf:27015')
 
     # Print server configuration
     @commands.command(name='config', help='Prints the server configuration')
@@ -285,3 +283,4 @@ class RoR2(commands.Cog):
 
 def setup(bot):
     bot.add_cog(RoR2(bot))
+    print('Loaded cog: RoR2.py\n')
