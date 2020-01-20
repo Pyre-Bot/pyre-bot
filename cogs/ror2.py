@@ -8,6 +8,7 @@ import valve.source.a2s
 from configparser import ConfigParser
 import re
 from pygtail import Pygtail
+import ast
 
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
@@ -22,6 +23,7 @@ ror2ds = Path(ror2["ror2ds"])
 BepInEx = Path(ror2["BepInEx"])
 role = ror2["role"]
 chat_autostart = ror2["auto-start-chat"]
+hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
@@ -77,6 +79,7 @@ class RoR2(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
+        global mods
         if chat_autostart == 'true':
             global repeat
             repeat = 1
@@ -271,6 +274,24 @@ class RoR2(commands.Cog):
             break
         else:
             await ctx.send('Server is currently offline.')
+
+    # Send modlist to chat
+    @commands.command(name='mods')
+    async def mods(self, ctx):
+        mods = []
+        with open(BepInEx / "LogOutput.log") as f:
+            for line in f:
+                if "[Info   :   BepInEx] Loading" in line:
+                    line = line[30:]
+                    head, sep, tail = line.partition(' ')
+                    if head in hidden_mods:
+                        pass
+                    else:
+                        mods.append(head)
+        mods = ("\n".join(map(str, mods)))
+        mod_embed = discord.Embed(colour=discord.Colour.blue())
+        mod_embed.add_field(name='Mods', value=mods, inline=False)
+        await ctx.send(embed=mod_embed)
 
     # Output RoR server chat to Discord
     @commands.command(name='start_chat', help='Displays live chat from the server to the specified channel in Discord')
