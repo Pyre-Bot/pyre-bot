@@ -62,7 +62,10 @@ class RoR2(commands.Cog):
             started = 1
             # Path of log file, removes before starting
             if os.path.exists(BepInEx / "LogOutput.log"):
-                os.remove(BepInEx / "LogOutput.log")
+                try:
+                    os.remove(BepInEx / "LogOutput.log")
+                except Exception:
+                    print('Unable to remove log file')
 
             # Starts the server
             os.startfile(ror2ds / "Risk of Rain 2.exe")
@@ -101,7 +104,10 @@ class RoR2(commands.Cog):
             updated = 1
             # Path of log file, removes before starting
             if os.path.exists(steamcmd / "logs/content_log.txt"):
-                os.remove(steamcmd / "logs/content_log.txt")
+                try:
+                    os.remove(steamcmd / "logs/content_log.txt")
+                except Exception:
+                    print('Unable to remove log file')
                 await asyncio.sleep(2)
             os.startfile(steamcmd / "RoR2DSUpdate.bat")
             await asyncio.sleep(15)
@@ -146,7 +152,10 @@ class RoR2(commands.Cog):
 
                     # Path of log file, removes before starting
                     if os.path.exists(BepInEx / "LogOutput.log"):
-                        os.remove(BepInEx / "LogOutput.log")
+                        try:
+                            os.remove(BepInEx / "LogOutput.log")
+                        except Exception:
+                            print('Unable to remove log file')
 
                     # Starts the server
                     os.startfile(ror2ds / "Risk of Rain 2.exe")
@@ -232,7 +241,10 @@ class RoR2(commands.Cog):
         global repeat
         repeat = 1
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
-            os.remove(BepInEx / "LogOutput.log.offset")
+            try:
+                os.remove(BepInEx / "LogOutput.log.offset")
+            except Exception:
+                print('Unable to remove offset! Old messages may be displayed.')
         while repeat == 1:
             await chat(self)
             await asyncio.sleep(1)
