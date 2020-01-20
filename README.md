@@ -127,6 +127,7 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENS
   * Discord channel is specified in config.ini
 * ror2.py now outputs to terminal when it is loaded
 * Minor fix to update command, removes log file *before* starting the update now
+* Commands no longer require proper capitalization
 
 
 ### 0.3.2
