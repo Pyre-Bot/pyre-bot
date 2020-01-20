@@ -26,6 +26,7 @@ chat_autostart = ror2["auto-start-chat"]
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 repeat = 0
+stagenum = 0
 
 
 # Function of chat
@@ -33,15 +34,38 @@ async def chat(self):
     file = (BepInEx / "LogOutput.log")
     channel = config_object.getint('RoR2', 'channel')
     channel = self.bot.get_channel(channel)
+    global stagenum
     if os.path.exists(file):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
             for line in Pygtail(str(file)):
-                if "say" in line:
-                    line = line[21:]
+                # Player chat
+                if "issued: say" in line:
+                    line = line.replace('[Info   : Unity Log] ', '**')
                     line = re.sub(r" ?\([^)]+\)", "", line)
-                    line = line.replace(' issued', '')
-                    line = line.replace(' say ', ' ')
+                    line = line.replace(' issued:', ':** ')
+                    line = line.replace(' say ', '')
                     await channel.send(line)
+                # Stage change
+                elif "Active scene changed from" in line:
+                    if("bazaar" in line):
+                        stagenum = stagenum
+                    elif("lobby" in line):
+                        stagenum = 0
+                    else:
+                        stagenum = stagenum + 1
+                    line = line.replace('[Info   : Unity Log] Active scene changed from  to ', '**ENTERING STAGE ' + str(stagenum) + ' - ')
+                    await channel.send(line + '**')
+                # Player joins
+                elif "[Info   :     R2DSE] New player : " in line:
+                    line = line.replace('[Info   :     R2DSE] New player : ', '**PLAYER JOINED - ')
+                    line = line.replace(' connected. ', '')
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    await channel.send(line + '**')
+                # Player leaves
+                elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
+                    line = line.replace('[Info   :     R2DSE] Ending AuthSession with : ', '**PLAYER LEFT - ')
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    await channel.send(line + '**')
         else:
             for line in Pygtail(str(file)):
                 pass
