@@ -29,7 +29,8 @@ else:
                             "ror2ds": "path-to-ror2ds",
                             "BepInEx": "path-to-bepinex",
                             "role": "privilledged-server-role",
-                            "channel": "enter-channel-id"
+                            "channel": "enter-channel-id",
+                            "auto-start-chat":  "true"
     }
     with open('config/config.ini', 'w') as conf:
         config_object.write(conf)

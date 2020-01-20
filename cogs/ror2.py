@@ -21,6 +21,7 @@ steamcmd = Path(ror2["steamcmd"])
 ror2ds = Path(ror2["ror2ds"])
 BepInEx = Path(ror2["BepInEx"])
 role = ror2["role"]
+chat_autostart = ror2["auto-start-chat"]
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
@@ -49,6 +50,21 @@ async def chat(self):
 class RoR2(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print('Loaded cog: RoR2.py\n')
+        if chat_autostart == 'true':
+            global repeat
+            repeat = 1
+            if os.path.exists(BepInEx / "LogOutput.log.offset"):
+                try:
+                    os.remove(BepInEx / "LogOutput.log.offset")
+                except Exception:
+                    print('Unable to remove offset! Old messages may be displayed.')
+            while repeat == 1:
+                await chat(self)
+                await asyncio.sleep(1)
 
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
@@ -269,4 +285,3 @@ class RoR2(commands.Cog):
 
 def setup(bot):
     bot.add_cog(RoR2(bot))
-    print('Loaded cog: RoR2.py\n')
