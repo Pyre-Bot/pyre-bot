@@ -42,7 +42,7 @@ api = config_object["API"]
 # Load Discord API token from config file
 token = api["DISCORD_TOKEN"]
 
-bot = commands.Bot(command_prefix=('r!', 'ig!', '>'))
+bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 
 # Do this when the bot is ready
 @bot.event
