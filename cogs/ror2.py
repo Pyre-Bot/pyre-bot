@@ -4,11 +4,11 @@ import asyncio
 from pathlib import Path
 import discord
 from discord.ext import commands
-import valve.source.a2s
 from configparser import ConfigParser
 import re
 from pygtail import Pygtail
 import ast
+import a2s
 
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
@@ -176,42 +176,38 @@ class RoR2(commands.Cog):
             await asyncio.sleep(time)
 
             # Queries Steamworks to get total players
-            with valve.source.a2s.ServerQuerier(SERVER_ADDRESS) as query:
-                players = []
-                for player in query.players()["players"]:
-                    if player["name"]:
-                        players.append(player)
-                player_count = len(players)
-                # Counts vote, if tie does nothing
-                if(yes == no):
-                    await ctx.send('It was a tie! There must be a majority to restart the server!')
-                # If 75% of player count wants to restart it will
-                elif((yes - 1) >= (player_count * 0.75)):
-                    started = 1
-                    for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
-                        process.kill()
-                        await asyncio.sleep(5)
+            info = a2s.info(SERVER_ADDRESS)
+            player_count = info.player_count
+            # Counts vote, if tie does nothing
+            if(yes == no):
+                await ctx.send('It was a tie! There must be a majority to restart the server!')
+            # If 75% of player count wants to restart it will
+            elif((yes - 1) >= (player_count * 0.75)):
+                started = 1
+                for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
+                    process.kill()
+                    await asyncio.sleep(5)
 
-                    # Path of log file, removes before starting
-                    if os.path.exists(BepInEx / "LogOutput.log"):
-                        try:
-                            os.remove(BepInEx / "LogOutput.log")
-                        except Exception:
-                            print('Unable to remove log file')
+                # Path of log file, removes before starting
+                if os.path.exists(BepInEx / "LogOutput.log"):
+                    try:
+                        os.remove(BepInEx / "LogOutput.log")
+                    except Exception:
+                        print('Unable to remove log file')
 
-                    # Starts the server
-                    os.startfile(ror2ds / "Risk of Rain 2.exe")
-                    await ctx.send('Starting Risk of Rain 2 Server, please wait...')
-                    await asyncio.sleep(15)
+                # Starts the server
+                os.startfile(ror2ds / "Risk of Rain 2.exe")
+                await ctx.send('Starting Risk of Rain 2 Server, please wait...')
+                await asyncio.sleep(15)
 
-                    # After 15 seconds checks logs to see if server started
-                    while started == 1:
-                        with open(BepInEx / "LogOutput.log") as f:
-                            for line in f:
-                                if "Loaded scene lobby" in line:
-                                    await ctx.send('Server started successfully...')
-                                    started = 2
-                                    break
+                # After 15 seconds checks logs to see if server started
+                while started == 1:
+                    with open(BepInEx / "LogOutput.log") as f:
+                        for line in f:
+                            if "Loaded scene lobby" in line:
+                                await ctx.send('Server started successfully...')
+                                started = 2
+                                break
                 # All other options
                 else:
                     await ctx.send('Restart vote failed!')
@@ -241,17 +237,14 @@ class RoR2(commands.Cog):
             )
 
             # Use Steamworks API to query server
-            with valve.source.a2s.ServerQuerier(SERVER_ADDRESS) as server:
-                info = server.info()
-                ping = server.ping()
-                players = []
+            info = a2s.info(SERVER_ADDRESS)
+            players = a2s.players(SERVER_ADDRESS)
 
-                # Creates the string of player names used in the embed
-                for player in server.players()["players"]:
-                    if player["name"]:
-                        players.append(player["name"])
-                player_count = len(players)
-                players = ('\n'.join(map(str, players)))
+            # Creates the string of player names used in the embed
+            player_names = []
+            for player in players:
+                player_names.append(player.name)
+            player_names = ("\n".join(map(str, player_names)))
 
             # Embed information
             embed.set_footer(text='Steam query is not always accurate')
@@ -259,15 +252,15 @@ class RoR2(commands.Cog):
                 url='http://icons.iconarchive.com/icons/ampeross/smooth/512/Steam-icon.png')
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
-                            value="{server_name}".format(**info), inline=False)
+                            value="{}".format(info.server_name), inline=False)
             embed.add_field(
-                name='Player Count', value='{player_count}/{max_players}'.format(**info), inline=False)
-            if player_count == 0:
+                name='Player Count', value='{}/{}'.format(info.player_count, info.max_players), inline=False)
+            if info.player_count == 0:
                 pass
             else:
-                embed.add_field(name='Players', value=players, inline=False)
+                embed.add_field(name='Players', value=player_names, inline=False)
             embed.add_field(name='Server Ping',
-                            value="{:n}".format(ping), inline=False)
+                            value=int(info.ping*100), inline=False)
 
             # Send embed
             await ctx.send(embed=embed)
