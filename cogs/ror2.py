@@ -55,17 +55,20 @@ async def chat(self):
                         stagenum = 0
                     else:
                         stagenum = stagenum + 1
-                    line = line.replace('[Info   : Unity Log] Active scene changed from  to ', '**ENTERING STAGE ' + str(stagenum) + ' - ')
+                    line = line.replace(
+                        '[Info   : Unity Log] Active scene changed from  to ', '**ENTERING STAGE ' + str(stagenum) + ' - ')
                     await channel.send(line + '**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
-                    line = line.replace('[Info   :     R2DSE] New player : ', '**PLAYER JOINED - ')
+                    line = line.replace(
+                        '[Info   :     R2DSE] New player : ', '**PLAYER JOINED - ')
                     line = line.replace(' connected. ', '')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
-                    line = line.replace('[Info   :     R2DSE] Ending AuthSession with : ', '**PLAYER LEFT - ')
+                    line = line.replace(
+                        '[Info   :     R2DSE] Ending AuthSession with : ', '**PLAYER LEFT - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
         else:
@@ -258,9 +261,10 @@ class RoR2(commands.Cog):
             if info.player_count == 0:
                 pass
             else:
-                embed.add_field(name='Players', value=player_names, inline=False)
+                embed.add_field(
+                    name='Players', value=player_names, inline=False)
             embed.add_field(name='Server Ping',
-                            value=int(info.ping*100), inline=False)
+                            value=int(info.ping * 100), inline=False)
 
             # Send embed
             await ctx.send(embed=embed)
