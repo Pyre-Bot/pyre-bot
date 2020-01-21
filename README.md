@@ -37,7 +37,7 @@ pip install --no-use-pep517 discord.py
 Clone the repo to wherever you want the bot to reside. You can run the bot by calling bot.py. You will also need [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) installed on your machine to run the updates for the game servers.
 
 #### API Tokens
-You need to get API tokens from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro) to use those respective functions of the bot.
+You need to get an API token from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro). The token is added to the config.ini file in the config folder.
 
 #### Setting variables
 Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. In the **config/config.ini** file you will be able to config the following:
@@ -60,7 +60,7 @@ hidden_mods = hidden-mods-here
 
 * **discord_token**: The API key you retrieved in the earlier step
 * **server_address**: the IP/domain of your server
-* **server_port**: The port configed for queries
+* **server_port**: The port configured for queries
 * **steamcmd**: The path to the steamcmd folder
 * **ror2ds**: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
 * **BepInEx**: Path to the BepInEx folder
@@ -70,6 +70,15 @@ hidden_mods = hidden-mods-here
 * **hidden_mods**: Add mods that you don't want to be listed by the mods command, ships with a default list
 
 *Never upload online or share your config file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
+
+#### Risk of Rain 2 requirements
+
+The bot assumes that you are using mods in your RoR2 server, or at the very least have BepInEx loaded. If you do not have BepInEx the bot will not be able to read outputs from starting or live chat.
+
+**Recommendations**
+* BepInEx
+  * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
+* R2DSE
 
 ## Running and using the bot
 
@@ -102,7 +111,7 @@ By default the bot is configured to manage a Risk of Rain 2 server. This can be 
 ## Built With
 
 * [Discord.py](https://github.com/Rapptz/discord.py) - Discord API wrapper for Python
-* [Python-valve](https://github.com/serverstf/python-valve) - Steamworks API wrapper for Python
+* [Python-A2S](https://github.com/Yepoleb/python-a2s) - Steamworks API wrapper for Python
 
 ## Contributing
 
@@ -122,6 +131,11 @@ See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/gr
 This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Changelog
+
+### 0.4.1
+* Able to view server mods with the >mods commands
+* ror2.py outputs load AND unload to terminal
+* Misc code cleanup
 
 ### 0.4.0
 * We welcome **Rayss** as a contributor to the project!
