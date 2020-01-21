@@ -276,7 +276,7 @@ class RoR2(commands.Cog):
             await ctx.send('Server is currently offline.')
 
     # Send modlist to chat
-    @commands.command(name='mods')
+    @commands.command(name='mods', help='Lists all the mods currently running on the server')
     async def mods(self, ctx):
         mods = []
         with open(BepInEx / "LogOutput.log") as f:
