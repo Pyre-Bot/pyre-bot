@@ -53,6 +53,8 @@ ror2ds = path-to-ror2ds
 bepinex = path-to-bepinex
 role = privilledged-server-role
 channel = channel-id-here
+auto-start-chat = true
+hidden_mods = hidden-mods-here
 ```
 
 * **discord_token**: The API key you retrieved in the earlier step
@@ -63,6 +65,8 @@ channel = channel-id-here
 * **BepInEx**: Path to the BepInEx folder
 * **role**: The Discord role you want using protected commands
 * **channel**: The Discord channel ID to output live chat
+* **auto-start-chat**: Set to false to prevent the bot from outputting chat to a Discord channel when it launches
+* **hidden_mods**: Add mods that you don't want to be listed by the mods command, ships with a default list
 
 *Never upload online or share your config file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
 
@@ -83,7 +87,6 @@ After adding the API keys and creating a .env file you can get started by runnin
   * *Protected command*
 * status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
-  * Coming soon!
 * config : Outputs the current server config to chat
   * Coming soon!
 * start_chat : Reads the server logs and outputs live chat from the game to a specified server channel
