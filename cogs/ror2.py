@@ -82,7 +82,6 @@ class RoR2(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        global mods
         if chat_autostart == 'true':
             global repeat
             repeat = 1
