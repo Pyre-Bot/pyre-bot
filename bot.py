@@ -20,11 +20,11 @@ else:
 
     config_object = ConfigParser()
     config_object["API"] = {
-                            "DISCORD_TOKEN": "token"
+                            "discord_token": "token"
     }
     config_object["RoR2"] = {
-                            "SERVER_ADDRESS": "your-server-address",
-                            "SERVER_PORT": "your-server-port",
+                            "server_address": "your-server-address",
+                            "server_port": "your-server-port",
                             "steamcmd": "path-to-steamcmd",
                             "ror2ds": "path-to-ror2ds",
                             "BepInEx": "path-to-bepinex",
@@ -42,7 +42,7 @@ config_object.read("config/config.ini")
 api = config_object["API"]
 
 # Load Discord API token from config file
-token = api["DISCORD_TOKEN"]
+token = api["discord_token"]
 
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 
