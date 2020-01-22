@@ -219,7 +219,10 @@ class RoR2(commands.Cog):
             await ctx.send('Server is not running, unable to restart...')
 
     # Kick a player with a majority vote
-    # TODO: Add the ability to call this command with in-game chat by adding a conditional to the chat command, so players can do it while in-game too. Would have to add functionality for votes to count with in-game chat though. (or not, if I want to leave that to the discord).
+    # TODO: Add the ability to call this command with in-game chat by adding a
+    # conditional to the chat command, so players can do it while in-game too.
+    # Would have to add functionality for votes to count with in-game chat
+    # though. (or not, if I want to leave that to the discord).
     # TODO: Give a message if server is offline (this should be done globally)
     @commands.command(name='votekick', help='Begins a vote to kick a player from the game')
     async def votekick(self, ctx, kick_player='THEREISA32CHARACTERLIMITONSTEAMHAHA'):
