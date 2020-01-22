@@ -211,12 +211,54 @@ class RoR2(commands.Cog):
                                 started = 2
                                 break
                 # All other options
-                else:
-                    await ctx.send('Restart vote failed!')
-                    break
-                break
+            else:
+                await ctx.send('Restart vote failed!')
+            break
         else:
             await ctx.send('Server is not running, unable to restart...')
+
+    # Kick a player with a majority vote
+    # TODO: Add the ability to call this command with in-game chat by adding a conditional to the chat command, so players can do it while in-game too. Would have to add functionality for votes to count with in-game chat though. (or not, if I want to leave that to the discord).
+    # TODO: Give a message if server is offline (this should be done globally)
+    @commands.command(name='votekick', help='Begins a vote to kick a player from the game')
+    async def votekick(self, ctx, kick_player='THEREISA32CHARACTERLIMITONSTEAMHAHA'):
+        if(kick_player=='THEREISA32CHARACTERLIMITONSTEAMHAHA'):
+            await ctx.send('Insert a partial or complete player name. Put quotations around the name if it contains spaces.')
+        else:
+            global yes, no
+            yes, no = 0, 0
+            author = ctx.author
+            time = 30
+
+            players = a2s.players(server_address)
+            info = a2s.info(server_address)
+            player_names = []
+            containskickplayer = 0
+            for player in players:
+                player_names.append(player.name)
+                if(kick_player.upper() in player.name.upper()):
+                    containskickplayer = 1
+                    kick_player = player.name
+            if(containskickplayer == 1):
+                message = await ctx.send('A vote to kick ' + kick_player + ' has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
+                for emoji in ('✅', '❌'):
+                    await message.add_reaction(emoji)
+                player_count = info.player_count
+                await asyncio.sleep(time)
+                # Counts vote, if tie does nothing
+                if(yes == no):
+                    await ctx.send('It was a tie! There must be a majority to kick ' + kick_player)
+                # If 75% of player count wants to kick it will
+                elif((yes - 1) >= (player_count * 0.75)):
+                    append = open(BepInEx / "plugins/botcmd.txt",'a')
+                    append.write('kick "'+ kick_player + '"\n')
+                    append.close()
+                    await ctx.send('Kicked player ' + kick_player)
+                # If vote fails
+                else:
+                    await ctx.send('Vote failed. There must be a majority to kick ' + kick_player)
+            else:
+                await ctx.send(kick_player + ' is not playing on the server')
 
     # Used for restart command
     @commands.Cog.listener()
