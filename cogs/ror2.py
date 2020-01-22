@@ -211,9 +211,8 @@ class RoR2(commands.Cog):
                                 started = 2
                                 break
                 # All other options
-                else:
-                    await ctx.send('Restart vote failed!')
-                    break
+            else:
+                await ctx.send('Restart vote failed!')
                 break
         else:
             await ctx.send('Server is not running, unable to restart...')
