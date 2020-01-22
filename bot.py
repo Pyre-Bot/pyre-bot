@@ -50,6 +50,7 @@ bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 # Error handling
 @bot.event
 async def on_command_error(ctx, error):
+    """Used to catch discord.py errors."""
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Please pass in all required arguments.')
     elif isinstance(error, commands.CommandNotFound):
