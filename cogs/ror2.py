@@ -33,6 +33,7 @@ stagenum = 0
 
 # Function of chat
 async def chat(self):
+    """Reads the BepInEx output log to send chat to Discord."""
     file = (BepInEx / "LogOutput.log")
     channel = config_object.getint('RoR2', 'channel')
     channel = self.bot.get_channel(channel)
@@ -222,7 +223,7 @@ class RoR2(commands.Cog):
     # TODO: Give a message if server is offline (this should be done globally)
     @commands.command(name='votekick', help='Begins a vote to kick a player from the game')
     async def votekick(self, ctx, kick_player='THEREISA32CHARACTERLIMITONSTEAMHAHA'):
-        if(kick_player=='THEREISA32CHARACTERLIMITONSTEAMHAHA'):
+        if(kick_player == 'THEREISA32CHARACTERLIMITONSTEAMHAHA'):
             await ctx.send('Insert a partial or complete player name. Put quotations around the name if it contains spaces.')
         else:
             global yes, no
@@ -250,8 +251,8 @@ class RoR2(commands.Cog):
                     await ctx.send('It was a tie! There must be a majority to kick ' + kick_player)
                 # If 75% of player count wants to kick it will
                 elif((yes - 1) >= (player_count * 0.75)):
-                    append = open(BepInEx / "plugins/botcmd.txt",'a')
-                    append.write('kick "'+ kick_player + '"\n')
+                    append = open(BepInEx / "plugins/botcmd.txt", 'a')
+                    append.write('kick "' + kick_player + '"\n')
                     append.close()
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
@@ -367,9 +368,11 @@ class RoR2(commands.Cog):
 
 
 def setup(bot):
+    """Loads the cog into bot.py."""
     bot.add_cog(RoR2(bot))
     print('Loaded cog: RoR2.py\n')
 
 
 def teardown(bot):
+    """Prints to termianl when cog is unloaded."""
     print('Unloaded cog: RoR2.py')

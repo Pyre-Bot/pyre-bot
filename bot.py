@@ -64,6 +64,7 @@ bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 # Do this when the bot is ready
 @bot.event
 async def on_ready():
+    """Outputs to terminal when bot is ready."""
     await bot.change_presence(status=discord.Status.online, activity=discord.Game('Waiting for something to do!'))
     print(
           f'Connected to Discord as: \n'
@@ -76,18 +77,36 @@ async def on_ready():
 @bot.command()
 @commands.is_owner()
 async def load(ctx, extension):
+    """
+    Loads the specified cog.
+
+    Args:
+        extension (str): The file name, with .py, to load
+    """
     bot.load_extension(f'cogs.{extension}')
 
 
 @bot.command()
 @commands.is_owner()
 async def unload(ctx, extension):
+    """
+    Unloads the specified cog.
+
+    Args:
+        extension (str): The file name, with .py, to unload
+    """
     bot.unload_extension(f'cogs.{extension}')
 
 
 @bot.command()
 @commands.is_owner()
 async def reload(ctx, extension):
+    """
+    Reloads the specified cog.
+
+    Args:
+        extension (str): The file name, with .py, to reload
+    """
     bot.unload_extension(f'cogs.{extension}')
     bot.load_extension(f'cogs.{extension}')
 
