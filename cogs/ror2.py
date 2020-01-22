@@ -16,7 +16,7 @@ config_object.read(config_file)
 ror2 = config_object["RoR2"]
 
 # Config variables
-SERVER_ADDRESS = config_object.get(
+server_address = config_object.get(
     'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
 steamcmd = Path(ror2["steamcmd"])
 ror2ds = Path(ror2["ror2ds"])
@@ -49,9 +49,9 @@ async def chat(self):
                     await channel.send(line)
                 # Stage change
                 elif "Active scene changed from" in line:
-                    if("bazaar" in line):
+                    if "bazaar" in line:
                         stagenum = stagenum
-                    elif("lobby" in line):
+                    elif "lobby" in line:
                         stagenum = 0
                     else:
                         stagenum = stagenum + 1
@@ -178,13 +178,13 @@ class RoR2(commands.Cog):
             await asyncio.sleep(time)
 
             # Queries Steamworks to get total players
-            info = a2s.info(SERVER_ADDRESS)
+            info = a2s.info(server_address)
             player_count = info.player_count
             # Counts vote, if tie does nothing
-            if(yes == no):
+            if yes == no:
                 await ctx.send('It was a tie! There must be a majority to restart the server!')
             # If 75% of player count wants to restart it will
-            elif((yes - 1) >= (player_count * 0.75)):
+            elif (yes - 1) >= (player_count * 0.75):
                 started = 1
                 for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
                     process.kill()
@@ -213,6 +213,7 @@ class RoR2(commands.Cog):
                 # All other options
                 else:
                     await ctx.send('Restart vote failed!')
+                    break
                 break
         else:
             await ctx.send('Server is not running, unable to restart...')
@@ -239,8 +240,8 @@ class RoR2(commands.Cog):
             )
 
             # Use Steamworks API to query server
-            info = a2s.info(SERVER_ADDRESS)
-            players = a2s.players(SERVER_ADDRESS)
+            info = a2s.info(server_address)
+            players = a2s.players(server_address)
 
             # Creates the string of player names used in the embed
             player_names = []
