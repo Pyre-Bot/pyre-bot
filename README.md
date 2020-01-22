@@ -1,5 +1,7 @@
 # InfernalGaming Discord Bot
 
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/InfernalPlacebo/ig-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/509196313431375874)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)
+
 This Discord bot was created primarily to be used by the InfernalGaming server to manage game servers and add other functionality to the server that wasn't available elsewhere or could be improved upon to serve the community. Feel free to join our [Discord](https://discord.gg/YewZwpc) if you want to discuss the bot or hang out!
 
 ## Getting Started
@@ -17,10 +19,11 @@ pip install -r requirements.txt
 As of writing the current requirements are:
 
 ```
-python_valve==0.2.1
-psutil==5.6.7
-discord.py==1.2.5
 pygtail==0.11.1
+psutil==5.6.7
+python_valve==0.2.1
+python_a2s==1.1.1
+discord.py==1.2.5
 discord==1.0.1
 valve==0.0.0
 ```
@@ -36,7 +39,7 @@ pip install --no-use-pep517 discord.py
 Clone the repo to wherever you want the bot to reside. You can run the bot by calling bot.py. You will also need [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) installed on your machine to run the updates for the game servers.
 
 #### API Tokens
-You need to get API tokens from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro) to use those respective functions of the bot.
+You need to get an API token from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro). The token is added to the config.ini file in the config folder.
 
 #### Setting variables
 Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. In the **config/config.ini** file you will be able to config the following:
@@ -53,18 +56,31 @@ ror2ds = path-to-ror2ds
 bepinex = path-to-bepinex
 role = privilledged-server-role
 channel = channel-id-here
+auto-start-chat = true
+hidden_mods = hidden-mods-here
 ```
 
 * **discord_token**: The API key you retrieved in the earlier step
 * **server_address**: the IP/domain of your server
-* **server_port**: The port configed for queries
+* **server_port**: The port configured for queries
 * **steamcmd**: The path to the steamcmd folder
 * **ror2ds**: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
 * **BepInEx**: Path to the BepInEx folder
 * **role**: The Discord role you want using protected commands
 * **channel**: The Discord channel ID to output live chat
+* **auto-start-chat**: Set to false to prevent the bot from outputting chat to a Discord channel when it launches
+* **hidden_mods**: Add mods that you don't want to be listed by the mods command, ships with a default list
 
 *Never upload online or share your config file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
+
+#### Risk of Rain 2 requirements
+
+The bot assumes that you are using mods in your RoR2 server, or at the very least have BepInEx loaded. If you do not have BepInEx the bot will not be able to read outputs from starting or live chat.
+
+**Recommendations**
+* BepInEx
+  * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
+* R2DSE
 
 ## Running and using the bot
 
@@ -83,7 +99,6 @@ After adding the API keys and creating a .env file you can get started by runnin
   * *Protected command*
 * status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
-  * Coming soon!
 * config : Outputs the current server config to chat
   * Coming soon!
 * start_chat : Reads the server logs and outputs live chat from the game to a specified server channel
@@ -98,7 +113,7 @@ By default the bot is configured to manage a Risk of Rain 2 server. This can be 
 ## Built With
 
 * [Discord.py](https://github.com/Rapptz/discord.py) - Discord API wrapper for Python
-* [Python-valve](https://github.com/serverstf/python-valve) - Steamworks API wrapper for Python
+* [Python-A2S](https://github.com/Yepoleb/python-a2s) - Steamworks API wrapper for Python
 
 ## Contributing
 
@@ -118,6 +133,11 @@ See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/gr
 This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Changelog
+
+### 0.4.1
+* Able to view server mods with the >mods commands
+* ror2.py outputs load AND unload to terminal
+* Misc code cleanup
 
 ### 0.4.0
 * We welcome **Rayss** as a contributor to the project!

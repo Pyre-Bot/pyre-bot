@@ -30,7 +30,8 @@ else:
                             "BepInEx": "path-to-bepinex",
                             "role": "privilledged-server-role",
                             "channel": "enter-channel-id",
-                            "auto-start-chat":  "true"
+                            "auto-start-chat":  "true",
+                            "hidden_mods": "hidden-mods-here"
     }
     with open('config/config.ini', 'w') as conf:
         config_object.write(conf)
@@ -47,18 +48,18 @@ bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 
 
 # Error handling
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('Please pass in all required arguments.')
-    elif isinstance(error, commands.CommandNotFound):
-        await ctx.send("Command doesn't exist, please view help for more information.")
-    elif isinstance(error, commands.TooManyArguments):
-        await ctx.send('Too many arguments, plase try again.')
-    elif isinstance(error, commands.MissingAnyRole):
-        await ctx.send("You don't have permissions to do this.")
-    elif isinstance(error, commands.NotOwner):
-        await ctx.send("You don't have permissions to do this.")
+# @bot.event
+# async def on_command_error(ctx, error):
+#     if isinstance(error, commands.MissingRequiredArgument):
+#         await ctx.send('Please pass in all required arguments.')
+#     elif isinstance(error, commands.CommandNotFound):
+#         await ctx.send("Command doesn't exist, please view help for more information.")
+#     elif isinstance(error, commands.TooManyArguments):
+#         await ctx.send('Too many arguments, plase try again.')
+#     elif isinstance(error, commands.MissingAnyRole):
+#         await ctx.send("You don't have permissions to do this.")
+#     elif isinstance(error, commands.NotOwner):
+#         await ctx.send("You don't have permissions to do this.")
 
 # Do this when the bot is ready
 @bot.event
