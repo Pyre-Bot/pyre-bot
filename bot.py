@@ -66,7 +66,10 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_ready():
     """Outputs to terminal when bot is ready."""
-    await bot.change_presence(status=discord.Status.online, activity=discord.Game('Waiting for something to do!'))
+    await bot.change_presence(
+                              status=discord.Status.online,
+                              activity=discord.Game('Waiting for something to do!')
+                              )
     print(
           f'Connected to Discord as: \n'
           f'{bot.user.name}(id: {bot.user.id})\n'

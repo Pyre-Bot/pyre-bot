@@ -1,14 +1,15 @@
-import os
-import psutil
-import asyncio
-from pathlib import Path
-import discord
-from discord.ext import commands
-from configparser import ConfigParser
-import re
-from pygtail import Pygtail
 import ast
+import asyncio
+import os
+import re
+from configparser import ConfigParser
+from pathlib import Path
+
 import a2s
+import discord
+import psutil
+from discord.ext import commands
+from pygtail import Pygtail
 
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
@@ -97,7 +98,8 @@ async def server_stop():
     Returns:
         string: Indicates whether server stopped or not
     """
-    for process in (process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
+    for process in (
+            process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
         process.kill()
         return('true')
     else:
@@ -256,11 +258,14 @@ class RoR2(commands.Cog):
     # conditional to the chat command, so players can do it while in-game too.
     # Would have to add functionality for votes to count with in-game chat
     # though. (or not, if I want to leave that to the discord).
-    @commands.command(name='votekick', help='Begins a vote to kick a player from the game')
+    @commands.command(
+        name='votekick',
+        help='Begins a vote to kick a player from the game'
+    )
     async def votekick(self, ctx, kick_player='THEREISA32CHARACTERLIMITONSTEAMHAHA'):
         running = await server()
         if running == 'true':
-            if(kick_player == 'THEREISA32CHARACTERLIMITONSTEAMHAHA'):
+            if kick_player == 'THEREISA32CHARACTERLIMITONSTEAMHAHA':
                 await ctx.send('Insert a partial or complete player name. Put quotations around the name if it contains spaces.')
             else:
                 global yes, no
@@ -274,20 +279,20 @@ class RoR2(commands.Cog):
                 containskickplayer = 0
                 for player in players:
                     player_names.append(player.name)
-                    if(kick_player.upper() in player.name.upper()):
+                    if kick_player.upper() in player.name.upper():
                         containskickplayer = 1
                         kick_player = player.name
-                if(containskickplayer == 1):
+                if containskickplayer == 1:
                     message = await ctx.send('A vote to kick ' + kick_player + ' has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
                     for emoji in ('✅', '❌'):
                         await message.add_reaction(emoji)
                     player_count = info.player_count
                     await asyncio.sleep(time)
                     # Counts vote, if tie does nothing
-                    if(yes == no):
+                    if yes == no:
                         await ctx.send('It was a tie! There must be a majority to kick ' + kick_player)
                     # If 75% of player count wants to kick it will
-                    elif((yes - 1) >= (player_count * 0.75)):
+                    elif (yes - 1) >= (player_count * 0.75):
                         append = open(BepInEx / "plugins/botcmd.txt", 'a')
                         append.write('kick "' + kick_player + '"\n')
                         append.close()
@@ -355,7 +360,10 @@ class RoR2(commands.Cog):
             await ctx.send('Server is currently offline.')
 
     # Send modlist to chat
-    @commands.command(name='mods', help='Lists all the mods currently running on the server')
+    @commands.command(
+        name='mods',
+        help='Lists all the mods currently running on the server'
+    )
     async def mods(self, ctx):
         mods = []
         with open(BepInEx / "LogOutput.log") as f:
@@ -373,7 +381,10 @@ class RoR2(commands.Cog):
         await ctx.send(embed=mod_embed)
 
     # Output RoR server chat to Discord
-    @commands.command(name='start_chat', help='Displays live chat from the server to the specified channel in Discord')
+    @commands.command(
+        name='start_chat',
+        help='Displays live chat from the server to the specified channel in Discord'
+    )
     @commands.has_role(role)
     async def start_chat(self, ctx):
         await ctx.send('Displaying chat messages from the server!')
@@ -389,7 +400,10 @@ class RoR2(commands.Cog):
             await asyncio.sleep(1)
 
     # Stop outputting live server chat to Discord
-    @commands.command(name='stop_chat', help='Stops outputting live chat from the server')
+    @commands.command(
+        name='stop_chat',
+        help='Stops outputting live chat from the server'
+    )
     @commands.has_role(role)
     async def stop_chat(self, ctx):
         global repeat
