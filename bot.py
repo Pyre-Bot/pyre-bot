@@ -1,9 +1,10 @@
 # bot.py
 import os
-import discord
-from discord.ext import commands
 from configparser import ConfigParser
 from pathlib import Path
+
+import discord
+from discord.ext import commands
 
 # Configuration settings
 config_file = Path("config/config.ini")
@@ -20,18 +21,19 @@ else:
 
     config_object = ConfigParser()
     config_object["API"] = {
-                            "discord_token": "token"
+        "discord_token": "token"
     }
     config_object["RoR2"] = {
-                            "server_address": "your-server-address",
-                            "server_port": "your-server-port",
-                            "steamcmd": "path-to-steamcmd",
-                            "ror2ds": "path-to-ror2ds",
-                            "BepInEx": "path-to-bepinex",
-                            "role": "privilledged-server-role",
-                            "channel": "enter-channel-id",
-                            "auto-start-chat":  "true",
-                            "hidden_mods": "hidden-mods-here"
+        "server_address": "your-server-address",
+        "server_port": "your-server-port",
+        "steamcmd": "path-to-steamcmd",
+        "ror2ds": "path-to-ror2ds",
+        "BepInEx": "path-to-bepinex",
+        "role": "privilledged-server-role",
+        "channel": "enter-channel-id",
+        "auto-start-chat": "true",
+        "auto-server-restart": "true",
+        "hidden_mods": "hidden-mods-here"
     }
     with open('config/config.ini', 'w') as conf:
         config_object.write(conf)
@@ -67,14 +69,14 @@ async def on_command_error(ctx, error):
 async def on_ready():
     """Outputs to terminal when bot is ready."""
     await bot.change_presence(
-                              status=discord.Status.online,
-                              activity=discord.Game('Waiting for something to do!')
-                              )
+        status=discord.Status.online,
+        activity=discord.Game('Waiting for something to do!')
+    )
     print(
-          f'Connected to Discord as: \n'
-          f'{bot.user.name}(id: {bot.user.id})\n'
-          f'Using {config_file}\n'
-          f'----------'
+        f'Connected to Discord as: \n'
+        f'{bot.user.name}(id: {bot.user.id})\n'
+        f'Using {config_file}\n'
+        f'----------'
     )
 
 # Load and Unload cogs stuff

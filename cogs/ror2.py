@@ -23,7 +23,8 @@ steamcmd = Path(ror2["steamcmd"])
 ror2ds = Path(ror2["ror2ds"])
 BepInEx = Path(ror2["BepInEx"])
 role = ror2["role"]
-chat_autostart = ror2["auto-start-chat"]
+c_autostart = ror2['auto-start-chat']
+s_restart = ror2['auto-server-restart']
 hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
@@ -91,6 +92,45 @@ async def server():
         return('false')
 
 
+async def server_restart():
+    """Checks every 60 minutes if no players are active then restarts the server."""
+    server_restart = s_restart
+    if server_restart == 'true':
+        print('Auto server restarting enabled')
+    while server_restart == 'true':
+        await asyncio.sleep(3600)
+        info = a2s.info(server_address)
+        if info.player_count == 0:
+            await server_stop()
+            print('Stopped server')
+            await asyncio.sleep(10)
+            os.startfile(ror2ds / "Risk of Rain 2.exe")
+            print('Started server')
+        elif info.player_count > 0:
+            print('Players currently in server')
+    else:
+        print('Not restarting server')
+
+
+async def chat_autostart(self):
+    """Autostarts live chat output if it is enabled."""
+    chat_autostart = c_autostart
+    if chat_autostart == 'true':
+        print('Auto chat output enabled')
+        global repeat
+        repeat = 1
+        if os.path.exists(BepInEx / "LogOutput.log.offset"):
+            try:
+                os.remove(BepInEx / "LogOutput.log.offset")
+            except Exception:
+                print('Unable to remove offset! Old messages may be displayed.')
+        while repeat == 1:
+            await chat(self)
+            await asyncio.sleep(1)
+    else:
+        print('Not outputting chat')
+
+
 async def server_stop():
     """
     Stops the server.
@@ -112,17 +152,7 @@ class RoR2(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        if chat_autostart == 'true':
-            global repeat
-            repeat = 1
-            if os.path.exists(BepInEx / "LogOutput.log.offset"):
-                try:
-                    os.remove(BepInEx / "LogOutput.log.offset")
-                except Exception:
-                    print('Unable to remove offset! Old messages may be displayed.')
-            while repeat == 1:
-                await chat(self)
-                await asyncio.sleep(1)
+        await asyncio.gather(chat_autostart(self), server_restart())
 
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
@@ -352,7 +382,7 @@ class RoR2(commands.Cog):
                 embed.add_field(
                     name='Players', value=player_names, inline=False)
             embed.add_field(name='Server Ping',
-                            value=int(info.ping * 100), inline=False)
+                            value=int(info.ping * 1000), inline=False)
 
             # Send embed
             await ctx.send(embed=embed)
