@@ -55,7 +55,7 @@ steamcmd = path-to-steamcmd
 ror2ds = path-to-ror2ds
 bepinex = path-to-bepinex
 botcmd = path-to-botcmd
-role = privilledged-server-role
+role = privileged-server-role
 channel = channel-id-here
 auto-start-chat = true
 hidden_mods = hidden-mods-here
@@ -97,6 +97,8 @@ After adding the API keys and creating a .env file you can get started by runnin
 * restart : Initiates a vote to restart the server
   * Defaults to 60 seconds, but can be changed by adding a number after the command
   * Example for 30 second timer: restart 30
+* votekick [player] : Initiates a 60-second vote to kick [player] from the Risk of Rain 2 server
+  * Requires a majority vote that at least meets 75% of the in-game player count
 * update : Updates the specified server, by default Risk of Rain 2
   * *Protected command*
 * status : Lists the game server status via Steamworks API
@@ -107,8 +109,6 @@ After adding the API keys and creating a .env file you can get started by runnin
   * *Protected command*
 * stop_chat : Stops reading for live server chat
   * *Protected command*
-* votekick [player] : Initiates a 60-second vote to kick [player] from the Risk of Rain 2 server
-  * Requires a majority vote that at least meets 75% of the in-game player count
 
 #### Modifying the commands
 
