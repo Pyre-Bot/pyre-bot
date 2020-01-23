@@ -97,7 +97,7 @@ After adding the API keys and creating a .env file you can get started by runnin
 * restart : Initiates a vote to restart the server
   * Defaults to 60 seconds, but can be changed by adding a number after the command
   * Example for 30 second timer: restart 30
-* votekick [player] : Initiates a 60-second vote to kick [player] from the Risk of Rain 2 server
+* votekick [player] : Initiates a 30-second vote to kick [player] from the Risk of Rain 2 server
   * Requires a majority vote that at least meets 75% of the in-game player count
 * update : Updates the specified server, by default Risk of Rain 2
   * *Protected command*
