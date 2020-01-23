@@ -22,6 +22,7 @@ server_address = config_object.get(
 steamcmd = Path(ror2["steamcmd"])
 ror2ds = Path(ror2["ror2ds"])
 BepInEx = Path(ror2["BepInEx"])
+botcmd = Path(ror2["botcmd"])
 role = ror2["role"]
 c_autostart = ror2['auto-start-chat']
 s_restart = ror2['auto-server-restart']
@@ -323,7 +324,7 @@ class RoR2(commands.Cog):
                         await ctx.send('It was a tie! There must be a majority to kick ' + kick_player)
                     # If 75% of player count wants to kick it will
                     elif (yes - 1) >= (player_count * 0.75):
-                        append = open(BepInEx / "plugins/botcmd.txt", 'a')
+                        append = open(botcmd / "botcmd.txt", 'a')
                         append.write('kick "' + kick_player + '"\n')
                         append.close()
                         await ctx.send('Kicked player ' + kick_player)

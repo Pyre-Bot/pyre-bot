@@ -54,6 +54,7 @@ server_port = your-server-port
 steamcmd = path-to-steamcmd
 ror2ds = path-to-ror2ds
 bepinex = path-to-bepinex
+botcmd = path-to-botcmd
 role = privilledged-server-role
 channel = channel-id-here
 auto-start-chat = true
@@ -66,6 +67,7 @@ hidden_mods = hidden-mods-here
 * **steamcmd**: The path to the steamcmd folder
 * **ror2ds**: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
 * **BepInEx**: Path to the BepInEx folder
+* **botcmd**: Path to the folder containing your botcmd.txt file
 * **role**: The Discord role you want using protected commands
 * **channel**: The Discord channel ID to output live chat
 * **auto-start-chat**: Set to false to prevent the bot from outputting chat to a Discord channel when it launches
@@ -105,6 +107,8 @@ After adding the API keys and creating a .env file you can get started by runnin
   * *Protected command*
 * stop_chat : Stops reading for live server chat
   * *Protected command*
+* votekick [player] : Initiates a 60-second vote to kick [player] from the Risk of Rain 2 server
+  * Requires a majority vote that at least meets 75% of the in-game player count
 
 #### Modifying the commands
 

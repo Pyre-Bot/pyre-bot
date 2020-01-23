@@ -29,6 +29,7 @@ else:
         "steamcmd": "path-to-steamcmd",
         "ror2ds": "path-to-ror2ds",
         "BepInEx": "path-to-bepinex",
+        "botcmd": "path-to-botcmd",
         "role": "privilledged-server-role",
         "channel": "enter-channel-id",
         "auto-start-chat": "true",
