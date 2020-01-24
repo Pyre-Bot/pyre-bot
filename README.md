@@ -92,24 +92,24 @@ After adding the API keys and creating a .env file you can get started by runnin
 
 ### Bot Commands
 
-* start : Starts the specified server, by default Risk of Rain 2
-  * *Protected command*
-* stop : Stops the specified server, by default Risk of Rain 2
-  * *Protected command*
+## Available to everyone
 * restart : Initiates a vote to restart the server
-  * Requires a majority vote that at least meets 75% of the in-game player count
+  * Requires a majority vote (at least 75% of in-game player count)
 * votekick [player] : Initiates a 30-second vote to kick [player] from the Risk of Rain 2 server
-  * Requires a majority vote that at least meets 75% of the in-game player count
-* update : Updates the specified server, by default Risk of Rain 2
-  * *Protected command*
+  * Requires a majority vote (at least 75% of in-game player count)
+* endrun : Initiates a 30-second vote to end the current run in the Risk of Rain 2 server
+  * Requires a majority vote (at least 75% of in-game player count)
 * status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
 * config : Outputs the current server config to chat
   * Coming soon!
-* start_chat : Reads the server logs and outputs live chat from the game to a specified server channel
-  * *Protected command*
-* stop_chat : Stops reading for live server chat
-  * *Protected command*
+
+## Admin only
+* start : Starts the Risk of Rain 2 server
+* stop : Stops the Risk of Rain 2 server
+* update : Updates the Risk of Rain 2 server
+* start_chat : Reads the Risk of Rain 2 server logs and outputs live chat from the game to a specified Discord chat channel
+* stop_chat : Stops reading out Risk of Rain 2 server chat
 
 #### Modifying the commands
 
@@ -138,6 +138,9 @@ See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/gr
 This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENSE.md) file for details
 
 ## Changelog
+
+### 0.4.2
+* Added endrun command
 
 ### 0.4.1
 * Able to view server mods with the >mods commands

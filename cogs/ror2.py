@@ -355,6 +355,41 @@ class RoR2(commands.Cog):
             if error.param.name == 'kick_player':
                 await ctx.send('Insert a partial or complete player name. Put quotations around the name if it contains spaces.')
 
+    # Ends the run with a majority vote
+    # TODO: Add the ability to call this command with in-game chat by adding a
+    # conditional to the chat command, so players can do it while in-game too.
+    # Would have to add functionality for votes to count with in-game chat
+    # though. (or not, if I want to leave that to the discord).
+    @commands.command(
+        name='endrun',
+        help='Begins a vote to kick a player from the game',
+    )
+    async def endrun(self, ctx):
+        running = await server()
+        if running == 'true':
+            global yes, no
+            yes, no = 0, 0
+            author = ctx.author
+            time = 30
+
+            info = a2s.info(server_address)
+            message = await ctx.send('A vote to end the run has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
+            for emoji in ('✅', '❌'):
+                await message.add_reaction(emoji)
+            player_count = info.player_count
+            await asyncio.sleep(time)
+            # If 75% of player count wants to end the run it will
+            if (yes - 1) >= (player_count * 0.75):
+                append = open(botcmd / "botcmd.txt", 'a')
+                append.write('run_end' + '\n')
+                append.close()
+                await ctx.send('Run ended, all players have been returned to the lobby')
+            # If vote fails
+            else:
+                await ctx.send('Vote failed. There must be a majority to end the run')
+        elif running == 'false':
+            await ctx.send('Server is not running...')
+
     # Displays the status of the server
     @commands.command(name='status', help='Displays the status of current session')
     async def status(self, ctx):
