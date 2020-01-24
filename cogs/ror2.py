@@ -230,7 +230,11 @@ class RoR2(commands.Cog):
             await ctx.send('You must stop the server prior to updating!')
 
     # Restart the server with votes
-    @commands.command(name='restart', help='Initializes a vote to restart the RoR2 server')
+    @commands.command(
+        name='restart',
+        help='Initializes a vote to restart the RoR2 server',
+        usage='time'
+    )
     async def restart(self, ctx, time=60):
         running = await server()
         if running == 'true':
@@ -291,7 +295,8 @@ class RoR2(commands.Cog):
     # though. (or not, if I want to leave that to the discord).
     @commands.command(
         name='votekick',
-        help='Begins a vote to kick a player from the game'
+        help='Begins a vote to kick a player from the game',
+        usage='playername'
     )
     async def votekick(self, ctx, kick_player='THEREISA32CHARACTERLIMITONSTEAMHAHA'):
         running = await server()
@@ -369,9 +374,11 @@ class RoR2(commands.Cog):
             player_names = ("\n".join(map(str, player_names)))
 
             # Embed information
-            embed.set_footer(text='Steam query is not always accurate')
-            embed.set_thumbnail(
-                url='http://icons.iconarchive.com/icons/ampeross/smooth/512/Steam-icon.png')
+            embed.set_footer(
+                text=f'Requested by {ctx.message.author.name}',
+                icon_url=self.bot.user.avatar_url
+            )
+            embed.set_thumbnail(url=self.bot.user.avatar_url)
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
                             value="{}".format(info.server_name), inline=False)
@@ -408,6 +415,10 @@ class RoR2(commands.Cog):
                         mods.append(head)
         mods = ("\n".join(map(str, mods)))
         mod_embed = discord.Embed(colour=discord.Colour.blue())
+        mod_embed.set_footer(
+            text=f'Requested by {ctx.message.author.name}',
+            icon_url=self.bot.user.avatar_url
+        )
         mod_embed.add_field(name='Mods', value=mods, inline=False)
         await ctx.send(embed=mod_embed)
 
@@ -454,7 +465,7 @@ class RoR2(commands.Cog):
 def setup(bot):
     """Loads the cog into bot.py."""
     bot.add_cog(RoR2(bot))
-    print('Loaded cog: RoR2.py\n')
+    print('Loaded cog: RoR2.py')
 
 
 def teardown(bot):
