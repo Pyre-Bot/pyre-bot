@@ -80,9 +80,8 @@ async def on_ready():
         f'Using {config_file}\n'
         f'----------'
     )
-    for filename in os.listdir('./cogs'):
-        if filename.endswith('.py'):
-            bot.load_extension(f'cogs.{filename[:-3]}')
+    for cog in cogs:
+        bot.load_extension(cog)
 
 # Load and Unload cogs stuff
 @bot.command()
