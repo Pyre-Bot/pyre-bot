@@ -90,9 +90,9 @@ The bot assumes that you are using mods in your RoR2 server, or at the very leas
 
 After adding the API keys and creating a .env file you can get started by running the bot.py file located in the main directory. The bot will output a message stating that it is connected to Discord and ready to listen when it starts. Once you get the confirmation message you are able to start issuing commands to your bot using one of the command prefixes ('r!', 'ig!', '>').
 
-### Bot Commands
+## Bot Commands
 
-## Available to everyone
+### Available to everyone
 * restart : Initiates a vote to restart the server
   * Requires a majority vote (at least 75% of in-game player count)
 * votekick [player] : Initiates a 30-second vote to kick [player] from the Risk of Rain 2 server
@@ -104,14 +104,14 @@ After adding the API keys and creating a .env file you can get started by runnin
 * config : Outputs the current server config to chat
   * Coming soon!
 
-## Admin only
+### Admin only
 * start : Starts the Risk of Rain 2 server
 * stop : Stops the Risk of Rain 2 server
 * update : Updates the Risk of Rain 2 server
 * start_chat : Reads the Risk of Rain 2 server logs and outputs live chat from the game to a specified Discord chat channel
 * stop_chat : Stops reading out Risk of Rain 2 server chat
 
-#### Modifying the commands
+## Modifying the commands
 
 By default the bot is configured to manage a Risk of Rain 2 server. This can be changed by calling the executables for other servers and pointing the checks at their respective logs.
 
