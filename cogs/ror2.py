@@ -155,6 +155,17 @@ class RoR2(commands.Cog):
     async def on_ready(self):
         await asyncio.gather(chat_autostart(self), server_restart())
 
+    # Counts reactions of commands with votes
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        global yes, no
+        if payload.emoji.name == "✅":
+            yes = yes + 1
+        elif payload.emoji.name == "❌":
+            no = no + 1
+        else:
+            pass
+
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
     @commands.has_role(role)
@@ -298,61 +309,53 @@ class RoR2(commands.Cog):
         help='Begins a vote to kick a player from the game',
         usage='playername'
     )
-    async def votekick(self, ctx, kick_player='THEREISA32CHARACTERLIMITONSTEAMHAHA'):
+    async def votekick(self, ctx, kick_player):
         running = await server()
         if running == 'true':
-            if kick_player == 'THEREISA32CHARACTERLIMITONSTEAMHAHA':
-                await ctx.send('Insert a partial or complete player name. Put quotations around the name if it contains spaces.')
-            else:
-                global yes, no
-                yes, no = 0, 0
-                author = ctx.author
-                time = 30
+            global yes, no
+            yes, no = 0, 0
+            author = ctx.author
+            time = 30
 
-                players = a2s.players(server_address)
-                info = a2s.info(server_address)
-                player_names = []
-                containskickplayer = 0
-                for player in players:
-                    player_names.append(player.name)
-                    if kick_player.upper() in player.name.upper():
-                        containskickplayer = 1
-                        kick_player = player.name
-                if containskickplayer == 1:
-                    message = await ctx.send('A vote to kick ' + kick_player + ' has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
-                    for emoji in ('✅', '❌'):
-                        await message.add_reaction(emoji)
-                    player_count = info.player_count
-                    await asyncio.sleep(time)
-                    # Counts vote, if tie does nothing
-                    if yes == no:
-                        await ctx.send('It was a tie! There must be a majority to kick ' + kick_player)
-                    # If 75% of player count wants to kick it will
-                    elif (yes - 1) >= (player_count * 0.75):
-                        append = open(botcmd / "botcmd.txt", 'a')
-                        append.write('kick "' + kick_player + '"\n')
-                        append.close()
-                        await ctx.send('Kicked player ' + kick_player)
-                    # If vote fails
-                    else:
-                        await ctx.send('Vote failed. There must be a majority to kick ' + kick_player)
+            players = a2s.players(server_address)
+            info = a2s.info(server_address)
+            player_names = []
+            containskickplayer = 0
+            for player in players:
+                player_names.append(player.name)
+                if kick_player.upper() in player.name.upper():
+                    containskickplayer = 1
+                    kick_player = player.name
+            if containskickplayer == 1:
+                message = await ctx.send('A vote to kick ' + kick_player + ' has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
+                for emoji in ('✅', '❌'):
+                    await message.add_reaction(emoji)
+                player_count = info.player_count
+                await asyncio.sleep(time)
+                # Counts vote, if tie does nothing
+                if yes == no:
+                    await ctx.send('It was a tie! There must be a majority to kick ' + kick_player)
+                # If 75% of player count wants to kick it will
+                elif (yes - 1) >= (player_count * 0.75):
+                    append = open(botcmd / "botcmd.txt", 'a')
+                    append.write('kick "' + kick_player + '"\n')
+                    append.close()
+                    await ctx.send('Kicked player ' + kick_player)
+                # If vote fails
                 else:
-                    await ctx.send(kick_player + ' is not playing on the server')
+                    await ctx.send('Vote failed. There must be a majority to kick ' + kick_player)
+            else:
+                await ctx.send(kick_player + ' is not playing on the server')
         elif running == 'false':
             await ctx.send('Server is not running...')
 
-    # Used for restart command
-    @commands.Cog.listener()
-    async def on_raw_reaction_add(self, payload):
-        global yes, no
-        if payload.emoji.name == "✅":
-            yes = yes + 1
-        elif payload.emoji.name == "❌":
-            no = no + 1
-        else:
-            pass
+    @votekick.error
+    async def votekick_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'kick_player':
+                await ctx.send('Insert a partial or complete player name. Put quotations around the name if it contains spaces.')
 
-    # Displays the status of the Server
+    # Displays the status of the server
     @commands.command(name='status', help='Displays the status of current session')
     async def status(self, ctx):
         running = await server()
