@@ -80,9 +80,11 @@ hidden_mods = hidden-mods-here
 The bot assumes that you are using mods in your RoR2 server, or at the very least have BepInEx loaded. If you do not have BepInEx the bot will not be able to read outputs from starting or live chat.
 
 **Recommendations**
-* BepInEx
+* [BepInEx](https://thunderstore.io/package/bbepis/BepInExPack/)
   * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
-* R2DSE
+* [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/)
+* [BotCommands](https://github.com/SuperRayss/BotCommands)
+  * Used to send commands such as votekick to the server from Discord
 
 ## Running and using the bot
 
@@ -95,8 +97,7 @@ After adding the API keys and creating a .env file you can get started by runnin
 * stop : Stops the specified server, by default Risk of Rain 2
   * *Protected command*
 * restart : Initiates a vote to restart the server
-  * Defaults to 60 seconds, but can be changed by adding a number after the command
-  * Example for 30 second timer: restart 30
+  * Requires a majority vote that at least meets 75% of the in-game player count
 * votekick [player] : Initiates a 30-second vote to kick [player] from the Risk of Rain 2 server
   * Requires a majority vote that at least meets 75% of the in-game player count
 * update : Updates the specified server, by default Risk of Rain 2
@@ -128,7 +129,7 @@ To add functionality for other games or servers, add a new file in the **cogs** 
 ## Authors
 
 * **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.infernal.wtf)
-* **Rayss** - *Contributor*
+* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](https://discord.gg/4wXFsTe)
 
 See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/graphs/contributors) who participated in this project.
 
