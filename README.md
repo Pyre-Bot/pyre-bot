@@ -143,7 +143,7 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENS
 ## Changelog
 
 ### 0.4.2
-* Added endrun command
+* Added say, endrun commands
 
 ### 0.4.1
 * Able to view server mods with the >mods commands
