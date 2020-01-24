@@ -150,10 +150,12 @@ async def server_stop():
 class RoR2(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        asyncio.gather(chat_autostart(self), server_restart())
 
-    @commands.Cog.listener()
-    async def on_ready(self):
-        await asyncio.gather(chat_autostart(self), server_restart())
+     # Commented out, moved the gather command to __init__
+#    @commands.Cog.listener()
+#    async def on_ready(self):
+#        await asyncio.gather(chat_autostart(self), server_restart())
 
     # Counts reactions of commands with votes
     @commands.Cog.listener()
@@ -171,8 +173,7 @@ class RoR2(commands.Cog):
     @commands.has_role(role)
     async def start(self, ctx):
         # Checks to make sure the server is not running before starting it
-        running = await server()
-        if running == 'false':
+        if await server() == 'false':
             started = 1
             # Path of log file, removes before starting
             if os.path.exists(BepInEx / "LogOutput.log"):
@@ -194,14 +195,14 @@ class RoR2(commands.Cog):
                             await ctx.send('Server started successfully...')
                             started = 2
                             break
-        elif running == 'true':
+        else:
             await ctx.send('Server is already running!')
+
     # Exits the server
     @commands.command(name='stop', help='Stops the server if currently running')
     @commands.has_role(role)
     async def stop(self, ctx):
-        running = await server()
-        if running == 'true':
+        if await server() == 'true':
             stopped = await server_stop()
             if stopped == 'true':
                 await ctx.send('Risk of Rain 2 server shut down...')
@@ -215,8 +216,7 @@ class RoR2(commands.Cog):
     @commands.has_role(role)
     async def update(self, ctx):
         # Checks to make sure the server is not running before updating it
-        running = await server()
-        if running == 'false':
+        if await server() == 'false':
             await ctx.send('Updating server, please wait...')
             updated = 1
             # Path of log file, removes before starting
@@ -237,7 +237,7 @@ class RoR2(commands.Cog):
                             await ctx.send('Server updated...')
                             updated = 2
                             break
-        elif running == 'true':
+        else:
             await ctx.send('You must stop the server prior to updating!')
 
     # Restart the server with votes
@@ -246,9 +246,8 @@ class RoR2(commands.Cog):
         help='Initializes a vote to restart the RoR2 server',
         usage='time'
     )
-    async def restart(self, ctx, time=60):
-        running = await server()
-        if running == 'true':
+    async def restart(self, ctx, time=15):
+        if await server() == 'true':
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -309,9 +308,8 @@ class RoR2(commands.Cog):
         help='Begins a vote to kick a player from the game',
         usage='playername'
     )
-    async def votekick(self, ctx, kick_player):
-        running = await server()
-        if running == 'true':
+    async def votekick(self, ctx, *, kick_player):
+        if await server() == 'true':
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -346,14 +344,14 @@ class RoR2(commands.Cog):
                     await ctx.send('Vote failed. There must be a majority to kick ' + kick_player)
             else:
                 await ctx.send(kick_player + ' is not playing on the server')
-        elif running == 'false':
+        else:
             await ctx.send('Server is not running...')
 
     @votekick.error
     async def votekick_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'kick_player':
-                await ctx.send('Insert a partial or complete player name. Put quotations around the name if it contains spaces.')
+                await ctx.send('Please insert a partial or complete player name')
 
     # Ends the run with a majority vote
     # TODO: Add the ability to call this command with in-game chat by adding a
@@ -362,11 +360,10 @@ class RoR2(commands.Cog):
     # though. (or not, if I want to leave that to the discord).
     @commands.command(
         name='endrun',
-        help='Begins a vote to kick a player from the game',
+        help='Begins a vote to end the current run',
     )
     async def endrun(self, ctx):
-        running = await server()
-        if running == 'true':
+        if await server() == 'true':
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -387,14 +384,28 @@ class RoR2(commands.Cog):
             # If vote fails
             else:
                 await ctx.send('Vote failed. There must be a majority to end the run')
+        else:
+            await ctx.send('Server is not running...')
+
+    @commands.command(
+        name='say',
+        help='Sends a message from the server',
+        usage='message'
+    )
+    @commands.has_role(role)
+    async def serversay(self, ctx, *, message):
+        running = await server()
+        if running == 'true':
+            append = open(botcmd / "botcmd.txt", 'a')
+            append.write('say "' + message + '"\n')
+            append.close()
         elif running == 'false':
             await ctx.send('Server is not running...')
 
     # Displays the status of the server
-    @commands.command(name='status', help='Displays the status of current session')
+    @commands.command(name='status', help='Displays the status of the Risk of Rain 2 server')
     async def status(self, ctx):
-        running = await server()
-        if running == 'true':
+        if await server() == 'true':
             # Create embed
             embed = discord.Embed(
                 title='Server Information',
@@ -432,7 +443,7 @@ class RoR2(commands.Cog):
 
             # Send embed
             await ctx.send(embed=embed)
-        elif running == 'false':
+        else:
             await ctx.send('Server is currently offline.')
 
     # Send modlist to chat
