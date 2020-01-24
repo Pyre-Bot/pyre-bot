@@ -252,7 +252,7 @@ class RoR2(commands.Cog):
             global yes, no
             yes, no = 0, 0
             author = ctx.author
-            message = await ctx.send('A restart vote has been initiated by {author.mention}, please react to this message!'.format(author=author))
+            message = await ctx.send('A restart vote has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
             for emoji in ('✅', '❌'):
                 await message.add_reaction(emoji)
             await asyncio.sleep(time)
