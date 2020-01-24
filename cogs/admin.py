@@ -1,16 +1,9 @@
-import ast
-import asyncio
-import os
 import random
-import re
 from configparser import ConfigParser
 from pathlib import Path
 
-import a2s
 import discord
-import psutil
 from discord.ext import commands
-from pygtail import Pygtail
 
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
