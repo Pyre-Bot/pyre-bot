@@ -89,8 +89,7 @@ async def server():
     """
     if "Risk of Rain 2.exe" in (p.name() for p in psutil.process_iter()):
         return True
-    else:
-        return False
+    return False
 
 
 async def server_restart():
@@ -140,11 +139,11 @@ async def server_stop():
         string: Indicates whether server stopped or not
     """
     for process in (
-            process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
+            process for process in psutil.process_iter() if process.name()
+            == "Risk of Rain 2.exe"):
         process.kill()
         return True
-    else:
-        return False
+    return False
 
 
 async def find_dll():
@@ -158,8 +157,7 @@ async def find_dll():
     files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
     if 'BotCommands.dll' in files:
         return True
-    else:
-        return False
+    return False
 
 
 class RoR2(commands.Cog):
@@ -177,14 +175,6 @@ class RoR2(commands.Cog):
             no = no + 1
         else:
             pass
-
-    @commands.command()
-    async def test_dll(self, ctx):
-        dll = await find_dll()
-        if dll is True:
-            await ctx.send('DLL Exists')
-        else:
-            await ctx.send('Lol nope')
 
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
@@ -330,7 +320,7 @@ class RoR2(commands.Cog):
         usage='playername'
     )
     async def votekick(self, ctx, *, kick_player):
-        if await server() is True:
+        if await server() and await find_dll() is True:
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -370,8 +360,10 @@ class RoR2(commands.Cog):
                                    )
             else:
                 await ctx.send(kick_player + ' is not playing on the server')
-        else:
+        elif await server() is False:
             await ctx.send('Server is not running...')
+        elif await find_dll() is False:
+            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @votekick.error
     async def votekick_handler(self, ctx, error):
@@ -389,7 +381,7 @@ class RoR2(commands.Cog):
         help='Begins a vote to end the current run',
     )
     async def endrun(self, ctx):
-        if await server() is True:
+        if await server() and await find_dll() is True:
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -410,8 +402,10 @@ class RoR2(commands.Cog):
             # If vote fails
             else:
                 await ctx.send('Vote failed. There must be a majority to end the run')
-        else:
+        elif await server() is False:
             await ctx.send('Server is not running...')
+        elif await find_dll() is False:
+            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @commands.command(
         name='say',
@@ -420,13 +414,14 @@ class RoR2(commands.Cog):
     )
     @commands.has_role(role)
     async def serversay(self, ctx, *, message):
-        running = await server()
-        if running is True:
+        if await server() and await find_dll() is True:
             append = open(botcmd / "botcmd.txt", 'a')
             append.write('say "' + message + '"\n')
             append.close()
-        elif running == 'false':
+        elif await server() is False:
             await ctx.send('Server is not running...')
+        elif await find_dll() is False:
+            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     # Displays the status of the server
     @commands.command(
