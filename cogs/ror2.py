@@ -88,9 +88,9 @@ async def server():
         string: Used by functions calling this to check if running
     """
     if "Risk of Rain 2.exe" in (p.name() for p in psutil.process_iter()):
-        return('true')
+        return 'true'
     else:
-        return('false')
+        return 'false'
 
 
 async def server_restart():
@@ -142,20 +142,15 @@ async def server_stop():
     for process in (
             process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
         process.kill()
-        return('true')
+        return 'true'
     else:
-        return('false')
+        return 'false'
 
 
 class RoR2(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         asyncio.gather(chat_autostart(self), server_restart())
-
-     # Commented out, moved the gather command to __init__
-#    @commands.Cog.listener()
-#    async def on_ready(self):
-#        await asyncio.gather(chat_autostart(self), server_restart())
 
     # Counts reactions of commands with votes
     @commands.Cog.listener()
