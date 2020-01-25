@@ -88,9 +88,9 @@ async def server():
         string: Used by functions calling this to check if running
     """
     if "Risk of Rain 2.exe" in (p.name() for p in psutil.process_iter()):
-        return 'true'
+        return True
     else:
-        return 'false'
+        return False
 
 
 async def server_restart():
@@ -142,9 +142,24 @@ async def server_stop():
     for process in (
             process for process in psutil.process_iter() if process.name() == "Risk of Rain 2.exe"):
         process.kill()
-        return 'true'
+        return True
     else:
-        return 'false'
+        return False
+
+
+async def find_dll():
+    """
+    Checks to see if the BotCommands plugin is installed on server.
+
+    Returns:
+        bool: If true it is, otherwise it is not
+    """
+    plugin_dir = (BepInEx / 'plugins')
+    files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
+    if 'BotCommands.dll' in files:
+        return True
+    else:
+        return False
 
 
 class RoR2(commands.Cog):
@@ -163,12 +178,20 @@ class RoR2(commands.Cog):
         else:
             pass
 
+    @commands.command()
+    async def test_dll(self, ctx):
+        dll = await find_dll()
+        if dll is True:
+            await ctx.send('DLL Exists')
+        else:
+            await ctx.send('Lol nope')
+
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
     @commands.has_role(role)
     async def start(self, ctx):
         # Checks to make sure the server is not running before starting it
-        if await server() == 'false':
+        if await server() is True:
             started = 1
             # Path of log file, removes before starting
             if os.path.exists(BepInEx / "LogOutput.log"):
@@ -197,21 +220,24 @@ class RoR2(commands.Cog):
     @commands.command(name='stop', help='Stops the server if currently running')
     @commands.has_role(role)
     async def stop(self, ctx):
-        if await server() == 'true':
+        if await server() is True:
             stopped = await server_stop()
-            if stopped == 'true':
+            if stopped is True:
                 await ctx.send('Risk of Rain 2 server shut down...')
-            elif stopped == 'false':
+            elif stopped is False:
                 await ctx.send('Unable to stop server!')
         else:
             await ctx.send('Server is not running!')
 
     # Runs the update bat file, updates server via SteamCMD
-    @commands.command(name='update', help='Updates the server, must be off before running this')
+    @commands.command(
+        name='update',
+        help='Updates the server, must be off before running this'
+    )
     @commands.has_role(role)
     async def update(self, ctx):
         # Checks to make sure the server is not running before updating it
-        if await server() == 'false':
+        if await server() is False:
             await ctx.send('Updating server, please wait...')
             updated = 1
             # Path of log file, removes before starting
@@ -242,7 +268,7 @@ class RoR2(commands.Cog):
         usage='time'
     )
     async def restart(self, ctx, time=15):
-        if await server() == 'true':
+        if await server() is True:
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -261,9 +287,9 @@ class RoR2(commands.Cog):
             elif (yes - 1) >= (player_count * 0.75):
                 started = 1
                 stopped = await server_stop()
-                if stopped == 'true':
+                if stopped is True:
                     await ctx.send('Risk of Rain 2 server shut down...')
-                elif stopped == 'false':
+                elif stopped is False:
                     await ctx.send('Unable to stop server!')
                 await asyncio.sleep(5)
 
@@ -304,7 +330,7 @@ class RoR2(commands.Cog):
         usage='playername'
     )
     async def votekick(self, ctx, *, kick_player):
-        if await server() == 'true':
+        if await server() is True:
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -327,7 +353,10 @@ class RoR2(commands.Cog):
                 await asyncio.sleep(time)
                 # Counts vote, if tie does nothing
                 if yes == no:
-                    await ctx.send('It was a tie! There must be a majority to kick ' + kick_player)
+                    await ctx.send(
+                        'It was a tie! There must be a majority to kick '
+                        + kick_player
+                    )
                 # If 75% of player count wants to kick it will
                 elif (yes - 1) >= (player_count * 0.75):
                     append = open(botcmd / "botcmd.txt", 'a')
@@ -336,7 +365,9 @@ class RoR2(commands.Cog):
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
                 else:
-                    await ctx.send('Vote failed. There must be a majority to kick ' + kick_player)
+                    await ctx.send('Vote failed. There must be a majority to kick '
+                                   + kick_player
+                                   )
             else:
                 await ctx.send(kick_player + ' is not playing on the server')
         else:
@@ -358,7 +389,7 @@ class RoR2(commands.Cog):
         help='Begins a vote to end the current run',
     )
     async def endrun(self, ctx):
-        if await server() == 'true':
+        if await server() is True:
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -390,7 +421,7 @@ class RoR2(commands.Cog):
     @commands.has_role(role)
     async def serversay(self, ctx, *, message):
         running = await server()
-        if running == 'true':
+        if running is True:
             append = open(botcmd / "botcmd.txt", 'a')
             append.write('say "' + message + '"\n')
             append.close()
@@ -398,9 +429,12 @@ class RoR2(commands.Cog):
             await ctx.send('Server is not running...')
 
     # Displays the status of the server
-    @commands.command(name='status', help='Displays the status of the Risk of Rain 2 server')
+    @commands.command(
+        name='status',
+        help='Displays the status of the Risk of Rain 2 server'
+    )
     async def status(self, ctx):
-        if await server() == 'true':
+        if await server() is True:
             # Create embed
             embed = discord.Embed(
                 title='Server Information',
@@ -427,7 +461,11 @@ class RoR2(commands.Cog):
             embed.add_field(name='Server Name',
                             value="{}".format(info.server_name), inline=False)
             embed.add_field(
-                name='Player Count', value='{}/{}'.format(info.player_count, info.max_players), inline=False)
+                name='Player Count',
+                value='{}/{}'.format(
+                    info.player_count,
+                    info.max_players
+                ), inline=False)
             if info.player_count == 0:
                 pass
             else:
