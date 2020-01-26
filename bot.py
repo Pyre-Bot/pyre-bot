@@ -1,5 +1,7 @@
 # bot.py
 import os
+import subprocess
+import sys
 from configparser import ConfigParser
 from pathlib import Path
 
@@ -10,34 +12,14 @@ from discord.ext import commands
 config_file = Path("config/config.ini")
 config_path = Path.cwd().joinpath('config')
 
-# Checks if the config file exists, otherwise makes it
+# Checks if the config file exists, otherwise runs setup
 if config_file.exists():
     pass
 else:
-    if config_path.exists():
-        pass
-    else:
-        os.makedirs(config_path)
-
-    config_object = ConfigParser()
-    config_object["API"] = {
-        "discord_token": "token"
-    }
-    config_object["RoR2"] = {
-        "server_address": "your-server-address",
-        "server_port": "your-server-port",
-        "steamcmd": "path-to-steamcmd",
-        "ror2ds": "path-to-ror2ds",
-        "BepInEx": "path-to-bepinex",
-        "botcmd": "path-to-botcmd",
-        "role": "privileged-server-role",
-        "channel": "enter-channel-id",
-        "auto-start-chat": "true",
-        "auto-server-restart": "true",
-        "hidden_mods": "hidden-mods-here"
-    }
-    with open('config/config.ini', 'w') as conf:
-        config_object.write(conf)
+    setup = subprocess.Popen(['python', (Path.cwd() / 'setup' / 'setup.py')])
+    setup.wait()
+    os.startfile(__file__)
+    sys.exit()
 
 # Loads the configuartion file
 config_object = ConfigParser()
@@ -66,6 +48,7 @@ cogs = [
 #     elif isinstance(error, commands.NotOwner):
 #         await ctx.send("You don't have permissions to do this.")
 
+
 # Do this when the bot is ready
 @bot.event
 async def on_ready():
@@ -82,6 +65,7 @@ async def on_ready():
     )
     for cog in cogs:
         bot.load_extension(cog)
+
 
 # Load and Unload cogs stuff
 @bot.command()
