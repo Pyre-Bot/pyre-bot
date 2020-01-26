@@ -15,6 +15,7 @@ config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
 config_object.read(config_file)
 ror2 = config_object["RoR2"]
+general = config_object["General"]
 
 # Config variables
 server_address = config_object.get(
@@ -23,7 +24,7 @@ steamcmd = Path(ror2["steamcmd"])
 ror2ds = Path(ror2["ror2ds"])
 BepInEx = Path(ror2["BepInEx"])
 botcmd = Path(ror2["botcmd"])
-role = ror2["role"]
+role = general["role"]
 c_autostart = ror2['auto-start-chat']
 s_restart = ror2['auto-server-restart']
 hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
