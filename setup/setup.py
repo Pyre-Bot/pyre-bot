@@ -4,6 +4,8 @@ from configparser import ConfigParser
 from pathlib import Path
 from tkinter import messagebox
 
+import requests
+
 config_object = ConfigParser()
 config_file = Path("config/config.ini")
 
@@ -18,11 +20,13 @@ svrport = ''
 steamcmd = ''
 ror2ds = ''
 bepinex = ''
-botcmd = ''
 channel = ''
+file = ''
 
 
 def save():
+    """Saves the settings to the configuration file."""
+    global bepinex
     api = api_entry.get()
     role = role_entry.get()
     svraddr = svraddr_entry.get()
@@ -30,7 +34,6 @@ def save():
     steamcmd = steamcmd_entry.get()
     ror2ds = ror2ds_entry.get()
     bepinex = bepinex_entry.get()
-    botcmd = botcmd_entry.get()
     channel = channel_entry.get()
 
     config_object["API"] = {
@@ -45,7 +48,6 @@ def save():
         "steamcmd": steamcmd,
         "ror2ds": ror2ds,
         "BepInEx": bepinex,
-        "botcmd": botcmd,
         "channel": channel,
         "auto-start-chat": "true",
         "auto-server-restart": "true",
@@ -58,10 +60,37 @@ def save():
 
 
 def confirmation():
+    """Shows window stating if file was created or not."""
     if os.path.exists(config_file):
         messagebox.showinfo('Settings Saved', 'Settings saved successfully!')
     else:
         messagebox.showerror('Error', 'Unable to save config.ini file!')
+
+
+def botcmd():
+    """Installs the BotCommands plugin."""
+    global file
+    if bepinex:
+        directory = Path(bepinex, 'plugins', 'BotCommands')
+        file = Path.joinpath(directory, 'BotCommands.dll')
+        botcmd = Path.joinpath(directory, 'botcmd.txt')
+        os.makedirs(os.path.dirname(file), exist_ok=True)
+        install = requests.get(
+            'https://github.com/SuperRayss/BotCommands/releases/download/v0.1.1/BotCommands.dll')
+        with open(file, 'wb') as f:
+            f.write(install.content)
+        with open(botcmd, 'w'):
+            pass
+        botcmd_confirmation()
+
+
+def botcmd_confirmation():
+    """Confirms plugin was isntalled"""
+    if os.path.exists(file):
+        messagebox.showinfo('Plugin installed',
+                            'Installed BotCommands plugin successfully!')
+    else:
+        messagebox.showerror('Error', 'Unable to install plugin')
 
 
 label = tk.Label(
@@ -87,16 +116,13 @@ ror2ds_entry = tk.Entry(window, width=50, textvariable=role)
 bepinex_label = tk.Label(
     window, text="Path to BepInEx folder")
 bepinex_entry = tk.Entry(window, width=50, textvariable=role)
-botcmd_label = tk.Label(
-    window, text="Location of botcmd.txt")
-botcmd_entry = tk.Entry(window, width=50, textvariable=role)
 channel_label = tk.Label(
     window, text="Discord Channel ID for game chat output")
 channel_entry = tk.Entry(window, width=50, textvariable=role)
 
 
 save = tk.Button(window, text="Save Settings", command=save)
-# file = filedialog.askopenfilename()
+botcmd = tk.Button(window, text="Install BotCommands Plugin", command=botcmd)
 
 label.pack()
 api_label.pack()
@@ -113,10 +139,9 @@ ror2ds_label.pack()
 ror2ds_entry.pack()
 bepinex_label.pack()
 bepinex_entry.pack()
-botcmd_label.pack()
-botcmd_entry.pack()
 channel_label.pack()
 channel_entry.pack()
 save.pack()
+botcmd.pack()
 
 window.mainloop()
