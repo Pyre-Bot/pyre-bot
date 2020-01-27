@@ -36,17 +36,20 @@ pip install --no-use-pep517 discord.py
 
 ### Installing
 
-Clone the repo to wherever you want the bot to reside. You can run the bot by calling bot.py. You will also need [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) installed on your machine to run the updates for the game servers.
+Clone the repo to wherever you want the bot to reside. You can run the bot by calling **bot.py**. You will also need [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) installed on your machine to run the updates for the game servers. When the bot first runs it will open a setup window where it prompts you for configuration settings. The window will also allow you to install the BotCommands plugin, this is required if you want access to functions that utilize in-game commands from Discord.
 
 #### API Tokens
 You need to get an API token from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro). The token is added to the config.ini file in the config folder.
 
 #### Setting variables
-Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. In the **config/config.ini** file you will be able to config the following:
+Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. These variables are setup when the bot first runs when it opens the setup window. In the **config/config.ini** file you will be able to config the following:
 
 ```
 [API]
 discord_token = token
+
+[General]
+role = privileged-server-role
 
 [RoR2]
 server_address = your-server-address
@@ -54,22 +57,19 @@ server_port = your-server-port
 steamcmd = path-to-steamcmd
 ror2ds = path-to-ror2ds
 bepinex = path-to-bepinex
-botcmd = path-to-botcmd
-role = privileged-server-role
-channel = channel-id-here
+channel = enter-channel-id
 auto-start-chat = true
 auto-server-restart = true
 hidden_mods = hidden-mods-here
 ```
 
 * **discord_token**: The API key you retrieved in the earlier step
+* **role**: The Discord role you want using protected commands
 * **server_address**: the IP/domain of your server
 * **server_port**: The port configured for queries
 * **steamcmd**: The path to the steamcmd folder
 * **ror2ds**: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
 * **BepInEx**: Path to the BepInEx folder
-* **botcmd**: Path to the folder containing your botcmd.txt file
-* **role**: The Discord role you want using protected commands
 * **channel**: The Discord channel ID to output live chat
 * **auto-start-chat**: Set to false to prevent the bot from outputting chat to a Discord channel when it launches
 * **auto-server-restart**: Set to false to prevent the bot from restarting the server every 60 minutes in which no players join the lobby
@@ -79,18 +79,20 @@ hidden_mods = hidden-mods-here
 
 #### Risk of Rain 2 requirements
 
-The bot assumes that you are using mods in your RoR2 server, or at the very least have BepInEx loaded. If you do not have BepInEx the bot will not be able to read outputs from starting or live chat.
+The bot assumes that you are using mods in your RoR2 server, or at the very least have BepInEx loaded.
 
-**Recommendations**
+**Required**
 * [BepInEx](https://thunderstore.io/package/bbepis/BepInExPack/)
   * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
-* [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/)
 * [BotCommands](https://github.com/SuperRayss/BotCommands)
   * Used to send commands such as votekick to the server from Discord
 
+**Recommended**
+* [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/)
+
 ## Running and using the bot
 
-After adding the API keys and creating a .env file you can get started by running the bot.py file located in the main directory. The bot will output a message stating that it is connected to Discord and ready to listen when it starts. Once you get the confirmation message you are able to start issuing commands to your bot using one of the command prefixes ('r!', 'ig!', '>').
+The bot can be used by running **bot.py** in the main directory. The bot will output a message stating that it is connected to Discord and ready to listen when it starts. Once you get the confirmation message you are able to start issuing commands to your bot using one of the command prefixes ('r!', 'ig!', '>').
 
 ## Bot Commands
 
@@ -142,8 +144,15 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENS
 
 ## Changelog
 
-### 0.4.2
-* Added say, endrun commands
+### 0.5.0
+* Added *say*, *endrun*, and *votekick* commands
+  * Requires [BotCommands](https://github.com/SuperRayss/BotCommands)
+* Added a setup script to create config.ini on first launch
+* Added option to output game chat to Discord channel
+  * Enabled by default, change in config.ini
+* Added automatic server restarts
+  * Enabled by default, change in config.ini
+* Using new Steamworks API
 
 ### 0.4.1
 * Able to view server mods with the >mods commands
@@ -179,7 +188,6 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE.md](LICENS
 * Lowered wait time for start and stop commands to 15 seconds
 
 ### 0.2.0
-* "Overhaul"
-* **Added Cogs**
+* Added Cogs
   * Added cogs to the code to provide expandable in future releases and allow cleaner reading and writing of code.
   * Cogs allow development and test of features and changes without having to completely restart bot.
