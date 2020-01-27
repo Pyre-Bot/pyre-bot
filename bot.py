@@ -102,9 +102,9 @@ async def reload(ctx, cog='all'):
         cog (str): The file name, with .py, to reload
     """
     if cog == 'all':
-        for cog in cogs:
-            bot.unload_extension(cog)
-            bot.load_extension(cog)
+        for item in cogs:
+            bot.unload_extension(item)
+            bot.load_extension(item)
     else:
         bot.unload_extension(cog)
         bot.load_extension(cog)
