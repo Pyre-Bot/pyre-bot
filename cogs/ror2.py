@@ -407,6 +407,7 @@ class RoR2(commands.Cog):
         elif await find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
+    # Executes say on the server
     @commands.command(
         name='say',
         help='Sends a message from the server',
@@ -422,6 +423,33 @@ class RoR2(commands.Cog):
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
+
+    # Executes give_item on the server
+    @commands.command(
+        name='give',
+        help='Gives a player an item',
+        usage='name amount player'
+    )
+    @commands.has_role(role)
+    async def giveitem(self, ctx, item, qty, player):
+        if await server() and await find_dll() is True:
+            append = open(botcmd / "botcmd.txt", 'a')
+            append.write('give_item ' + item + ' ' + qty + ' ' + player + '\n')
+            append.close()
+        elif await server() is False:
+            await ctx.send('Server is not running...')
+        elif await find_dll() is False:
+            await ctx.send('BotCommands plugin is not loaded on the server!')
+
+    @giveitem.error
+    async def give_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'item':
+                await ctx.send('Please enter the item to give')
+            if error.param.name == 'qty':
+                await ctx.send('Please enter the amount to give')
+            if error.param.name == 'player':
+                await ctx.send('Please enter the complete player name')
 
     # Displays the status of the server
     @commands.command(
