@@ -114,7 +114,9 @@ The bot can be used by running **bot.py** in the main directory. The bot will ou
 * update : Updates the Risk of Rain 2 server
 * start_chat : Reads the Risk of Rain 2 server logs and outputs live chat from the game to a specified Discord chat channel
 * stop_chat : Stops reading out Risk of Rain 2 server chat
-* say [message] : Sends an in-game message from the perspective of the server
+* say {message} : Sends an in-game message from the perspective of the server
+* giveitem {item} {player} {quantity (default - 1)} : Gives a player a specified quantity of an item
+* giveequip {equip} {player} : Gives a player a specified equipment
 
 ## Modifying the commands
 
@@ -144,8 +146,12 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) 
 
 ## Changelog
 
+### 0.5.1
+* Added *giveequip* command
+* *status* command now shows current stage name
+
 ### 0.5.0
-* Added *say*, *endrun*, *give*, and *votekick* commands
+* Added *say*, *endrun*, *giveitem*, and *votekick* commands
   * Requires [BotCommands](https://github.com/SuperRayss/BotCommands)
 * Added a setup script to create config.ini on first launch
 * Added option to output game chat to Discord channel

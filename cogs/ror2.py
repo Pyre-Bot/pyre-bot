@@ -328,13 +328,12 @@ class RoR2(commands.Cog):
 
             players = a2s.players(server_address)
             info = a2s.info(server_address)
-            player_names = []
             containskickplayer = 0
             for player in players:
-                player_names.append(player.name)
                 if kick_player.upper() in player.name.upper():
                     containskickplayer = 1
                     kick_player = player.name
+                    break
             if containskickplayer == 1:
                 message = await ctx.send('A vote to kick ' + kick_player + ' has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
                 for emoji in ('✅', '❌'):
@@ -425,31 +424,78 @@ class RoR2(commands.Cog):
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
     # Executes give_item on the server
+    # TODO: Add dictionary for items and their real name values, return error if item name is not found in dictionary
     @commands.command(
-        name='give',
-        help='Gives a player an item',
-        usage='name amount player'
+        name='giveitem',
+        help='Gives a player a specified quantity of an item',
+        usage='itemname playername qty'
     )
     @commands.has_role(role)
-    async def giveitem(self, ctx, item, qty, player):
+    async def giveitem(self, ctx, itemname, playername, qty="1"):
         if await server() and await find_dll() is True:
-            append = open(botcmd / "botcmd.txt", 'a')
-            append.write('give_item ' + item + ' ' + qty + ' ' + player + '\n')
-            append.close()
+            players = a2s.players(server_address)
+            containsplayer = 0
+            for player in players:
+                if playername.upper() in player.name.upper():
+                    playername = player.name
+                    containsplayer = 1
+                    break
+            if containsplayer == 1:
+                append = open(botcmd / "botcmd.txt", 'a')
+                append.write('give_item ' + itemname + ' ' + qty + ' "' + playername + '"\n')
+                append.close()
+                await ctx.send('Gave ' + qty + ' ' + itemname + ' to ' + playername)
+            else:
+                await ctx.send(playername + ' is not playing on the server')
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @giveitem.error
-    async def give_handler(self, ctx, error):
+    async def giveitem_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            if error.param.name == 'item':
-                await ctx.send('Please enter the item to give')
-            if error.param.name == 'qty':
-                await ctx.send('Please enter the amount to give')
-            if error.param.name == 'player':
-                await ctx.send('Please enter the complete player name')
+            if error.param.name == 'itemname':
+                await ctx.send('Please enter a valid item name')
+            if error.param.name == 'playername':
+                await ctx.send('Please enter a partial or complete player name.')
+
+    # Executes give_equip on the server
+    # TODO: Add dictionary for equips and their real name values, return error if equip name is not found in dictionary
+    @commands.command(
+        name='giveequip',
+        help='Gives a player a specified equipment',
+        usage='equipname playername'
+    )
+    @commands.has_role(role)
+    async def giveequip(self, ctx, equipname, playername):
+        if await server() and await find_dll() is True:
+            players = a2s.players(server_address)
+            containsplayer = 0
+            for player in players:
+                if playername.upper() in player.name.upper():
+                    playername = player.name
+                    containsplayer = 1
+                    break
+            if containsplayer == 1:
+                append = open(botcmd / "botcmd.txt", 'a')
+                append.write('give_equip ' + equipname + ' "' + playername + '"\n')
+                append.close()
+                await ctx.send('Gave ' + equipname + ' to ' + playername)
+            else:
+                await ctx.send(playername + ' is not playing on the server')
+        elif await server() is False:
+            await ctx.send('Server is not running...')
+        elif await find_dll() is False:
+            await ctx.send('BotCommands plugin is not loaded on the server!')
+
+    @giveequip.error
+    async def giveequip_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'equipname':
+                await ctx.send('Please enter a valid equipment name')
+            if error.param.name == 'playername':
+                await ctx.send('Please enter a partial or complete player name.')
 
     # Displays the status of the server
     @commands.command(
@@ -483,6 +529,8 @@ class RoR2(commands.Cog):
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
                             value="{}".format(info.server_name), inline=False)
+            embed.add_field(name='Current Stage',
+                            value="{}".format(info.map_name), inline=False)
             embed.add_field(
                 name='Player Count',
                 value='{}/{}'.format(
