@@ -23,11 +23,11 @@ server_address = config_object.get(
 steamcmd = Path(ror2["steamcmd"])
 ror2ds = Path(ror2["ror2ds"])
 BepInEx = Path(ror2["BepInEx"])
-botcmd = Path(ror2["botcmd"])
 role = general["role"]
 c_autostart = ror2['auto-start-chat']
 s_restart = ror2['auto-server-restart']
 hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
+botcmd = Path.joinpath(BepInEx, 'plugins', 'BotCommands')
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
@@ -94,12 +94,12 @@ async def server():
 
 
 async def server_restart():
-    """Checks every 60 minutes if no players are active then restarts the server."""
+    """Checks every 120 minutes if no players are active then restarts the server."""
     server_restart = s_restart
     if server_restart == 'true':
         print('Auto server restarting enabled')
     while server_restart == 'true':
-        await asyncio.sleep(3600)
+        await asyncio.sleep(7200)
         info = a2s.info(server_address)
         if info.player_count == 0:
             await server_stop()
