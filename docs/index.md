@@ -82,12 +82,14 @@ hidden_mods = hidden-mods-here
 The bot assumes that you are using mods in your RoR2 server, or at the very least have BepInEx loaded.
 
 **Required**
+
 * [BepInEx](https://thunderstore.io/package/bbepis/BepInExPack/)
-  * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
+    * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
 * [BotCommands](https://github.com/SuperRayss/BotCommands)
-  * Used to send commands such as votekick to the server from Discord
+    * Used to send commands such as votekick to the server from Discord
 
 **Recommended**
+
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/)
 
 ## Running and using the bot
@@ -98,15 +100,15 @@ The bot can be used by running **bot.py** in the main directory. The bot will ou
 
 ### Available to everyone
 * restart : Initiates a vote to restart the server
-  * Requires a majority vote (at least 75% of in-game player count)
+    * Requires a majority vote (at least 75% of in-game player count)
 * votekick [player] : Initiates a 30-second vote to kick [player] from the Risk of Rain 2 server
-  * Requires a majority vote (at least 75% of in-game player count)
+    * Requires a majority vote (at least 75% of in-game player count)
 * endrun : Initiates a 30-second vote to end the current run in the Risk of Rain 2 server
-  * Requires a majority vote (at least 75% of in-game player count)
+    * Requires a majority vote (at least 75% of in-game player count)
 * status : Lists the game server status via Steamworks API
 * mods : Outputs a list of mods to chat
 * config : Outputs the current server config to chat
-  * Coming soon!
+    * Coming soon!
 
 ### Admin only
 * start : Starts the Risk of Rain 2 server
@@ -140,18 +142,19 @@ See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/gr
 
 ## License
 
-This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details
+This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE.md) file for details
 
 ## Changelog
+*Complete changelog available: [CHANGELOG](CHANGELOG.md)*
 
 ### 0.5.0
 * Added *say*, *endrun*, *give*, and *votekick* commands
-  * Requires [BotCommands](https://github.com/SuperRayss/BotCommands)
+    * Requires [BotCommands](https://github.com/SuperRayss/BotCommands)
 * Added a setup script to create config.ini on first launch
 * Added option to output game chat to Discord channel
-  * Enabled by default, change in config.ini
+    * Enabled by default, change in config.ini
 * Added automatic server restarts
-  * Enabled by default, change in config.ini
+    * Enabled by default, change in config.ini
 * Using new Steamworks API
 
 ### 0.4.1
@@ -163,8 +166,8 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) 
 * We welcome **Rayss** as a contributor to the project!
 * Added config.ini
 * New function to allow commands to output to a specified Discord channel
-  * Requires the role specified in config.ini to use these commands
-  * Discord channel is specified in config.ini
+    * Requires the role specified in config.ini to use these commands
+    * Discord channel is specified in config.ini
 * ror2.py now outputs to terminal when it is loaded
 * Minor fix to update command, removes log file *before* starting the update now
 * Commands no longer require proper capitalization
