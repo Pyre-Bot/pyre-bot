@@ -103,10 +103,9 @@ async def server_restart():
         info = a2s.info(server_address)
         if info.player_count == 0:
             await server_stop()
-            print('Stopped server')
             await asyncio.sleep(10)
             os.startfile(ror2ds / "Risk of Rain 2.exe")
-            print('Started server')
+            print('Server restarted')
         elif info.player_count > 0:
             print('Players currently in server')
     else:
