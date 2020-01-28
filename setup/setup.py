@@ -76,7 +76,7 @@ def botcmd():
         botcmd = Path.joinpath(directory, 'botcmd.txt')
         os.makedirs(os.path.dirname(file), exist_ok=True)
         install = requests.get(
-            'https://github.com/SuperRayss/BotCommands/releases/download/v0.1.1/BotCommands.dll')
+            'https://github.com/SuperRayss/BotCommands/releases/download/v0.1.2/BotCommands.dll')
         with open(file, 'wb') as f:
             f.write(install.content)
         with open(botcmd, 'w'):
