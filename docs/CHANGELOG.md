@@ -1,6 +1,7 @@
 ## Changelog
 
 ### 0.5.0
+* **Name changed to Pyre Bot**
 * Added *say*, *endrun*, *give*, and *votekick* commands
     * Requires [BotCommands](https://github.com/SuperRayss/BotCommands)
 * Added a setup script to create config.ini on first launch

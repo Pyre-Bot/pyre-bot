@@ -1,8 +1,10 @@
-# InfernalGaming Discord Bot
+# Pyre Bot
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/InfernalPlacebo/ig-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/509196313431375874)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/InfernalPlacebo/pyre-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/509196313431375874)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)
 
-This Discord bot was created primarily to be used by the InfernalGaming server to manage game servers and add other functionality to the server that wasn't available elsewhere or could be improved upon to serve the community. Feel free to join our [Discord](https://discord.gg/YewZwpc) if you want to discuss the bot or hang out!
+The Pyre Discord Bot has one main goal: Create an easy-to-use way to manage a maintain dedicated game servers from within Discord. From sending commands to the game console to allowing players to initiate a restart vote, Pyre was created to make it as easy as possible.
+
+Feel free to join our [Discord](https://discord.gg/de24QgS) if you want to discuss the bot or hang out!
 
 ## Getting Started
 
@@ -117,6 +119,7 @@ The bot can be used by running **bot.py** in the main directory. The bot will ou
 * start_chat : Reads the Risk of Rain 2 server logs and outputs live chat from the game to a specified Discord chat channel
 * stop_chat : Stops reading out Risk of Rain 2 server chat
 * say [message] : Sends an in-game message from the perspective of the server
+* give [item] [qty] [player] : Gives the specified item to the player
 
 ## Modifying the commands
 
@@ -129,14 +132,14 @@ By default the bot is configured to manage a Risk of Rain 2 server. This can be 
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/InfernalPlacebo/ig-bot) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/InfernalPlacebo/pyre-bot/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 To add functionality for other games or servers, add a new file in the **cogs** folder.
 
 ## Authors
 
 * **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.infernal.wtf)
-* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](https://discord.gg/4wXFsTe)
+* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](discord.infernal.wtf)
 
 See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/graphs/contributors) who participated in this project.
 
@@ -148,6 +151,7 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE.m
 *Complete changelog available: [CHANGELOG](CHANGELOG.md)*
 
 ### 0.5.0
+* **Name changed to Pyre Bot**
 * Added *say*, *endrun*, *give*, and *votekick* commands
     * Requires [BotCommands](https://github.com/SuperRayss/BotCommands)
 * Added a setup script to create config.ini on first launch
