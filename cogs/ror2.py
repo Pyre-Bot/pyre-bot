@@ -34,8 +34,28 @@ yes, no = 0, 0
 repeat = 0
 stagenum = 0
 
+# Lists used for functions
+equip = {
+    'CommandMissile': 'Disposable Missile Launcher',
+    'Saw': 'Saw',
+    'Fruit': 'Foreign Fruit',
+    'Meteor': 'Glowing Meteorite',
+    'SoulJar': 'Jar of Souls',
+    'AffixRed': "Ifrit's Distinction",
+    'AffixBlue': 'Silence Between Two Strikes',
+    'AffixYellow': '',
+    'AffixGold': 'Coven of Gold',
+    'AffixWhite': 'Her Biting Embrace',
+    'AffixPoison': "N'kuhana's Retort",
+    'Blackhole': 'Primordial Cube',
+    'GhostGun': "Reaper's Remorse",
+    'CritOnUse': 'Ocular HUD',
+    'DroneBackup': 'The Back-up',
+    'OrbitalLaser': 'EQUIPMENT_ORBITALLASER_NAME',
+    'BFG': 'Preon Accumulator'
+}
 
-# Function of chat
+
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     file = (BepInEx / "LogOutput.log")
@@ -442,7 +462,8 @@ class RoR2(commands.Cog):
                     break
             if containsplayer == 1:
                 append = open(botcmd / "botcmd.txt", 'a')
-                append.write('give_item ' + itemname + ' ' + qty + ' "' + playername + '"\n')
+                append.write('give_item ' + itemname + ' '
+                             + qty + ' "' + playername + '"\n')
                 append.close()
                 await ctx.send('Gave ' + qty + ' ' + itemname + ' to ' + playername)
             else:
