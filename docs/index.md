@@ -4,7 +4,7 @@
 
 The Pyre Discord Bot has one main goal: Create an easy-to-use way to manage a maintain dedicated game servers from within Discord. From sending commands to the game console to allowing players to initiate a restart vote, Pyre was created to make it as easy as possible.
 
-Feel free to join our [Discord](https://discord.gg/de24QgS) if you want to discuss the bot or hang out!
+Feel free to join our [Discord](http://discord.pyre-bot.com) if you want to discuss the bot or hang out!
 
 ## Getting Started
 
@@ -138,8 +138,8 @@ To add functionality for other games or servers, add a new file in the **cogs** 
 
 ## Authors
 
-* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.infernal.wtf)
-* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](discord.infernal.wtf)
+* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.pyre-bot.com)
+* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](discord.pyre-bot.com)
 
 See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/graphs/contributors) who participated in this project.
 

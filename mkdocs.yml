@@ -1,8 +1,8 @@
-site_name: ig-bot
+site_name: Pyre-Bot
 nav:
     - Home: index.md
     - About:
       - 'License': 'LICENSE.md'
       - 'Changelog': 'CHANGELOG.md'
 theme: readthedocs
-repo_url: https://github.com/InfernalPlacebo/ig-bot
+repo_url: https://github.com/InfernalPlacebo/pyre-bot

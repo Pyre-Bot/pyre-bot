@@ -1,12 +1,12 @@
 # Pyre Bot
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/InfernalPlacebo/pyre-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/671881794743828519)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)[![Documentation Status](https://readthedocs.org/projects/pyre-bot/badge/?version=latest)](https://pyre-bot.readthedocs.io/en/latest/?badge=latest)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/InfernalPlacebo/pyre-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/660914305515913227?label=Discord)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)[![Documentation Status](https://readthedocs.org/projects/pyre-bot/badge/?version=latest)](https://pyre-bot.readthedocs.io/en/latest/?badge=latest)
 
-Please find complete documentation on [ReadTheDocs](http://pyre-bot.rtfd.io/)
+Please find complete documentation on [ReadTheDocs](https://docs.pyre-bot.com)
 
 The Pyre Discord Bot has one main goal: Create an easy-to-use way to manage a maintain dedicated game servers from within Discord. From sending commands to the game console to allowing players to initiate a restart vote, Pyre was created to make it as easy as possible.
 
-Feel free to join our [Discord](https://discord.gg/de24QgS) if you want to discuss the bot or hang out!
+Feel free to join our [Discord](discord.pyre-bot.com) if you want to discuss the bot or hang out!
 
 ## Getting Started
 
@@ -138,8 +138,8 @@ To add functionality for other games or servers, add a new file in the **cogs** 
 
 ## Authors
 
-* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.infernal.wtf)
-* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](discord.infernal.wtf)
+* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.pyre-bot.com)
+* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](discord.pyre-bot.com)
 
 See also the list of [contributors](https://github.com/InfernalPlacebo/pyre-bot/graphs/contributors) who participated in this project.
 
