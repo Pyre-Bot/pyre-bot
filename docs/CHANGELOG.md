@@ -1,8 +1,12 @@
 ## Changelog
 
-### 0.5.0
+### 0.5.1
 * **Name changed to Pyre Bot**
-* Added *say*, *endrun*, *give*, and *votekick* commands
+* Added *giveequip* command
+* *status* command now shows current stage name
+
+### 0.5.0
+* Added *say*, *endrun*, *giveitem*, and *votekick* commands
     * Requires [BotCommands](https://github.com/SuperRayss/BotCommands)
 * Added a setup script to create config.ini on first launch
 * Added option to output game chat to Discord channel
