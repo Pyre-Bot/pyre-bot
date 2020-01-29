@@ -1,8 +1,12 @@
-# InfernalGaming Discord Bot
+# Pyre Bot
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/InfernalPlacebo/ig-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/509196313431375874)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/InfernalPlacebo/pyre-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/660914305515913227?label=Discord)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)[![Documentation Status](https://readthedocs.org/projects/pyre-bot/badge/?version=latest)](https://pyre-bot.readthedocs.io/en/latest/?badge=latest)
 
-This Discord bot was created primarily to be used by the InfernalGaming server to manage game servers and add other functionality to the server that wasn't available elsewhere or could be improved upon to serve the community. Feel free to join our [Discord](https://discord.gg/YewZwpc) if you want to discuss the bot or hang out!
+Please find complete documentation on [ReadTheDocs](https://docs.pyre-bot.com)
+
+The Pyre Discord Bot has one main goal: Create an easy-to-use way to manage a maintain dedicated game servers from within Discord. From sending commands to the game console to allowing players to initiate a restart vote, Pyre was created to make it as easy as possible.
+
+Feel free to join our [Discord](discord.pyre-bot.com) if you want to discuss the bot or hang out!
 
 ## Getting Started
 
@@ -129,16 +133,16 @@ By default the bot is configured to manage a Risk of Rain 2 server. This can be 
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/InfernalPlacebo/ig-bot) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/InfernalPlacebo/pyre-bot/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 To add functionality for other games or servers, add a new file in the **cogs** folder.
 
 ## Authors
 
-* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.infernal.wtf)
-* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](https://discord.gg/4wXFsTe)
+* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.pyre-bot.com)
+* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](discord.pyre-bot.com)
 
-See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/InfernalPlacebo/pyre-bot/graphs/contributors) who participated in this project.
 
 ## License
 
