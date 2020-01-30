@@ -506,22 +506,31 @@ class RoR2(commands.Cog):
         usage='equipname playername'
     )
     @commands.has_role(role)
-    async def giveequip(self, ctx, equipname, playername):
+    async def giveequip(self, ctx, playername, *, equipname):
         if await server() and await find_dll() is True:
             players = a2s.players(server_address)
-            containsplayer = 0
+            containsplayer = False
+            correctname = False
             for player in players:
                 if playername.upper() in player.name.upper():
                     playername = player.name
-                    containsplayer = 1
+                    containsplayer = True
                     break
-            if containsplayer == 1:
+            for key, value in equip.items():
+                if equipname.upper() == key.upper():
+                    correctname = True
+                if equipname.upper() == value.upper():
+                    equipname = key
+                    correctname = True
+            if containsplayer is True and correctname is True:
                 append = open(botcmd / "botcmd.txt", 'a')
                 append.write('give_equip ' + equipname + ' "' + playername + '"\n')
                 append.close()
                 await ctx.send('Gave ' + equipname + ' to ' + playername)
-            else:
+            elif containsplayer is False:
                 await ctx.send(playername + ' is not playing on the server')
+            elif correctname is False:
+                await ctx.send(equipname + ' is not a valid item')
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
