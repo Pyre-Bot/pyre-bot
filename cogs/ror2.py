@@ -499,11 +499,10 @@ class RoR2(commands.Cog):
                 await ctx.send('Please enter a partial or complete player name.')
 
     # Executes give_equip on the server
-    # TODO: Add dictionary for equips and their real name values, return error if equip name is not found in dictionary
     @commands.command(
         name='giveequip',
         help='Gives a player a specified equipment',
-        usage='equipname playername'
+        usage='equipname playername equipment'
     )
     @commands.has_role(role)
     async def giveequip(self, ctx, playername, *, equipname):
