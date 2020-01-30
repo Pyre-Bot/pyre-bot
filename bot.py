@@ -25,7 +25,11 @@ else:
 config_object = ConfigParser()
 config_object.read("config/config.ini")
 api = config_object["API"]
+general = config_object["General"]
 token = api["discord_token"]
+role = general['role']
+admin_channel = config_object.getint('General', 'admin-channel')
+commands_channel = config_object.getint('General', 'commands-channel')
 
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 cogs = [
@@ -34,19 +38,22 @@ cogs = [
 ]
 
 # Error handling
-# @bot.event
-# async def on_command_error(ctx, error):
-#     """Used to catch discord.py errors."""
-#     if isinstance(error, commands.MissingRequiredArgument):
-#         await ctx.send('Please pass in all required arguments.')
-#     elif isinstance(error, commands.CommandNotFound):
-#         await ctx.send("Command doesn't exist, please view help for more information.")
-#     elif isinstance(error, commands.TooManyArguments):
-#         await ctx.send('Too many arguments, plase try again.')
-#     elif isinstance(error, commands.MissingAnyRole):
-#         await ctx.send("You don't have permissions to do this.")
-#     elif isinstance(error, commands.NotOwner):
-#         await ctx.send("You don't have permissions to do this.")
+@bot.event
+async def on_command_error(ctx, error):
+    """Used to catch discord.py errors."""
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('Please pass in all required arguments.')
+    elif isinstance(error, commands.CommandNotFound):
+        await ctx.send("Command doesn't exist, please view help for more information.")
+    elif isinstance(error, commands.TooManyArguments):
+        await ctx.send('Too many arguments, plase try again.')
+    elif isinstance(error, commands.MissingAnyRole):
+        await ctx.send("You don't have permissions to do this.")
+    elif isinstance(error, commands.NotOwner):
+        await ctx.send("You don't have permissions to do this.")
+    elif isinstance(error, commands.CheckFailure):
+        # We don't need this output since we are expecting it
+        pass
 
 
 # Do this when the bot is ready
@@ -66,6 +73,16 @@ async def on_ready():
     for cog in cogs:
         bot.load_extension(cog)
 
+
+# Checks the channel the message was sent in
+@bot.check
+def check_channel(ctx):
+    if ctx.channel.id == admin_channel:
+        return ctx.channel.id == admin_channel
+    elif ctx.channel.id == commands_channel:
+        return ctx.channel.id == commands_channel
+    else:
+        return False
 
 # Load and Unload cogs stuff
 @bot.command()

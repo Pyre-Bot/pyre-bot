@@ -11,10 +11,12 @@ config_file = Path("config/config.ini")
 
 window = tk.Tk()
 window.title('Discord Bot Setup')
-window.geometry('400x425')
+window.geometry('400x475')
 
 api = ''
 role = ''
+admin_channel = ''
+commands_channel = ''
 svraddr = ''
 svrport = ''
 steamcmd = ''
@@ -29,6 +31,8 @@ def save():
     global bepinex
     api = api_entry.get()
     role = role_entry.get()
+    admin_channel = admin_entry.get()
+    commands_channel = commands_entry.get()
     svraddr = svraddr_entry.get()
     svrport = svrport_entry.get()
     steamcmd = steamcmd_entry.get()
@@ -40,7 +44,9 @@ def save():
         "discord_token": api
     }
     config_object["General"] = {
-        "role": role
+        "role": role,
+        "admin-channel": admin_channel,
+        "commands-channel": commands_channel
     }
     config_object["RoR2"] = {
         "server_address": svraddr,
@@ -101,6 +107,12 @@ api_entry = tk.Entry(window, width=50, textvariable=api)
 role_label = tk.Label(
     window, text="Priveledged Server Role")
 role_entry = tk.Entry(window, width=50, textvariable=role)
+admin_label = tk.Label(
+    window, text="Discord Channel ID for admin commands")
+admin_entry = tk.Entry(window, width=50, textvariable=admin_channel)
+commands_label = tk.Label(
+    window, text="Discord Channel ID for normal commands")
+commands_entry = tk.Entry(window, width=50, textvariable=commands_channel)
 svraddr_label = tk.Label(
     window, text="Server Address")
 svraddr_entry = tk.Entry(window, width=50, textvariable=role)
@@ -129,6 +141,10 @@ api_label.pack()
 api_entry.pack()
 role_label.pack()
 role_entry.pack()
+admin_label.pack()
+admin_entry.pack()
+commands_label.pack()
+commands_entry.pack()
 svraddr_label.pack()
 svraddr_entry.pack()
 svrport_label.pack()
