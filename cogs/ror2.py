@@ -35,7 +35,7 @@ repeat = 0
 stagenum = 0
 
 logfile = (BepInEx / "LogOutput.log")
-reader = Pygtail(str(logfile))
+#reader = Pygtail(str(logfile))
 
 # Dictionaries used for functions
 equip = {
@@ -185,7 +185,7 @@ async def chat(self):
     global stagenum
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
-            for line in reader:
+            for line in Pygtail(str(logfile)):
                 # Player chat
                 if "issued: say" in line:
                     line = line.replace('[Info   : Unity Log] ', '**')
@@ -218,7 +218,7 @@ async def chat(self):
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
         else:
-            for line in reader:
+            for line in Pygtail(str(logfile)):
                 pass
 
 
@@ -586,13 +586,13 @@ class RoR2(commands.Cog):
                 append.write('give_item "' + itemname + '" '
                              + qty + ' "' + playername + '"\n')
                 append.close()
-                findline = False
+                findline = True
                 tempreader = Pygtail(str(logfile))
-                while findline == False:
+                while findline:
                     for line in tempreader:
                         if "[Info   : Unity Log] The requested object could not be found" in line:
                             await ctx.send(itemname + ' is not a valid item name')
-                            findline = True
+                            findline = False
                             break
                         elif "[Info   : Unity Log] Gave" in line:
                             if "None" in line:
@@ -603,7 +603,7 @@ class RoR2(commands.Cog):
                                         itemname = value
                                         break
                                 await ctx.send('Gave ' + qty + ' ' + itemname + ' to ' + playername)
-                                findline = True
+                                findline = False
                                 break
             elif containsplayer is False:
                 await ctx.send(playername + ' is not playing on the server')
@@ -641,13 +641,13 @@ class RoR2(commands.Cog):
                 append.write('give_equip "' + equipname + '" "'
                              + playername + '"\n')
                 append.close()
-                findline = False
+                findline = True
                 tempreader = Pygtail(str(logfile))
-                while findline == False:
+                while findline:
                     for line in tempreader:
                         if "[Info   : Unity Log] The requested object could not be found" in line:
                             await ctx.send(equipname + ' is not a valid equipment name')
-                            findline = True
+                            findline = False
                             break
                         elif "[Info   : Unity Log] Gave" in line:
                             if "None" in line:
@@ -658,7 +658,7 @@ class RoR2(commands.Cog):
                                         equipname = value
                                         break
                                 await ctx.send('Gave ' + equipname + ' to ' + playername)
-                                findline = True
+                                findline = False
                                 break
             elif containsplayer is False:
                 await ctx.send(playername + ' is not playing on the server')
