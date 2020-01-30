@@ -90,6 +90,8 @@ The bot assumes that you are using mods in your RoR2 server, or at the very leas
   * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
 * [BotCommands](https://github.com/SuperRayss/BotCommands)
   * Used to send commands such as votekick to the server from Discord
+* [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/)
+  * Enables additional commands to be sent to the server (i.e. give_item, give_equip)
 
 **Recommended**
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/)
