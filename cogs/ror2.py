@@ -563,30 +563,38 @@ class RoR2(commands.Cog):
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
     # Executes give_item on the server
-    # TODO: Add dictionary for items and their real name values, return error if item name is not found in dictionary
     @commands.command(
         name='giveitem',
         help='Gives a player a specified quantity of an item',
         usage='itemname playername qty'
     )
     @commands.has_role(role)
-    async def giveitem(self, ctx, itemname, playername, qty="1"):
+    async def giveitem(self, ctx, playername, qty="1", *, itemname):
         if await server() and await find_dll() is True:
             players = a2s.players(server_address)
-            containsplayer = 0
+            containsplayer = False
+            correctname = False
             for player in players:
                 if playername.upper() in player.name.upper():
                     playername = player.name
-                    containsplayer = 1
+                    containsplayer = True
                     break
-            if containsplayer == 1:
+            for key, value in item.items():
+                if itemname.upper() == key.upper():
+                    correctname = True
+                if itemname.upper() == value.upper():
+                    itemname = key
+                    correctname = True
+            if containsplayer is True and correctname is True:
                 append = open(botcmd / "botcmd.txt", 'a')
                 append.write('give_item ' + itemname + ' '
                              + qty + ' "' + playername + '"\n')
                 append.close()
                 await ctx.send('Gave ' + qty + ' ' + itemname + ' to ' + playername)
-            else:
+            elif containsplayer is False:
                 await ctx.send(playername + ' is not playing on the server')
+            elif correctname is False:
+                await ctx.send(itemname + ' is not a valid item')
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
