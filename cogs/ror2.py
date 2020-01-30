@@ -34,7 +34,7 @@ yes, no = 0, 0
 repeat = 0
 stagenum = 0
 
-# Lists used for functions
+# Dictionaries used for functions
 equip = {
     'CommandMissile': 'Disposable Missile Launcher',
     'Saw': 'Saw',
@@ -52,7 +52,24 @@ equip = {
     'CritOnUse': 'Ocular HUD',
     'DroneBackup': 'The Back-up',
     'OrbitalLaser': 'EQUIPMENT_ORBITALLASER_NAME',
-    'BFG': 'Preon Accumulator'
+    'BFG': 'Preon Accumulator',
+    'Enigma': 'EQUIPMENT_ENIGMA_NAME',
+    'Jetpack': 'Milky Chrysalis',
+    'Lightning': 'Royal Capacitor',
+    'GoldGat': 'The CrowdFunder',
+    'Passive Healing': 'Gnarled Woodsprite',
+    'LunarPotion': 'EQUIPMENT_LUNARPOTION_NAME',
+    'BurnNearby': 'Hellfire Tincture',
+    'SoulCorruptor': 'EQUIPMENT_SOULCORRUPTOR_NAME',
+    'Scanner': 'Radar Scanner',
+    'CrippleWard': 'Effigy of Grief',
+    'Gateway': 'Eccentric Vase',
+    'Tonic': 'Spinel Tonic',
+    'QuestVolatileBattery': 'Fuel Array',
+    'Cleanse': 'Blast Shower',
+    'FireBallDash': 'Volcanic Egg',
+    'AffixHaunted': 'Spectral Circlet',
+    'GainArmor': 'Jade Elephant'
 }
 
 
