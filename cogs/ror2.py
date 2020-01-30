@@ -34,6 +34,9 @@ yes, no = 0, 0
 repeat = 0
 stagenum = 0
 
+logfile = (BepInEx / "LogOutput.log")
+reader = Pygtail(str(logfile))
+
 # Dictionaries used for functions
 equip = {
     'CommandMissile': 'Disposable Missile Launcher',
@@ -177,13 +180,12 @@ item = {
 
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
-    file = (BepInEx / "LogOutput.log")
     channel = config_object.getint('RoR2', 'channel')
     channel = self.bot.get_channel(channel)
     global stagenum
-    if os.path.exists(file):
+    if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
-            for line in Pygtail(str(file)):
+            for line in reader:
                 # Player chat
                 if "issued: say" in line:
                     line = line.replace('[Info   : Unity Log] ', '**')
@@ -216,7 +218,7 @@ async def chat(self):
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
         else:
-            for line in Pygtail(str(file)):
+            for line in reader:
                 pass
 
 
@@ -265,6 +267,7 @@ async def chat_autostart(self):
                 print('Unable to remove offset! Old messages may be displayed.')
         while repeat == 1:
             await chat(self)
+#            print('Chat function enabled! Will it loop?')
             await asyncio.sleep(1)
     else:
         print('Not outputting chat')
@@ -566,35 +569,44 @@ class RoR2(commands.Cog):
     @commands.command(
         name='giveitem',
         help='Gives a player a specified quantity of an item',
-        usage='itemname playername qty'
+        usage='playername itemname qty'
     )
     @commands.has_role(role)
-    async def giveitem(self, ctx, playername, qty="1", *, itemname):
+    async def giveitem(self, ctx, playername, itemname, qty="1"):
         if await server() and await find_dll() is True:
             players = a2s.players(server_address)
             containsplayer = False
-            correctname = False
             for player in players:
                 if playername.upper() in player.name.upper():
                     playername = player.name
                     containsplayer = True
                     break
-            for key, value in item.items():
-                if itemname.upper() == key.upper():
-                    correctname = True
-                if itemname.upper() == value.upper():
-                    itemname = key
-                    correctname = True
-            if containsplayer is True and correctname is True:
+            if containsplayer is True:
                 append = open(botcmd / "botcmd.txt", 'a')
-                append.write('give_item ' + itemname + ' '
+                append.write('give_item "' + itemname + '" '
                              + qty + ' "' + playername + '"\n')
                 append.close()
-                await ctx.send('Gave ' + qty + ' ' + itemname + ' to ' + playername)
+                findline = False
+                tempreader = Pygtail(str(logfile))
+                while(findline==False):
+                    for line in tempreader:
+                        if "[Info   : Unity Log] The requested object could not be found" in line:
+                            await ctx.send(itemname + ' is not a valid item name')
+                            findline = True
+                            break
+                        elif "[Info   : Unity Log] Gave" in line: # Example: "[Info   : Unity Log] Gave 1 PersonalShield to ???"
+                            if("None" in line):
+                                pass
+                            else:
+                                for key, value in item.items():
+                                    if key in line:
+                                        itemname = value
+                                        break
+                                await ctx.send('Gave ' + qty + ' ' + itemname + ' to ' + playername)
+                                findline = True
+                                break
             elif containsplayer is False:
                 await ctx.send(playername + ' is not playing on the server')
-            elif correctname is False:
-                await ctx.send(itemname + ' is not a valid item')
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
@@ -603,43 +615,53 @@ class RoR2(commands.Cog):
     @giveitem.error
     async def giveitem_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'playername':
+                await ctx.send('Please enter a partial or complete player name')
             if error.param.name == 'itemname':
                 await ctx.send('Please enter a valid item name')
-            if error.param.name == 'playername':
-                await ctx.send('Please enter a partial or complete player name.')
 
     # Executes give_equip on the server
     @commands.command(
         name='giveequip',
         help='Gives a player a specified equipment',
-        usage='playername equipment'
+        usage='playername equipname'
     )
     @commands.has_role(role)
-    async def giveequip(self, ctx, playername, *, equipname):
+    async def giveequip(self, ctx, playername, equipname):
         if await server() and await find_dll() is True:
             players = a2s.players(server_address)
             containsplayer = False
-            correctname = False
             for player in players:
                 if playername.upper() in player.name.upper():
                     playername = player.name
                     containsplayer = True
                     break
-            for key, value in equip.items():
-                if equipname.upper() == key.upper():
-                    correctname = True
-                if equipname.upper() == value.upper():
-                    equipname = key
-                    correctname = True
-            if containsplayer is True and correctname is True:
+            if containsplayer is True:
                 append = open(botcmd / "botcmd.txt", 'a')
-                append.write('give_equip ' + equipname + ' "' + playername + '"\n')
+                append.write('give_equip "' + equipname + '" "'
+                             + playername + '"\n')
                 append.close()
-                await ctx.send('Gave ' + equipname + ' to ' + playername)
+                findline = False
+                tempreader = Pygtail(str(file))
+                while(findline==False):
+                    for line in tempreader:
+                        if "[Info   : Unity Log] The requested object could not be found" in line:
+                            await ctx.send(equipname + ' is not a valid equipment name')
+                            findline = True
+                            break
+                        elif "[Info   : Unity Log] Gave" in line: # Example: "[Info   : Unity Log] Gave Cleanse to ???"
+                            if("None" in line):
+                                pass
+                            else:
+                                for key, value in equip.items():
+                                    if key in line:
+                                        equipname = value
+                                        break
+                                await ctx.send('Gave '+ equipname + ' to ' + playername)
+                                findline = True
+                                break
             elif containsplayer is False:
                 await ctx.send(playername + ' is not playing on the server')
-            elif correctname is False:
-                await ctx.send(equipname + ' is not a valid item')
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
@@ -648,10 +670,10 @@ class RoR2(commands.Cog):
     @giveequip.error
     async def giveequip_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'playername':
+                await ctx.send('Please enter a partial or complete player name')
             if error.param.name == 'equipname':
                 await ctx.send('Please enter a valid equipment name')
-            if error.param.name == 'playername':
-                await ctx.send('Please enter a partial or complete player name.')
 
     # Displays the status of the server
     @commands.command(

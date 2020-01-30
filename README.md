@@ -121,8 +121,8 @@ The bot can be used by running **bot.py** in the main directory. The bot will ou
 * start_chat : Reads the Risk of Rain 2 server logs and outputs live chat from the game to a specified Discord chat channel
 * stop_chat : Stops reading out Risk of Rain 2 server chat
 * say {message} : Sends an in-game message from the perspective of the server
-* giveitem {item} {player} {quantity (default - 1)} : Gives a player a specified quantity of an item
-* giveequip {equip} {player} : Gives a player a specified equipment
+* giveitem {player} {item} {quantity (default - 1)} : Gives a player a specified quantity of an item
+* giveequip {player} {equip} : Gives a player a specified equipment
 
 ## Modifying the commands
 
