@@ -612,7 +612,7 @@ class RoR2(commands.Cog):
     @commands.command(
         name='giveequip',
         help='Gives a player a specified equipment',
-        usage='equipname playername equipment'
+        usage='playername equipment'
     )
     @commands.has_role(role)
     async def giveequip(self, ctx, playername, *, equipname):
