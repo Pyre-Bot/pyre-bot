@@ -588,14 +588,14 @@ class RoR2(commands.Cog):
                 append.close()
                 findline = False
                 tempreader = Pygtail(str(logfile))
-                while(findline==False):
+                while findline == False:
                     for line in tempreader:
                         if "[Info   : Unity Log] The requested object could not be found" in line:
                             await ctx.send(itemname + ' is not a valid item name')
                             findline = True
                             break
-                        elif "[Info   : Unity Log] Gave" in line: # Example: "[Info   : Unity Log] Gave 1 PersonalShield to ???"
-                            if("None" in line):
+                        elif "[Info   : Unity Log] Gave" in line:
+                            if "None" in line:
                                 pass
                             else:
                                 for key, value in item.items():
@@ -642,22 +642,22 @@ class RoR2(commands.Cog):
                              + playername + '"\n')
                 append.close()
                 findline = False
-                tempreader = Pygtail(str(file))
-                while(findline==False):
+                tempreader = Pygtail(str(logfile))
+                while findline == False:
                     for line in tempreader:
                         if "[Info   : Unity Log] The requested object could not be found" in line:
                             await ctx.send(equipname + ' is not a valid equipment name')
                             findline = True
                             break
-                        elif "[Info   : Unity Log] Gave" in line: # Example: "[Info   : Unity Log] Gave Cleanse to ???"
-                            if("None" in line):
+                        elif "[Info   : Unity Log] Gave" in line:
+                            if "None" in line:
                                 pass
                             else:
                                 for key, value in equip.items():
                                     if key in line:
                                         equipname = value
                                         break
-                                await ctx.send('Gave '+ equipname + ' to ' + playername)
+                                await ctx.send('Gave ' + equipname + ' to ' + playername)
                                 findline = True
                                 break
             elif containsplayer is False:
