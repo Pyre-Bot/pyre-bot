@@ -10,6 +10,8 @@ config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
 config_object.read(config_file)
 ror2 = config_object["RoR2"]
+general = config_object["General"]
+role = general["role"]
 
 colors = {
     'DEFAULT': 0x000000,
@@ -89,6 +91,23 @@ class admin(commands.Cog):
                 await ctx.send('Invalid cog specified.\nUse `help` command to list all cogs.')
                 return
         await ctx.send(embed=help_embed)
+
+    @commands.command(name='delete', help='Deletes the given amount of messages in the channel', usage='number')
+    @commands.has_role(role)
+    async def delete(self, ctx, number=5):
+        logging.info(
+            f'{ctx.message.author.name} used {ctx.command.name} on {number} messages.')
+        number = number + 1
+        await ctx.message.channel.purge(limit=number)
+
+    @delete.error
+    async def delete_handler(self, ctx, error):
+        if isinstance(error, commands.MissingRequiredArgument):
+            logging.warning(
+                f'{ctx.message.author.name} caused an error with '
+                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                + f'Error: {error}')
+            await ctx.send('Please enter the number of messages to delete. Example: ```delete 5```')
 
 
 def setup(bot):
