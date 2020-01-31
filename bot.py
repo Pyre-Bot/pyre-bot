@@ -166,7 +166,3 @@ try:
     bot.run(token)
 except discord.errors.LoginFailure:
     print("Login unsuccessful.")
-except RuntimeError:
-    pass
-except Exception:
-    pass
