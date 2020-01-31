@@ -88,11 +88,14 @@ class admin(commands.Cog):
                         help_text += f'Format: `{command.name} {command.usage}`\n\n'
                 help_embed.description = help_text
             else:
-                await ctx.send('Invalid cog specified.\nUse `help` command to list all cogs.')
+                await ctx.send('Invalid cog specified.\n'
+                               + 'Use `help` command to list all cogs.')
                 return
         await ctx.send(embed=help_embed)
 
-    @commands.command(name='delete', help='Deletes the given amount of messages in the channel', usage='number')
+    @commands.command(name='delete',
+                      help='Deletes the given amount of messages in the channel',
+                      usage='number')
     @commands.has_role(role)
     async def delete(self, ctx, number=5):
         logging.info(
@@ -107,7 +110,8 @@ class admin(commands.Cog):
                 f'{ctx.message.author.name} caused an error with '
                 + f'{ctx.command.name} | Message: {ctx.message.content} | '
                 + f'Error: {error}')
-            await ctx.send('Please enter the number of messages to delete. Example: ```delete 5```')
+            await ctx.send('Please enter the number of messages to delete. '
+                           + 'Example: ```delete 5```')
 
 
 def setup(bot):
