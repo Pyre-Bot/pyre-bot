@@ -1,3 +1,4 @@
+import logging
 import random
 from configparser import ConfigParser
 from pathlib import Path
@@ -48,6 +49,7 @@ class admin(commands.Cog):
 
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in colors.values()]
         help_embed = discord.Embed(
             title='Help',

@@ -323,7 +323,7 @@ class RoR2(commands.Cog):
     @commands.command(name='start', help='Starts the server if it is not running')
     @commands.has_role(role)
     async def start(self, ctx):
-        logging.info(f'{ctx.message.author.name} used {ctx.Command.name}')
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
         if await server() is True:
             started = 1
@@ -354,6 +354,7 @@ class RoR2(commands.Cog):
     @commands.command(name='stop', help='Stops the server if currently running')
     @commands.has_role(role)
     async def stop(self, ctx):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() is True:
             stopped = await server_stop()
             if stopped is True:
@@ -370,6 +371,7 @@ class RoR2(commands.Cog):
     )
     @commands.has_role(role)
     async def update(self, ctx):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before updating it
         if await server() is False:
             await ctx.send('Updating server, please wait...')
@@ -402,6 +404,7 @@ class RoR2(commands.Cog):
         usage='time'
     )
     async def restart(self, ctx, time=15):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() is True:
             global yes, no
             yes, no = 0, 0
@@ -464,6 +467,7 @@ class RoR2(commands.Cog):
         usage='playername'
     )
     async def votekick(self, ctx, *, kick_player):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
             global yes, no
             yes, no = 0, 0
@@ -524,6 +528,7 @@ class RoR2(commands.Cog):
         help='Begins a vote to end the current run',
     )
     async def endrun(self, ctx):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
             global yes, no
             yes, no = 0, 0
@@ -558,6 +563,7 @@ class RoR2(commands.Cog):
     )
     @commands.has_role(role)
     async def serversay(self, ctx, *, message):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
             append = open(botcmd / "botcmd.txt", 'a')
             append.write('say "' + message + '"\n')
@@ -575,6 +581,7 @@ class RoR2(commands.Cog):
     )
     @commands.has_role(role)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
             players = a2s.players(server_address)
             containsplayer = False
@@ -618,8 +625,16 @@ class RoR2(commands.Cog):
     async def giveitem_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
+                logging.warning(
+                    f'{ctx.message.author.name} caused an error with '
+                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                    + f'Error: {error}')
                 await ctx.send('Please enter a partial or complete player name')
             if error.param.name == 'itemname':
+                logging.warning(
+                    f'{ctx.message.author.name} caused an error with '
+                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                    + f'Error: {error}')
                 await ctx.send('Please enter a valid item name')
 
     # Executes give_equip on the server
@@ -630,6 +645,7 @@ class RoR2(commands.Cog):
     )
     @commands.has_role(role)
     async def giveequip(self, ctx, playername, equipname):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
             players = a2s.players(server_address)
             containsplayer = False
@@ -673,8 +689,16 @@ class RoR2(commands.Cog):
     async def giveequip_handler(self, ctx, error):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
+                logging.warning(
+                    f'{ctx.message.author.name} caused an error with '
+                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                    + f'Error: {error}')
                 await ctx.send('Please enter a partial or complete player name')
             if error.param.name == 'equipname':
+                logging.warning(
+                    f'{ctx.message.author.name} caused an error with '
+                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                    + f'Error: {error}')
                 await ctx.send('Please enter a valid equipment name')
 
     # Displays the status of the server
@@ -683,6 +707,7 @@ class RoR2(commands.Cog):
         help='Displays the status of the Risk of Rain 2 server'
     )
     async def status(self, ctx):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() is True:
             # Create embed
             embed = discord.Embed(
@@ -736,6 +761,7 @@ class RoR2(commands.Cog):
         help='Lists all the mods currently running on the server'
     )
     async def mods(self, ctx):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         mods = []
         with open(BepInEx / "LogOutput.log") as f:
             for line in f:
@@ -762,6 +788,7 @@ class RoR2(commands.Cog):
     )
     @commands.has_role(role)
     async def start_chat(self, ctx):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         await ctx.send('Displaying chat messages from the server!')
         global repeat
         repeat = 1
@@ -781,6 +808,7 @@ class RoR2(commands.Cog):
     )
     @commands.has_role(role)
     async def stop_chat(self, ctx):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         global repeat
         if repeat == 0:
             await ctx.send('Not outputting chat to Discord!')
