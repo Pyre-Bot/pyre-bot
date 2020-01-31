@@ -1,5 +1,6 @@
 import ast
 import asyncio
+import logging
 import os
 import re
 from configparser import ConfigParser
@@ -322,6 +323,7 @@ class RoR2(commands.Cog):
     @commands.command(name='start', help='Starts the server if it is not running')
     @commands.has_role(role)
     async def start(self, ctx):
+        logging.info(f'{ctx.message.author.name} used {ctx.Command.name}')
         # Checks to make sure the server is not running before starting it
         if await server() is True:
             started = 1
