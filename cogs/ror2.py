@@ -178,6 +178,27 @@ item = {
     'LunarTrinket': 'Beads of Fealty'
 }
 
+stages = {
+    'title': 'Title',
+    'lobby': 'Game Lobby',
+    'blackbeach': 'Distant Roost',
+    'logbook': 'logbook',
+    'testscene': 'Damp Forest',
+    'goolake': 'Abandoned Aqueduct',
+    'bazaar': 'Hidden Realm',
+    'frozenwall': 'Rallypoint Delta',
+    'crystalworld': 'crystalworld',
+    'goldshores': 'Hidden Realm: Glided Coast',
+    'dampcave': 'Damp Forest',
+    'golemplains': 'Titanic Plains',
+    'dampcavesimple': 'Abyssal Depths',
+    'foggyswamp': 'Wetland Aspect',
+    'mysteryspace': 'Hidden Realm',
+    'blackbeachTest': 'Damp Forest',
+    'golemplains_trailer': 'Damp Forest',
+    'wispgraveyard': 'Scorched Acres'
+}
+
 
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
@@ -196,14 +217,17 @@ async def chat(self):
                     await channel.send(line)
                 # Stage change
                 elif "Active scene changed from" in line:
+                    for key, value in stages.items():
+                        if key in line:
+                            stage = value
+                            break
                     if "bazaar" in line:
                         stagenum = stagenum
-                    elif "lobby" in line:
+                    elif "lobby" or "title" in line:
                         stagenum = 0
                     else:
                         stagenum = stagenum + 1
-                    line = line.replace(
-                        '[Info   : Unity Log] Active scene changed from  to ', '**ENTERING STAGE ' + str(stagenum) + ' - ')
+                    line = '**ENTERING STAGE ' + str(stagenum) + ' - ' + stage
                     await channel.send(line + '**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
@@ -725,6 +749,12 @@ class RoR2(commands.Cog):
                 player_names.append(player.name)
             player_names = ("\n".join(map(str, player_names)))
 
+            # Convert Steam map name to game name
+            for key, value in stages.items():
+                if key in info.map_name:
+                    map_name = value
+                    break
+
             # Embed information
             embed.set_footer(
                 text=f'Requested by {ctx.message.author.name}',
@@ -733,15 +763,11 @@ class RoR2(commands.Cog):
             embed.set_thumbnail(url=self.bot.user.avatar_url)
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
-                            value="{}".format(info.server_name), inline=False)
-            embed.add_field(name='Current Stage',
-                            value="{}".format(info.map_name), inline=False)
+                            value=f'{info.server_name}', inline=False)
+            embed.add_field(name='Current Stage', value=f'{map_name}', inline=False)
             embed.add_field(
                 name='Player Count',
-                value='{}/{}'.format(
-                    info.player_count,
-                    info.max_players
-                ), inline=False)
+                value=f'{info.player_count}/{info.max_players}', inline=False)
             if info.player_count == 0:
                 pass
             else:
