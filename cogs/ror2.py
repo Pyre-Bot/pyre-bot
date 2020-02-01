@@ -239,8 +239,7 @@ async def chat(self):
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
                     line = line.replace(
-                        '[Info   :     R2DSE] Ending AuthSession with : ',
-                        + '**PLAYER LEFT - ')
+                        '[Info   :     R2DSE] Ending AuthSession with : ', '**PLAYER LEFT - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
         else:
