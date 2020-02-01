@@ -179,24 +179,23 @@ item = {
 }
 
 stages = {
-    'title': 'Title',
-    'lobby': 'Game Lobby',
+    'title': 'Title', # Time not started (keep stage at 0)
+    'lobby': 'Game Lobby', # Time not started (keep stage at 0)
     'blackbeach': 'Distant Roost',
-    'logbook': 'logbook',
-    'testscene': 'Damp Forest',
-    'goolake': 'Abandoned Aqueduct',
-    'bazaar': 'Hidden Realm',
-    'frozenwall': 'Rallypoint Delta',
-    'crystalworld': 'crystalworld',
-    'goldshores': 'Hidden Realm: Glided Coast',
-    'dampcave': 'Damp Forest',
+    'blackbeach2': 'Distant Roost',
     'golemplains': 'Titanic Plains',
-    'dampcavesimple': 'Abyssal Depths',
+    'golemplains2': 'Titanic Plains',
     'foggyswamp': 'Wetland Aspect',
-    'mysteryspace': 'Hidden Realm',
-    'blackbeachTest': 'Damp Forest',
-    'golemplains_trailer': 'Damp Forest',
-    'wispgraveyard': 'Scorched Acres'
+    'goolake': 'Abandoned Aqueduct',
+    'frozenwall': 'Rallypoint Delta',
+    'wispgraveyard': 'Scorched Acres',
+    'dampcave': 'Abyssal Depths',
+    'shipgraveyard': "Siren's Call",
+    'bazaar': 'Hidden Realm: Bazaar Between Time', # Time paused, no stage progression on following stage
+    'goldshores': 'Hidden Realm: Glided Coast', # Time paused, no stage progression on following stage
+    'mysteryspace': 'Hidden Realm: A Moment, Fractured', # Time paused, no stage progression on following stage
+    'limbo': 'Hidden Realm: A Moment, Whole', # Time paused, no stage progression on following stage
+    'arena': 'Hidden Realm: Void Fields' # Time is NOT paused, no stage progression on following stage
 }
 
 
