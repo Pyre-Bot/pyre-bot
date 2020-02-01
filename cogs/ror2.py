@@ -191,11 +191,11 @@ stages = {
     'wispgraveyard': 'Scorched Acres',
     'dampcave': 'Abyssal Depths',
     'shipgraveyard': "Siren's Call",
-    'bazaar': 'Hidden Realm: Bazaar Between Time', # Time paused, no stage progression on following stage
-    'goldshores': 'Hidden Realm: Glided Coast', # Time paused, no stage progression on following stage
-    'mysteryspace': 'Hidden Realm: A Moment, Fractured', # Time paused, no stage progression on following stage
-    'limbo': 'Hidden Realm: A Moment, Whole', # Time paused, no stage progression on following stage
-    'arena': 'Hidden Realm: Void Fields' # Time is NOT paused, no stage progression on following stage
+    'bazaar': 'Hidden Realm: Bazaar Between Time',   # Time paused, no stage progression on following stage
+    'goldshores': 'Hidden Realm: Glided Coast',   # Time paused, no stage progression on following stage
+    'mysteryspace': 'Hidden Realm: A Moment, Fractured',   # Time paused, no stage progression on following stage
+    'limbo': 'Hidden Realm: A Moment, Whole',   # Time paused, no stage progression on following stage
+    'arena': 'Hidden Realm: Void Fields'   # Time is NOT paused, no stage progression on following stage
 }
 
 
@@ -218,16 +218,19 @@ async def chat(self):
                 elif "Active scene changed from" in line:
                     for key, value in stages.items():
                         if key in line:
+                            devstage = key
                             stage = value
                             break
-                    if "bazaar" in line:
+                    if devstage == "bazaar" or devstage == "goldshores" or devstage == "mysteryspace" or devstage == "limbo" or devstage == "arena":
                         stagenum = stagenum
-                    elif "lobby" or "title" in line:
+                        await channel.send('**Entering Stage ' + '- ' + stage + '**')
+                    elif devstage == "lobby" or devstage == "title":    # Won't output if the stage is title, done on purpose
                         stagenum = 0
+                        if devstage == "lobby":
+                            await channel.send('**Entering ' + stage + '**')
                     else:
                         stagenum = stagenum + 1
-                    line = '**ENTERING STAGE ' + str(stagenum) + ' - ' + stage
-                    await channel.send(line + '**')
+                        await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
                     line = line.replace(
