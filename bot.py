@@ -25,7 +25,6 @@ config_path = Path.cwd().joinpath('config')
 # Checks if the config file exists, otherwise runs setup
 if config_file.exists():
     logging.info('Configuration file exists')
-    pass
 else:
     logging.info("Configuration file doesn't exist, running setup")
     setup = subprocess.Popen(['python', (Path.cwd() / 'setup' / 'setup.py')])
@@ -66,11 +65,13 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingAnyRole):
         await ctx.send("You don't have permissions to do this.")
         logging.warning(
-            f'Permission error from {ctx.message.author.name} on command: {ctx.command.name}')
+            f'Permission error from {ctx.message.author.name} '
+            + f'on command: {ctx.command.name}')
     elif isinstance(error, commands.NotOwner):
         await ctx.send("You don't have permissions to do this.")
         logging.warning(
-            f'Permission error from {ctx.message.author.name} on command: {ctx.command.name}')
+            f'Permission error from {ctx.message.author.name} '
+            + f'on command: {ctx.command.name}')
     elif isinstance(error, commands.CheckFailure):
         # We don't need this output since we are expecting it
         pass

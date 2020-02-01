@@ -36,7 +36,7 @@ repeat = 0
 stagenum = 0
 
 logfile = (BepInEx / "LogOutput.log")
-#reader = Pygtail(str(logfile))
+# reader = Pygtail(str(logfile))
 
 # Dictionaries used for functions
 equip = {
@@ -239,7 +239,8 @@ async def chat(self):
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
                     line = line.replace(
-                        '[Info   :     R2DSE] Ending AuthSession with : ', '**PLAYER LEFT - ')
+                        '[Info   :     R2DSE] Ending AuthSession with : ',
+                        + '**PLAYER LEFT - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
         else:
@@ -433,7 +434,9 @@ class RoR2(commands.Cog):
             global yes, no
             yes, no = 0, 0
             author = ctx.author
-            message = await ctx.send('A restart vote has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
+            message = await ctx.send('A restart vote has been initiated by '
+                                     + f'{author.mention}. Please react to this message'
+                                     + ' with your vote!')
             for emoji in ('✅', '❌'):
                 await message.add_reaction(emoji)
             await asyncio.sleep(time)
@@ -443,7 +446,8 @@ class RoR2(commands.Cog):
             player_count = info.player_count
             # Counts vote, if tie does nothing
             if yes == no:
-                await ctx.send('It was a tie! There must be a majority to restart the server!')
+                await ctx.send('It was a tie! There must be a majority to restart the '
+                               + 'server!')
             # If 75% of player count wants to restart it will
             elif (yes - 1) >= (player_count * 0.75):
                 started = 1
@@ -507,7 +511,10 @@ class RoR2(commands.Cog):
                     kick_player = player.name
                     break
             if containskickplayer == 1:
-                message = await ctx.send('A vote to kick ' + kick_player + ' has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
+                message = await ctx.send('A vote to kick ' + kick_player
+                                         + f' has been initiated by {author.mention}. '
+                                         + 'Please react to this message with your '
+                                         + 'vote!')
                 for emoji in ('✅', '❌'):
                     await message.add_reaction(emoji)
                 player_count = info.player_count
@@ -560,7 +567,9 @@ class RoR2(commands.Cog):
             time = 30
 
             info = a2s.info(server_address)
-            message = await ctx.send('A vote to end the run has been initiated by {author.mention}. Please react to this message with your vote!'.format(author=author))
+            message = await ctx.send('A vote to end the run has been initiated by '
+                                     + f'{author.mention}. Please react to this message'
+                                     + ' with your vote!')
             for emoji in ('✅', '❌'):
                 await message.add_reaction(emoji)
             player_count = info.player_count
@@ -623,7 +632,8 @@ class RoR2(commands.Cog):
                 tempreader = Pygtail(str(logfile))
                 while findline:
                     for line in tempreader:
-                        if "[Info   : Unity Log] The requested object could not be found" in line:
+                        if ('[Info   : Unity Log] The requested object could not be '
+                                + 'found' in line):
                             await ctx.send(itemname + ' is not a valid item name')
                             findline = False
                             break
@@ -635,7 +645,8 @@ class RoR2(commands.Cog):
                                     if key in line:
                                         itemname = value
                                         break
-                                await ctx.send('Gave ' + qty + ' ' + itemname + ' to ' + playername)
+                                await ctx.send('Gave ' + qty + ' ' + itemname + ' to '
+                                               + playername)
                                 findline = False
                                 break
             elif containsplayer is False:
@@ -687,7 +698,8 @@ class RoR2(commands.Cog):
                 tempreader = Pygtail(str(logfile))
                 while findline:
                     for line in tempreader:
-                        if "[Info   : Unity Log] The requested object could not be found" in line:
+                        if ('[Info   : Unity Log] The requested object could not be '
+                                + 'found' in line):
                             await ctx.send(equipname + ' is not a valid equipment name')
                             findline = False
                             break
@@ -699,7 +711,8 @@ class RoR2(commands.Cog):
                                     if key in line:
                                         equipname = value
                                         break
-                                await ctx.send('Gave ' + equipname + ' to ' + playername)
+                                await ctx.send('Gave ' + equipname + ' to '
+                                               + playername)
                                 findline = False
                                 break
             elif containsplayer is False:

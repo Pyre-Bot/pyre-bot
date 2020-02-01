@@ -74,7 +74,6 @@ class admin(commands.Cog):
                     value=commands_list,
                     inline=False
                 )
-            pass
         else:
             lower_cogs = [c.lower() for c in cogs]
             if cog.lower() in lower_cogs:
