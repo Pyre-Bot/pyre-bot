@@ -221,12 +221,12 @@ async def chat(self):
                             devstage = key
                             stage = value
                             break
-                    if devstage == "bazaar" or devstage == "goldshores" or devstage == "mysteryspace" or devstage == "limbo" or devstage == "arena":
+                    if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena'):
                         stagenum = stagenum
-                        await channel.send('**Entering Stage ' + '- ' + stage + '**')
-                    elif devstage == "lobby" or devstage == "title":    # Won't output if the stage is title, done on purpose
+                        await channel.send('**Entering Stage - ' + stage + '**')
+                    elif devstage in ('lobby', 'title'):    # Won't output if the stage is title, done on purpose
                         stagenum = 0
-                        if devstage == "lobby":
+                        if devstage == 'lobby':
                             await channel.send('**Entering ' + stage + '**')
                     else:
                         stagenum = stagenum + 1
@@ -234,14 +234,14 @@ async def chat(self):
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
                     line = line.replace(
-                        '[Info   :     R2DSE] New player : ', '**PLAYER JOINED - ')
+                        '[Info   :     R2DSE] New player : ', '**Player Joined - ')
                     line = line.replace(' connected. ', '')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
                     line = line.replace(
-                        '[Info   :     R2DSE] Ending AuthSession with : ', '**PLAYER LEFT - ')
+                        '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
         else:
