@@ -63,7 +63,7 @@ async def on_command_error(ctx, error):
         await ctx.send('Too many arguments, plase try again.')
         logging.warning(f'Argument error detected on command: {ctx.command.name}')
     elif isinstance(error, commands.MissingAnyRole):
-        await ctx.send("You don't have permissions to do this.")
+        await ctx.send("You don't have permission to do this.")
         logging.warning(
             f'Permission error from {ctx.message.author.name} '
             + f'on command: {ctx.command.name}')
@@ -116,7 +116,7 @@ def check_channel(ctx):
 
 # Load and Unload cogs stuff
 @bot.command()
-@commands.is_owner()
+@commands.has_role(role)
 async def load(ctx, extension):
     """
     Loads the specified cog.
@@ -129,7 +129,7 @@ async def load(ctx, extension):
 
 
 @bot.command()
-@commands.is_owner()
+@commands.has_role(role)
 async def unload(ctx, extension):
     """
     Unloads the specified cog.
@@ -142,7 +142,7 @@ async def unload(ctx, extension):
 
 
 @bot.command()
-@commands.is_owner()
+@commands.has_role(role)
 async def reload(ctx, cog='all'):
     """
     Reloads the specified cog.
