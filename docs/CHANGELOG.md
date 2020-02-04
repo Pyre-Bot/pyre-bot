@@ -1,5 +1,17 @@
 ## Changelog
 
+### 0.6.0
+* Added configuration options for admin and command channels
+  * This allows running multiple bot instances to manage more than one server
+  * New global check makes sure the bot only listens to commands in these channels
+* Added dictionaries for items, equipment, and stages
+* Commands check dictionaries for values before issuing to the server
+* Added basic logging
+ * Log can be found in the **bot.log** file in the bot's directory.
+* New *delete* command allows simpler delete or testing messages
+* Improved error handling
+* Steam query is now used to check if the server is running
+
 ### 0.5.1
 * **Name changed to Pyre Bot**
 * Added *giveequip* command

@@ -67,6 +67,8 @@ hidden_mods = hidden-mods-here
 
 * **discord_token**: The API key you retrieved in the earlier step
 * **role**: The Discord role you want using protected commands
+* **admin-channel**: The channel ID that is used to issue admin commands
+* **commands-channel**: The channel ID that anyone can use to issue commands
 * **server_address**: the IP/domain of your server
 * **server_port**: The port configured for queries
 * **steamcmd**: The path to the steamcmd folder
@@ -88,7 +90,7 @@ The bot assumes that you are using mods in your RoR2 server, or at the very leas
 * [BepInEx](https://thunderstore.io/package/bbepis/BepInExPack/)
     * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
 * [BotCommands](https://github.com/SuperRayss/BotCommands)
-    * Used to send commands such as votekick to the server from Discord
+    * Used to send commands to the server from Discord
 * [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/)
     * Enables additional commands to be sent to the server (i.e. give_item, give_equip)
 
@@ -141,8 +143,8 @@ To add functionality for other games or servers, add a new file in the **cogs** 
 
 ## Authors
 
-* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](discord.pyre-bot.com)
-* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](discord.pyre-bot.com)
+* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](http://discord.pyre-bot.com)
+* **Rayss** - *Contributor* - [GitHub](https://github.com/SuperRayss), [Discord](http://discord.pyre-bot.com)
 
 See also the list of [contributors](https://github.com/InfernalPlacebo/ig-bot/graphs/contributors) who participated in this project.
 
@@ -152,6 +154,18 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE.m
 
 ## Changelog
 *Complete changelog available: [CHANGELOG](CHANGELOG.md)*
+
+### 0.6.0
+* Added configuration options for admin and command channels
+    * This allows running multiple bot instances to manage more than one server
+    * New global check makes sure the bot only listens to commands in these channels
+* Added dictionaries for items, equipment, and stages
+* Commands check dictionaries for values before issuing to the server
+* Added basic logging
+    * Log can be found in the **bot.log** file in the bot's directory.
+* New *delete* command allows simpler delete or testing messages
+* Improved error handling
+* Steam query is now used to check if the server is running
 
 ### 0.5.1
 * **Name changed to Pyre Bot**
