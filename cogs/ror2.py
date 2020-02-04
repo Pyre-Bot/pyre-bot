@@ -179,8 +179,8 @@ item = {
 }
 
 stages = {
-    'title': 'Title', # Time not started (keep stage at 0)
-    'lobby': 'Game Lobby', # Time not started (keep stage at 0)
+    'title': 'Title',  # Time not started (keep stage at 0)
+    'lobby': 'Game Lobby',  # Time not started (keep stage at 0)
     'blackbeach': 'Distant Roost',
     'blackbeach2': 'Distant Roost',
     'golemplains': 'Titanic Plains',
@@ -191,11 +191,16 @@ stages = {
     'wispgraveyard': 'Scorched Acres',
     'dampcave': 'Abyssal Depths',
     'shipgraveyard': "Siren's Call",
-    'bazaar': 'Hidden Realm: Bazaar Between Time',   # Time paused, no stage progression on following stage
-    'goldshores': 'Hidden Realm: Glided Coast',   # Time paused, no stage progression on following stage
-    'mysteryspace': 'Hidden Realm: A Moment, Fractured',   # Time paused, no stage progression on following stage
-    'limbo': 'Hidden Realm: A Moment, Whole',   # Time paused, no stage progression on following stage
-    'arena': 'Hidden Realm: Void Fields'   # Time is NOT paused, no stage progression on following stage
+    # Time paused, no stage progression on following stage
+    'bazaar': 'Hidden Realm: Bazaar Between Time',
+    # Time paused, no stage progression on following stage
+    'goldshores': 'Hidden Realm: Glided Coast',
+    # Time paused, no stage progression on following stage
+    'mysteryspace': 'Hidden Realm: A Moment, Fractured',
+    # Time paused, no stage progression on following stage
+    'limbo': 'Hidden Realm: A Moment, Whole',
+    # Time is NOT paused, no stage progression on following stage
+    'arena': 'Hidden Realm: Void Fields'
 }
 
 
@@ -224,7 +229,8 @@ async def chat(self):
                     if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena'):
                         stagenum = stagenum
                         await channel.send('**Entering Stage - ' + stage + '**')
-                    elif devstage in ('lobby', 'title'):    # Won't output if the stage is title, done on purpose
+                    # Won't output if the stage is title, done on purpose
+                    elif devstage in ('lobby', 'title'):
                         stagenum = 0
                         if devstage == 'lobby':
                             await channel.send('**Entering ' + stage + '**')
@@ -307,11 +313,15 @@ async def server_stop():
     Returns:
         string: Indicates whether server stopped or not
     """
-    for process in (
-            process for process in psutil.process_iter() if process.name()
-            == "Risk of Rain 2.exe"):
-        process.kill()
-        return True
+    for proc in psutil.process_iter():
+        exe = Path.cwd().joinpath(ror2ds, 'Risk of Rain 2.exe')
+        try:
+            processExe = proc.exe()
+            if str(exe) == processExe:
+                proc.kill()
+                return True
+        except:
+            pass
     return False
 
 
