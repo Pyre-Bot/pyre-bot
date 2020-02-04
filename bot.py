@@ -53,25 +53,30 @@ cogs = [
 async def on_command_error(ctx, error):
     """Used to catch discord.py errors."""
     if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('Please pass in all required arguments.')
-        logging.warning(f'Argument error detected on command {ctx.command.name}')
+        if check_channel(ctx) is True:
+            await ctx.send('Please pass in all required arguments.')
+            logging.warning(f'Argument error detected on command {ctx.command.name}')
     elif isinstance(error, commands.CommandNotFound):
-        await ctx.send("Command doesn't exist, please view help for more information.")
-        logging.warning(
-            f'Command not found on command {ctx.message.content}')
+        if check_channel(ctx) is True:
+            await ctx.send("Command doesn't exist, please view help for more information.")
+            logging.warning(
+                f'Command not found on command {ctx.message.content}')
     elif isinstance(error, commands.TooManyArguments):
-        await ctx.send('Too many arguments, plase try again.')
-        logging.warning(f'Argument error detected on command: {ctx.command.name}')
+        if check_channel(ctx) is True:
+            await ctx.send('Too many arguments, plase try again.')
+            logging.warning(f'Argument error detected on command: {ctx.command.name}')
     elif isinstance(error, commands.MissingAnyRole):
-        await ctx.send("You don't have permission to do this.")
-        logging.warning(
-            f'Permission error from {ctx.message.author.name} '
-            + f'on command: {ctx.command.name}')
+        if check_channel(ctx) is True:
+            await ctx.send("You don't have permission to do this.")
+            logging.warning(
+                f'Permission error from {ctx.message.author.name} '
+                + f'on command: {ctx.command.name}')
     elif isinstance(error, commands.NotOwner):
-        await ctx.send("You don't have permissions to do this.")
-        logging.warning(
-            f'Permission error from {ctx.message.author.name} '
-            + f'on command: {ctx.command.name}')
+        if check_channel(ctx) is True:
+            await ctx.send("You don't have permissions to do this.")
+            logging.warning(
+                f'Permission error from {ctx.message.author.name} '
+                + f'on command: {ctx.command.name}')
     elif isinstance(error, commands.CheckFailure):
         # We don't need this output since we are expecting it
         pass
