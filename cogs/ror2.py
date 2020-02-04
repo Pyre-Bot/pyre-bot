@@ -38,7 +38,11 @@ repeat = 0
 stagenum = 0
 
 logfile = (BepInEx / "LogOutput.log")
-# reader = Pygtail(str(logfile))
+
+# These get assigned / updated every time server() is called
+# Only using string type as a placeholder to avoid exceptions if the server is not online when the bot initializes
+server_info = ''
+server_players = ''
 
 # Dictionaries used for functions
 equip = {
@@ -263,12 +267,12 @@ async def server():
 
     Returns:
         Boolean: Used by functions calling this to check if running
-
-    TODO:
-        Have this function return stage and player info about the server
     """
+    global server_info
+    global server_players
     try:
-        a2s.info(server_address, 1.0)
+        server_info = a2s.info(server_address, 1.0)
+        server_players = a2s.players(server_address)
         return True
     except:
 #        print("Server error:", sys.exc_info()[0], sys.exc_info()[1]) #  Used for debugging
@@ -278,18 +282,18 @@ async def server():
 async def server_restart():
     """Checks every 120 minutes if no players are active then restarts the server."""
     server_restart = s_restart
-    if server_restart == 'true':
+    if server_restart == "true":
         print('Auto server restarting enabled')
-    while server_restart == 'true':
-        await asyncio.sleep(7200)
-        info = a2s.info(server_address)
-        if info.player_count == 0:
-            await server_stop()
-            await asyncio.sleep(10)
-            os.startfile(ror2ds / "Risk of Rain 2.exe")
-            print('Server restarted')
-        elif info.player_count > 0:
-            print('Players currently in server')
+        while server_restart == "true":
+            await asyncio.sleep(7200)
+            await server()
+            if server_info.player_count == 0:
+                await server_stop()
+                await asyncio.sleep(10)
+                os.startfile(ror2ds / "Risk of Rain 2.exe")
+                print('Server restarted')
+            elif server_info.player_count > 0:
+                print('Players currently in server')
     else:
         print('Not restarting server')
 
@@ -297,7 +301,7 @@ async def server_restart():
 async def chat_autostart(self):
     """Autostarts live chat output if it is enabled."""
     chat_autostart = c_autostart
-    if chat_autostart == 'true':
+    if chat_autostart:
         print('Auto chat output enabled')
         global repeat
         repeat = 1
@@ -308,7 +312,6 @@ async def chat_autostart(self):
                 print('Unable to remove offset! Old messages may be displayed.')
         while repeat == 1:
             await chat(self)
-#            print('Chat function enabled! Will it loop?')
             await asyncio.sleep(1)
     else:
         print('Not outputting chat')
@@ -338,7 +341,7 @@ async def find_dll():
     Checks to see if the BotCommands plugin is installed on server.
 
     Returns:
-        bool: If true it is, otherwise it is not
+        Boolean: If true it is, otherwise it is not
     """
     plugin_dir = (BepInEx / 'plugins')
     files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
@@ -449,7 +452,7 @@ class RoR2(commands.Cog):
     )
     async def restart(self, ctx, time=15):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server() is True:
+        if await server():
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -459,16 +462,12 @@ class RoR2(commands.Cog):
             for emoji in ('✅', '❌'):
                 await message.add_reaction(emoji)
             await asyncio.sleep(time)
-
-            # Queries Steamworks to get total players
-            info = a2s.info(server_address)
-            player_count = info.player_count
             # Counts vote, if tie does nothing
             if yes == no:
                 await ctx.send('It was a tie! There must be a majority to restart the '
                                + 'server!')
             # If 75% of player count wants to restart it will
-            elif (yes - 1) >= (player_count * 0.75):
+            elif (yes - 1) >= (server_info.player_count * 0.75):
                 started = 1
                 stopped = await server_stop()
                 if stopped is True:
@@ -520,11 +519,8 @@ class RoR2(commands.Cog):
             yes, no = 0, 0
             author = ctx.author
             time = 30
-
-            players = a2s.players(server_address)
-            info = a2s.info(server_address)
             containskickplayer = 0
-            for player in players:
+            for player in server_players:
                 if kick_player.upper() in player.name.upper():
                     containskickplayer = 1
                     kick_player = player.name
@@ -536,7 +532,6 @@ class RoR2(commands.Cog):
                                          + 'vote!')
                 for emoji in ('✅', '❌'):
                     await message.add_reaction(emoji)
-                player_count = info.player_count
                 await asyncio.sleep(time)
                 # Counts vote, if tie does nothing
                 if yes == no:
@@ -545,7 +540,7 @@ class RoR2(commands.Cog):
                         + kick_player
                     )
                 # If 75% of player count wants to kick it will
-                elif (yes - 1) >= (player_count * 0.75):
+                elif (yes - 1) >= (server_info.player_count * 0.75):
                     append = open(botcmd / "botcmd.txt", 'a')
                     append.write('kick "' + kick_player + '"\n')
                     append.close()
@@ -584,17 +579,14 @@ class RoR2(commands.Cog):
             yes, no = 0, 0
             author = ctx.author
             time = 30
-
-            info = a2s.info(server_address)
             message = await ctx.send('A vote to end the run has been initiated by '
                                      + f'{author.mention}. Please react to this message'
                                      + ' with your vote!')
             for emoji in ('✅', '❌'):
                 await message.add_reaction(emoji)
-            player_count = info.player_count
             await asyncio.sleep(time)
             # If 75% of player count wants to end the run it will
-            if (yes - 1) >= (player_count * 0.75):
+            if (yes - 1) >= (server_info.player_count * 0.75):
                 append = open(botcmd / "botcmd.txt", 'a')
                 append.write('run_end' + '\n')
                 append.close()
@@ -635,9 +627,8 @@ class RoR2(commands.Cog):
     async def giveitem(self, ctx, playername, itemname, qty="1"):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
-            players = a2s.players(server_address)
             containsplayer = False
-            for player in players:
+            for player in server_players:
                 if playername.upper() in player.name.upper():
                     playername = player.name
                     containsplayer = True
@@ -701,9 +692,8 @@ class RoR2(commands.Cog):
     async def giveequip(self, ctx, playername, equipname):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
-            players = a2s.players(server_address)
             containsplayer = False
-            for player in players:
+            for player in server_players:
                 if playername.upper() in player.name.upper():
                     playername = player.name
                     containsplayer = True
@@ -764,27 +754,23 @@ class RoR2(commands.Cog):
     )
     async def status(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server() is True:
+        if await server():
             # Create embed
             embed = discord.Embed(
                 title='Server Information',
                 colour=discord.Colour.blue()
             )
 
-            # Use Steamworks API to query server
-            info = a2s.info(server_address)
-            players = a2s.players(server_address)
-
             # Creates the string of player names used in the embed
             player_names = []
-            for player in players:
+            for player in server_players:
                 player_names.append(player.name)
             player_names = ("\n".join(map(str, player_names)))
 
             # Convert Steam map name to game name
             for key, value in stages.items():
-                if key in info.map_name:
-                    map_name = value
+                if key in server_info.map_name:
+                    stage = value
                     break
 
             # Embed information
@@ -795,18 +781,18 @@ class RoR2(commands.Cog):
             embed.set_thumbnail(url=self.bot.user.avatar_url)
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
-                            value=f'{info.server_name}', inline=False)
-            embed.add_field(name='Current Stage', value=f'{map_name}', inline=False)
+                            value=f'{server_info.server_name}', inline=False)
+            embed.add_field(name='Current Stage', value=f'{stage}', inline=False)
             embed.add_field(
                 name='Player Count',
-                value=f'{info.player_count}/{info.max_players}', inline=False)
-            if info.player_count == 0:
+                value=f'{server_info.player_count}/{server_info.max_players}', inline=False)
+            if server_info.player_count == 0:
                 pass
             else:
                 embed.add_field(
                     name='Players', value=player_names, inline=False)
             embed.add_field(name='Server Ping',
-                            value=int(info.ping * 1000), inline=False)
+                            value=int(server_info.ping * 1000), inline=False)
 
             # Send embed
             await ctx.send(embed=embed)
