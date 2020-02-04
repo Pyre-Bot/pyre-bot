@@ -12,6 +12,8 @@ import psutil
 from discord.ext import commands
 from pygtail import Pygtail
 
+import sys
+
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
 config_object.read(config_file)
@@ -254,11 +256,17 @@ async def server():
     Checks if the server is running or not.
 
     Returns:
-        string: Used by functions calling this to check if running
+        Boolean: Used by functions calling this to check if running
+
+    TODO:
+        Have this function return stage and player info about the server
     """
-    if "Risk of Rain 2.exe" in (p.name() for p in psutil.process_iter()):
+    try:
+        a2s.info(server_address, 1.0)
         return True
-    return False
+    except:
+#        print("Server error:", sys.exc_info()[0], sys.exc_info()[1]) #  Used for debugging
+        return False
 
 
 async def server_restart():
@@ -305,7 +313,7 @@ async def server_stop():
     Stops the server.
 
     Returns:
-        string: Indicates whether server stopped or not
+        Boolean: Indicates whether server stopped or not
     """
     for process in (
             process for process in psutil.process_iter() if process.name()
@@ -351,7 +359,9 @@ class RoR2(commands.Cog):
     async def start(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
-        if await server() is True:
+        if await server():
+            await ctx.send('Server is already running!')
+        else:
             started = 1
             # Path of log file, removes before starting
             if os.path.exists(BepInEx / "LogOutput.log"):
@@ -373,19 +383,17 @@ class RoR2(commands.Cog):
                             await ctx.send('Server started successfully...')
                             started = 2
                             break
-        else:
-            await ctx.send('Server is already running!')
-
+            
     # Exits the server
     @commands.command(name='stop', help='Stops the server if currently running')
     @commands.has_role(role)
     async def stop(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server() is True:
+        if await server():
             stopped = await server_stop()
             if stopped is True:
                 await ctx.send('Risk of Rain 2 server shut down...')
-            elif stopped is False:
+            else:
                 await ctx.send('Unable to stop server!')
         else:
             await ctx.send('Server is not running!')
