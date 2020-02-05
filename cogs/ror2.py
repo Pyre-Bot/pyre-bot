@@ -3,6 +3,8 @@ import asyncio
 import logging
 import os
 import re
+import sys
+import time
 from configparser import ConfigParser
 from pathlib import Path
 
@@ -11,10 +13,6 @@ import discord
 import psutil
 from discord.ext import commands
 from pygtail import Pygtail
-
-import sys
-
-import time
 
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
@@ -217,6 +215,8 @@ stages = {
 
 # Repeated method call is currently located in chat_autostart or whatever, so it doesn't work if that is disabled. Can change this easily
 # Won't track things accurately if the bot is started mid-run (but the same already goes for stage number and things so whatever). If fixed_time actually worked this could be helped.
+
+
 async def run_time():
     global timepaused
     global run_timer
@@ -224,6 +224,7 @@ async def run_time():
         pass
     else:
         run_timer = run_timer + 1
+
 
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
@@ -269,10 +270,12 @@ async def chat(self):
                             run_timer = 0
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
                         else:
-                            if (run_timer - (int(run_timer/60))*60) < 10:
-                                formattedtime = str(int(run_timer/60)) + ':0' + str(run_timer - (int(run_timer/60))*60)
+                            if (run_timer - (int(run_timer / 60)) * 60) < 10:
+                                formattedtime = str(
+                                    int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
                             else:
-                                formattedtime = str(int(run_timer/60)) + ':' + str(run_timer - (int(run_timer/60))*60)
+                                formattedtime = str(
+                                    int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + ' [Time: ' + formattedtime + ']**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
@@ -306,7 +309,7 @@ async def server():
         server_players = a2s.players(server_address)
         return True
     except:
-#        print("Server error:", sys.exc_info()[0], sys.exc_info()[1]) #  Used for debugging
+        #        print("Server error:", sys.exc_info()[0], sys.exc_info()[1]) #  Used for debugging
         return False
 
 
@@ -428,7 +431,7 @@ class RoR2(commands.Cog):
                             await ctx.send('Server started successfully...')
                             started = 2
                             break
-            
+
     # Exits the server
     @commands.command(name='stop', help='Stops the server if currently running')
     @commands.has_role(role)
@@ -669,7 +672,7 @@ class RoR2(commands.Cog):
             tempreader = Pygtail(str(logfile))
             while findline:
                 for line in tempreader:
-#                    print('line -' + str(line))  # Debug
+                    #                    print('line -' + str(line))  # Debug
                     if ('Server(0) issued' in line):
                         continue
                     elif ('is not a recognized ConCommand or ConVar.' in line):
@@ -677,16 +680,17 @@ class RoR2(commands.Cog):
                         findline = False
                         break
                     elif ('[Info   : Unity Log]' in line):  # There's an \n in every line
-                        consoleout = str(line.replace('[Info   : Unity Log] ','')) #  TODO: Add catches for other types of messages, like [Error  : Unity Log]
+                        # TODO: Add catches for other types of messages, like [Error  : Unity Log]
+                        consoleout = str(line.replace('[Info   : Unity Log] ', ''))
                         findline = False
                         continue
                     elif str(line) != '\n':
-#                        print('not newline')  # Debug
+                        #                        print('not newline')  # Debug
                         consoleout += str(line)
-                        findline = False #  This was the trick, keep going through the lines until there are none left, and then the encompassing while loop will break
+                        findline = False  # This was the trick, keep going through the lines until there are none left, and then the encompassing while loop will break
                         continue
                     else:
-#                        print('newline')  # Debug
+                        #                        print('newline')  # Debug
                         findline = False
                         continue
             await ctx.send('**Server: **' + consoleout)
