@@ -35,7 +35,7 @@ botcmd = Path.joinpath(BepInEx, 'plugins', 'BotCommands')
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 repeat = 0
-stagenum = 0
+stagenum = -1
 
 logfile = (BepInEx / "LogOutput.log")
 
@@ -213,10 +213,12 @@ stages = {
 }
 
 async def get_run_time():
-    global stagenum
+    await server()
+    global server_info
     global run_timer
-    if stagenum == 0:
-        print('Tried to get run time before a run has started')  # NOT REALLY EXCEPTION HANDLING BUT RIGHT NOW ITS BEING DESIGNED WHERE THIS FUNCTION SHOULD NOT BE CALLED BY A USER (UNLESS IT GETS ADDED TO STATUS TOO)
+    if server_info.map_name in ('lobby', 'title'):
+        print('Tried to get run time before a run has started')
+        run_timer = 0
     else:
         append = open(botcmd / "botcmd.txt", 'a')
         append.write('fixed_time' + '\n')
@@ -228,6 +230,26 @@ async def get_run_time():
                     line = str(line.replace('[Info   : Unity Log] Run time is ',''))
                     run_timer = float(line)
                     run_timer = int(run_timer)
+                    findline = False
+                    break
+
+async def get_cleared_stages():
+    await server()
+    global server_info
+    global stagenum
+    if server_info.map_name in ('lobby', 'title'):
+        print('Tried to get stage number before a run has started')
+        stagenum = 0
+    else:
+        append = open(botcmd / "botcmd.txt", 'a')
+        append.write('get_stages_cleared' + '\n')
+        append.close()
+        findline = True
+        while findline:
+            for line in Pygtail(str(logfile)):
+                if ('[Info   : Unity Log] Stages cleared: ' in line): # [Info   : Unity Log] Stages cleared: 3
+                    line = str(line.replace('[Info   : Unity Log] Stages cleared: ',''))
+                    stagenum = int(line) + 1
                     findline = False
                     break
 
@@ -258,11 +280,10 @@ async def chat(self):
                         await channel.send('**Entering Stage - ' + stage + '**')
                     # Won't output if the stage is title, done on purpose
                     elif devstage in ('lobby', 'title'):
-                        stagenum = 0
                         if devstage == 'lobby':
                             await channel.send('**Entering ' + stage + '**')
                     else:
-                        stagenum = stagenum + 1
+                        await get_cleared_stages()
                         if stagenum == 1:
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
                         else:
@@ -271,7 +292,7 @@ async def chat(self):
                                 formattedtime = str(int(run_timer/60)) + ':0' + str(run_timer - (int(run_timer/60))*60)
                             else:
                                 formattedtime = str(int(run_timer/60)) + ':' + str(run_timer - (int(run_timer/60))*60)
-                            await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + ' [Time: ' + formattedtime + ']**')
+                            await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
                     line = line.replace(
@@ -604,25 +625,29 @@ class RoR2(commands.Cog):
     async def endrun(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
-            global yes, no
-            yes, no = 0, 0
-            author = ctx.author
-            time = 30
-            message = await ctx.send('A vote to end the run has been initiated by '
-                                     + f'{author.mention}. Please react to this message'
-                                     + ' with your vote!')
-            for emoji in ('✅', '❌'):
-                await message.add_reaction(emoji)
-            await asyncio.sleep(time)
-            # If 75% of player count wants to end the run it will
-            if (yes - 1) >= (server_info.player_count * 0.75):
-                append = open(botcmd / "botcmd.txt", 'a')
-                append.write('run_end' + '\n')
-                append.close()
-                await ctx.send('Run ended, all players have been returned to the lobby')
-            # If vote fails
+            global server_info
+            if server_info.map_name in ('lobby', 'title'):
+                await ctx.send('No run in progress.')
             else:
-                await ctx.send('Vote failed. There must be a majority to end the run')
+                global yes, no
+                yes, no = 0, 0
+                author = ctx.author
+                time = 30
+                message = await ctx.send('A vote to end the run has been initiated by '
+                                         + f'{author.mention}. Please react to this message'
+                                         + ' with your vote!')
+                for emoji in ('✅', '❌'):
+                    await message.add_reaction(emoji)
+                await asyncio.sleep(time)
+                # If 75% of player count wants to end the run it will
+                if (yes - 1) >= (server_info.player_count * 0.75):
+                    append = open(botcmd / "botcmd.txt", 'a')
+                    append.write('run_end' + '\n')
+                    append.close()
+                    await ctx.send('Run ended, all players have been returned to the lobby')
+                # If vote fails
+                else:
+                    await ctx.send('Vote failed. There must be a majority to end the run')
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
@@ -658,9 +683,8 @@ class RoR2(commands.Cog):
     async def customcmd(self, ctx, *, cmd_with_args):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
-            global stagenum
-#            print('stage num - ' + str(stagenum))  # DEBUG
-            if stagenum == 0:
+            global server_info
+            if server_info.map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress. Use >say if you want to send a message to the lobby.')
             else:
                 append = open(botcmd / "botcmd.txt", 'a')
@@ -711,40 +735,44 @@ class RoR2(commands.Cog):
     async def giveitem(self, ctx, playername, itemname, qty="1"):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
-            containsplayer = False
-            for player in server_players:
-                if playername.upper() in player.name.upper():
-                    playername = player.name
-                    containsplayer = True
-                    break
-            if containsplayer is True:
-                append = open(botcmd / "botcmd.txt", 'a')
-                append.write('give_item "' + itemname + '" '
-                             + qty + ' "' + playername + '"\n')
-                append.close()
-                findline = True
-                tempreader = Pygtail(str(logfile))
-                while findline:
-                    for line in tempreader:
-                        if ('[Info   : Unity Log] The requested object could not be '
-                                + 'found' in line):
-                            await ctx.send(itemname + ' is not a valid item name')
-                            findline = False
-                            break
-                        elif "[Info   : Unity Log] Gave" in line:
-                            if "None" in line:
-                                pass
-                            else:
-                                for key, value in item.items():
-                                    if key in line:
-                                        itemname = value
-                                        break
-                                await ctx.send('Gave ' + qty + ' ' + itemname + ' to '
-                                               + playername)
+            global server_info
+            if server_info.map_name in ('lobby', 'title'):
+                await ctx.send('No run in progress')
+            else:
+                containsplayer = False
+                for player in server_players:
+                    if playername.upper() in player.name.upper():
+                        playername = player.name
+                        containsplayer = True
+                        break
+                if containsplayer is True:
+                    append = open(botcmd / "botcmd.txt", 'a')
+                    append.write('give_item "' + itemname + '" '
+                                 + qty + ' "' + playername + '"\n')
+                    append.close()
+                    findline = True
+                    tempreader = Pygtail(str(logfile))
+                    while findline:
+                        for line in tempreader:
+                            if ('[Info   : Unity Log] The requested object could not be '
+                                    + 'found' in line):
+                                await ctx.send(itemname + ' is not a valid item name')
                                 findline = False
                                 break
-            elif containsplayer is False:
-                await ctx.send(playername + ' is not playing on the server')
+                            elif "[Info   : Unity Log] Gave" in line:
+                                if "None" in line:
+                                    pass
+                                else:
+                                    for key, value in item.items():
+                                        if key in line:
+                                            itemname = value
+                                            break
+                                    await ctx.send('Gave ' + qty + ' ' + itemname + ' to '
+                                                   + playername)
+                                    findline = False
+                                    break
+                elif containsplayer is False:
+                    await ctx.send(playername + ' is not playing on the server')
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
@@ -776,40 +804,44 @@ class RoR2(commands.Cog):
     async def giveequip(self, ctx, playername, equipname):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
-            containsplayer = False
-            for player in server_players:
-                if playername.upper() in player.name.upper():
-                    playername = player.name
-                    containsplayer = True
-                    break
-            if containsplayer is True:
-                append = open(botcmd / "botcmd.txt", 'a')
-                append.write('give_equip "' + equipname + '" "'
-                             + playername + '"\n')
-                append.close()
-                findline = True
-                tempreader = Pygtail(str(logfile))
-                while findline:
-                    for line in tempreader:
-                        if ('[Info   : Unity Log] The requested object could not be '
-                                + 'found' in line):
-                            await ctx.send(equipname + ' is not a valid equipment name')
-                            findline = False
-                            break
-                        elif "[Info   : Unity Log] Gave" in line:
-                            if "None" in line:
-                                pass
-                            else:
-                                for key, value in equip.items():
-                                    if key in line:
-                                        equipname = value
-                                        break
-                                await ctx.send('Gave ' + equipname + ' to '
-                                               + playername)
+            global server_info
+            if server_info.map_name in ('lobby', 'title'):
+                await ctx.send('No run in progress')
+            else:
+                containsplayer = False
+                for player in server_players:
+                    if playername.upper() in player.name.upper():
+                        playername = player.name
+                        containsplayer = True
+                        break
+                if containsplayer is True:
+                    append = open(botcmd / "botcmd.txt", 'a')
+                    append.write('give_equip "' + equipname + '" "'
+                                 + playername + '"\n')
+                    append.close()
+                    findline = True
+                    tempreader = Pygtail(str(logfile))
+                    while findline:
+                        for line in tempreader:
+                            if ('[Info   : Unity Log] The requested object could not be '
+                                    + 'found' in line):
+                                await ctx.send(equipname + ' is not a valid equipment name')
                                 findline = False
                                 break
-            elif containsplayer is False:
-                await ctx.send(playername + ' is not playing on the server')
+                            elif "[Info   : Unity Log] Gave" in line:
+                                if "None" in line:
+                                    pass
+                                else:
+                                    for key, value in equip.items():
+                                        if key in line:
+                                            equipname = value
+                                            break
+                                    await ctx.send('Gave ' + equipname + ' to '
+                                                   + playername)
+                                    findline = False
+                                    break
+                elif containsplayer is False:
+                    await ctx.send(playername + ' is not playing on the server')
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
@@ -927,7 +959,7 @@ class RoR2(commands.Cog):
                 print('Unable to remove offset! Old messages may be displayed.')
         while repeat == 1:
             await chat(self)
-            await asyncio.sleep(1)
+#            await asyncio.sleep(1)
 
     # Stop outputting live server chat to Discord
     @commands.command(
