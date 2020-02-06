@@ -14,8 +14,6 @@ from pygtail import Pygtail
 
 import sys
 
-import time
-
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
 config_object.read(config_file)
