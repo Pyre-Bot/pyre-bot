@@ -48,7 +48,6 @@ server_players = ''
 
 # Time
 run_timer = 0
-timepaused = ''
 
 # Dictionaries used for functions
 equip = {
@@ -215,15 +214,24 @@ stages = {
     'arena': 'Hidden Realm: Void Fields'
 }
 
-# Repeated method call is currently located in chat_autostart or whatever, so it doesn't work if that is disabled. Can change this easily
-# Won't track things accurately if the bot is started mid-run (but the same already goes for stage number and things so whatever). If fixed_time actually worked this could be helped.
-async def run_time():
-    global timepaused
+async def get_run_time():
+    global stagenum
     global run_timer
-    if timepaused is True:
-        pass
+    if stagenum == 0:
+        print('Tried to get run time before a run has started')  # NOT REALLY EXCEPTION HANDLING BUT RIGHT NOW ITS BEING DESIGNED WHERE THIS FUNCTION SHOULD NOT BE CALLED BY A USER (UNLESS IT GETS ADDED TO STATUS TOO)
     else:
-        run_timer = run_timer + 1
+        append = open(botcmd / "botcmd.txt", 'a')
+        append.write('fixed_time' + '\n')
+        append.close()
+        findline = True
+        while findline:
+            for line in Pygtail(str(logfile)):
+                if ('[Info   : Unity Log] Run time is ' in line): # [Info   : Unity Log] Run time is 29.34971
+                    line = str(line.replace('[Info   : Unity Log] Run time is ',''))
+                    run_timer = float(line)
+                    run_timer = int(run_timer)
+                    findline = False
+                    break
 
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
@@ -231,7 +239,6 @@ async def chat(self):
     channel = self.bot.get_channel(channel)
     global stagenum
     global run_timer
-    global timepaused
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
             for line in Pygtail(str(logfile)):
@@ -250,25 +257,18 @@ async def chat(self):
                             stage = value
                             break
                     if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena'):
-                        if devstage == 'arena':
-                            timepaused = False
-                        else:
-                            timepaused = True
                         await channel.send('**Entering Stage - ' + stage + '**')
                     # Won't output if the stage is title, done on purpose
                     elif devstage in ('lobby', 'title'):
-                        timepaused = True
-                        run_timer = 0
                         stagenum = 0
                         if devstage == 'lobby':
                             await channel.send('**Entering ' + stage + '**')
                     else:
                         stagenum = stagenum + 1
-                        timepaused = False
                         if stagenum == 1:
-                            run_timer = 0
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
                         else:
+                            await get_run_time()
                             if (run_timer - (int(run_timer/60))*60) < 10:
                                 formattedtime = str(int(run_timer/60)) + ':0' + str(run_timer - (int(run_timer/60))*60)
                             else:
@@ -343,7 +343,6 @@ async def chat_autostart(self):
                 print('Unable to remove offset! Old messages may be displayed.')
         while repeat == 1:
             await chat(self)
-            await run_time()
             await asyncio.sleep(1)
     else:
         print('Not outputting chat')
@@ -649,7 +648,7 @@ class RoR2(commands.Cog):
         elif await find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
-    # EXPERIMENTAL
+    # EXPERIMENTAL - Use with caution
     # Passes on a command to be interpreted directly by the console
     # TODO: Test this when there's a lot of output, i.e. many players at once
     @commands.command(
@@ -661,35 +660,44 @@ class RoR2(commands.Cog):
     async def customcmd(self, ctx, *, cmd_with_args):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
-            append = open(botcmd / "botcmd.txt", 'a')
-            append.write(cmd_with_args + '\n')
-            append.close()
-            findline = True
-            consoleout = ''
-            tempreader = Pygtail(str(logfile))
-            while findline:
-                for line in tempreader:
-#                    print('line -' + str(line))  # Debug
-                    if ('Server(0) issued' in line):
-                        continue
-                    elif ('is not a recognized ConCommand or ConVar.' in line):
-                        await ctx.send(cmd_with_args + ' is not a valid command')
-                        findline = False
-                        break
-                    elif ('[Info   : Unity Log]' in line):  # There's an \n in every line
-                        consoleout = str(line.replace('[Info   : Unity Log] ','')) #  TODO: Add catches for other types of messages, like [Error  : Unity Log]
-                        findline = False
-                        continue
-                    elif str(line) != '\n':
-#                        print('not newline')  # Debug
-                        consoleout += str(line)
-                        findline = False #  This was the trick, keep going through the lines until there are none left, and then the encompassing while loop will break
-                        continue
-                    else:
-#                        print('newline')  # Debug
-                        findline = False
-                        continue
-            await ctx.send('**Server: **' + consoleout)
+            global stagenum
+#            print('stage num - ' + str(stagenum))  # DEBUG
+            if stagenum == 0:
+                await ctx.send('No run in progress. Use >say if you want to send a message to the lobby.')
+            else:
+                append = open(botcmd / "botcmd.txt", 'a')
+                append.write(cmd_with_args + '\n')
+                append.close()
+                findline = True
+                consoleout = ''
+                tempreader = Pygtail(str(logfile))
+                while findline:
+                    for line in tempreader:
+    #                    print('line -' + str(line))  # DEBUG
+                        if ('Server(0) issued' in line):
+                            continue
+                        elif ('is not a recognized ConCommand or ConVar.' in line):
+                            await ctx.send(cmd_with_args + ' is not a valid command')
+                            findline = False
+                            break
+                        elif ('[Info   : Unity Log]' in line):  # There's an \n in every line
+                            consoleout = str(line.replace('[Info   : Unity Log] ',''))
+                            findline = False
+                            continue
+                        elif ('[Error  : Unity Log]' in line):  # There's an \n in every line
+                            consoleout = str(line.replace('[Error  : Unity Log] ','Error - '))
+                            findline = False
+                            continue
+                        elif str(line) != '\n':
+    #                        print('not newline')  # Debug
+                            consoleout += str(line)
+                            findline = False #  This was the trick, keep going through the lines until there are none left, and then the encompassing while loop will break
+                            continue
+                        else:
+    #                        print('newline')  # Debug
+                            findline = False
+                            continue
+                await ctx.send('**Server: **' + consoleout)
         elif await server() is False:
             await ctx.send('Server is not running...')
         elif await find_dll() is False:
