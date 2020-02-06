@@ -133,3 +133,5 @@ Test Files
 /.vs
 site/
 Discord Test
+config/config.ini
+cogs/config
