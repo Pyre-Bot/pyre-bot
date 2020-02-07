@@ -45,7 +45,8 @@ commands_channel = config_object.getint('General', 'commands-channel')
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 cogs = [
     'cogs.ror2',
-    'cogs.admin'
+    'cogs.ror2_admin',
+    'cogs.misc'
 ]
 
 # Error handling
