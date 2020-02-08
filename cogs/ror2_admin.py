@@ -7,7 +7,6 @@ from configparser import ConfigParser
 from pathlib import Path
 
 import a2s
-import discord
 import psutil
 from discord.ext import commands
 from pygtail import Pygtail
@@ -268,6 +267,26 @@ async def chat(self):
             for line in Pygtail(str(logfile)):
                 # Player chat
                 if "issued: say" in line:
+                    if 'votekick' in line:
+                        line = line.replace('[Info   : Unity Log] ', '')
+                        line = re.sub(r" ?\([^)]+\)", " ", line)
+                        line = line.replace(' issued: say ', '')
+                        playername, *middle, kick_player = line.split()
+                        contains_playername = False
+                        contains_kick_player = False
+                        for player in server_players:
+                            if playername.upper() in player.name.upper():
+                                playername = player.name
+                                contains_playername = True
+                            if kick_player.upper() in player.name.upper():
+                                kick_player = player.name
+                                contains_kick_player = True
+                        message = 'Testing'
+                        if (contains_playername is True) and (contains_kick_player is True):
+                            if await server() and await find_dll() is True:
+                                append = open(botcmd / "botcmd.txt", 'a')
+                                append.write('kick "' + kick_player + '"\n')
+                                append.close()
                     line = line.replace('[Info   : Unity Log] ', '**')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     line = line.replace(' issued:', ':** ')
