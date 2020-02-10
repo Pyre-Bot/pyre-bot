@@ -99,6 +99,7 @@ async def server_stop():
             processExe = proc.exe()
             if str(exe) == processExe:
                 proc.kill()
+                logging.info('Server stopped')
                 return True
         except:
             pass
@@ -116,6 +117,7 @@ async def find_dll():
     files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
     if 'BotCommands.dll' in files:
         return True
+    logging.warning('Unable to find BotCommands.dll!')
     return False
 
 
@@ -141,8 +143,8 @@ class RoR2(commands.Cog):
         usage='time'
     )
     async def restart(self, ctx, time=15):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server():
+            logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -154,6 +156,7 @@ class RoR2(commands.Cog):
             await asyncio.sleep(time)
             # Counts vote, if tie does nothing
             if yes == no:
+                logging.info('There were not enoough votes to restart the server')
                 await ctx.send('It was a tie! There must be a majority to restart the '
                                + 'server!')
             # If 75% of player count wants to restart it will
@@ -188,6 +191,7 @@ class RoR2(commands.Cog):
                                 break
                 # All other options
             else:
+                logging.info('There were not enoough votes to restart the server')
                 await ctx.send('Restart vote failed!')
         else:
             await ctx.send('Server is not running, unable to restart...')
@@ -203,7 +207,6 @@ class RoR2(commands.Cog):
         usage='playername'
     )
     async def votekick(self, ctx, *, kick_player):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
             global yes, no
             yes, no = 0, 0
@@ -216,6 +219,8 @@ class RoR2(commands.Cog):
                     kick_player = player.name
                     break
             if containskickplayer == 1:
+                logging.info(
+                    f'{ctx.message.author.name} started a vote to kick {kick_player}')
                 message = await ctx.send('A vote to kick ' + kick_player
                                          + f' has been initiated by {author.mention}. '
                                          + 'Please react to this message with your '
@@ -231,12 +236,14 @@ class RoR2(commands.Cog):
                     )
                 # If 75% of player count wants to kick it will
                 elif (yes - 1) >= (server_info.player_count * 0.75):
+                    logging.info(f'{kick_player} was kicked from the game.')
                     append = open(botcmd / "botcmd.txt", 'a')
                     append.write('kick "' + kick_player + '"\n')
                     append.close()
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
                 else:
+                    logging.info('Not enough votes to pass')
                     await ctx.send('Vote failed. There must be a majority to kick '
                                    + kick_player
                                    )
@@ -263,8 +270,8 @@ class RoR2(commands.Cog):
         help='Begins a vote to end the current run',
     )
     async def endrun(self, ctx):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server() and await find_dll() is True:
+            logging.info(f'{ctx.message.author.name} started an end run vote')
             global server_info
             if server_info.map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress.')
@@ -281,12 +288,14 @@ class RoR2(commands.Cog):
                 await asyncio.sleep(time)
                 # If 75% of player count wants to end the run it will
                 if (yes - 1) >= (server_info.player_count * 0.75):
+                    logging.info('Vote passed to end the current run')
                     append = open(botcmd / "botcmd.txt", 'a')
                     append.write('run_end' + '\n')
                     append.close()
                     await ctx.send('Run ended, all players have been returned to the lobby')
                 # If vote fails
                 else:
+                    logging.info('End run vote failed')
                     await ctx.send('Vote failed. There must be a majority to end the run')
         elif await server() is False:
             await ctx.send('Server is not running...')

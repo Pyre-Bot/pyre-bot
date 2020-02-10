@@ -268,6 +268,7 @@ async def chat(self):
                 # Player chat
                 if "issued: say" in line:
                     if 'votekick' in line:
+                        logging.info('Votekick command started from in game')
                         line = line.replace('[Info   : Unity Log] ', '')
                         line = re.sub(r" ?\([^)]+\)", " ", line)
                         line = line.replace(' issued: say ', '')
@@ -384,7 +385,7 @@ async def chat_autostart(self):
             try:
                 os.remove(BepInEx / "LogOutput.log.offset")
             except Exception:
-                print('Unable to remove offset! Old messages may be displayed.')
+                print('Unable to remove offset! Chat may not work!')
         while repeat == 1:
             await chat(self)
             await asyncio.sleep(1)
@@ -405,6 +406,7 @@ async def server_stop():
             processExe = proc.exe()
             if str(exe) == processExe:
                 proc.kill()
+                logging.info('Server stopped')
                 return True
         except:
             pass
@@ -422,6 +424,7 @@ async def find_dll():
     files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
     if 'BotCommands.dll' in files:
         return True
+    logging.warning('Unable to find BotCommands.dll!')
     return False
 
 
@@ -439,26 +442,37 @@ class ror2_admin(commands.Cog):
         if await server():
             await ctx.send('Server is already running!')
         else:
-            started = 1
+            started = False
             # Path of log file, removes before starting
             if os.path.exists(BepInEx / "LogOutput.log"):
                 try:
                     os.remove(BepInEx / "LogOutput.log")
                 except Exception:
                     print('Unable to remove log file')
+            # Path of log offset file, removes before starting
+            if os.path.exists(BepInEx / "LogOutput.log.offset"):
+                try:
+                    os.remove(BepInEx / "LogOutput.log.offset")
+                except Exception:
+                    print('Unable to remove log offset file')
 
             # Starts the server
-            os.startfile(ror2ds / "Risk of Rain 2.exe")
-            await ctx.send('Starting Risk of Rain 2 Server, please wait...')
-            await asyncio.sleep(15)
+            try:
+                os.startfile(ror2ds / "Risk of Rain 2.exe")
+                started = True
+                await ctx.send('Starting Risk of Rain 2 Server, please wait...')
+                await asyncio.sleep(15)
+            except Exception:
+                logging.warning('Error starting the server!')
+                await ctx.send('Unable to start the server, please check the logs')
 
             # After 15 seconds checks logs to see if server started
-            while started == 1:
+            while started is True:
                 with open(BepInEx / "LogOutput.log") as f:
                     for line in f:
                         if "Loaded scene lobby" in line:
                             await ctx.send('Server started successfully...')
-                            started = 2
+                            started = False
                             break
 
     # Exits the server
