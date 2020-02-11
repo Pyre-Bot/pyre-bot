@@ -31,6 +31,7 @@ botcmd = Path.joinpath(BepInEx, 'plugins', 'BotCommands')
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
+voted_players = []
 repeat = 0
 stagenum = -1
 
@@ -262,12 +263,36 @@ async def chat(self):
     channel = self.bot.get_channel(channel)
     global stagenum
     global run_timer
+    global yes, no
+    global voted_players
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
             for line in Pygtail(str(logfile)):
                 # Player chat
                 if "issued: say" in line:
+                    if "yes" in line:
+                        print('yes')
+                        line = line.replace('[Info   : Unity Log] ', '')
+                        line = re.sub(r" ?\([^)]+\)", " ", line)
+                        line = line.replace(' issued: say ', '')
+                        playername, *middle, vote = line.split()
+                        print(playername)
+                        if playername in voted_players:
+                            print('playername exists')
+                            pass
+                        else:
+                            print('noplayername')
+                            voted_players = voted_players.append(playername)
+                            yes = yes + 1
+                            print(yes)
+                            append = open(botcmd / "botcmd.txt", 'a')
+                            print(voted_players)
+                            append.write('say "' + str(voted_players) + '"\n')
+                            append.close()
+                            print('appended')
                     if 'votekick' in line:
+                        voted_players = []
+                        yes, no = 0, 0
                         logging.info('Votekick command started from in game')
                         line = line.replace('[Info   : Unity Log] ', '')
                         line = re.sub(r" ?\([^)]+\)", " ", line)
@@ -282,12 +307,12 @@ async def chat(self):
                             if kick_player.upper() in player.name.upper():
                                 kick_player = player.name
                                 contains_kick_player = True
-                        message = 'Testing'
                         if (contains_playername is True) and (contains_kick_player is True):
                             if await server() and await find_dll() is True:
-                                append = open(botcmd / "botcmd.txt", 'a')
-                                append.write('kick "' + kick_player + '"\n')
-                                append.close()
+                                pass
+                                # append = open(botcmd / "botcmd.txt", 'a')
+                                # append.write('kick "' + kick_player + '"\n')
+                                # append.close()
                     line = line.replace('[Info   : Unity Log] ', '**')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     line = line.replace(' issued:', ':** ')
@@ -752,7 +777,7 @@ class ror2_admin(commands.Cog):
                 print('Unable to remove offset! Old messages may be displayed.')
         while repeat == 1:
             await chat(self)
-    #            await asyncio.sleep(1)
+            await asyncio.sleep(1)
 
     # Stop outputting live server chat to Discord
     @commands.command(
