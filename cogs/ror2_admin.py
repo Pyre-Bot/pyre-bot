@@ -28,22 +28,18 @@ c_autostart = ror2['auto-start-chat']
 s_restart = ror2['auto-server-restart']
 hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
 botcmd = Path.joinpath(BepInEx, 'plugins', 'BotCommands')
+logfile = (BepInEx / "LogOutput.log")
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 voted_players = []
 repeat = 0
 stagenum = -1
-
-logfile = (BepInEx / "LogOutput.log")
-
+run_timer = 0
 # These get assigned / updated every time server() is called
-# Only using string type as a placeholder to avoid exceptions if the server is not online when the bot initializes
 server_info = ''
 server_players = ''
 
-# Time
-run_timer = 0
 
 # Dictionaries used for functions
 equip = {
@@ -257,6 +253,95 @@ async def get_cleared_stages():
                     break
 
 
+async def vote_yes(line):
+    global yes, no
+    global voted_players
+    print('yes')
+    line = line.replace('[Info   : Unity Log] ', '')
+    line = re.sub(r" ?\([^)]+\)", " ", line)
+    line = line.replace(' issued: say ', '')
+    playername, *middle, vote = line.split()
+    print(playername)
+    if playername in voted_players:
+        print('playername exists')
+        message = 'You already voted!'
+        append = open(botcmd / "botcmd.txt", 'a')
+        print(voted_players)
+        append.write('say "' + message + '"\n')
+        append.close()
+    else:
+        print('noplayername')
+        voted_players.append(playername)
+        yes = yes + 1
+        print(yes)
+        append = open(botcmd / "botcmd.txt", 'a')
+        print(voted_players)
+        append.write('say "' + str(yes) + '"\n')
+        append.close()
+        print('appended')
+
+
+async def vote_no(line):
+    global yes, no
+    global voted_players
+    print('no')
+    line = line.replace('[Info   : Unity Log] ', '')
+    line = re.sub(r" ?\([^)]+\)", " ", line)
+    line = line.replace(' issued: say ', '')
+    playername, *middle, vote = line.split()
+    print(playername)
+    if playername in voted_players:
+        print('playername exists')
+        message = 'You already voted!'
+        append = open(botcmd / "botcmd.txt", 'a')
+        print(voted_players)
+        append.write('say "' + message + '"\n')
+        append.close()
+    else:
+        print('noplayername')
+        voted_players.append(playername)
+        yes = yes + 1
+        print(yes)
+        append = open(botcmd / "botcmd.txt", 'a')
+        print(voted_players)
+        append.write('say "' + str(yes) + '"\n')
+        append.close()
+        print('appended')
+
+
+async def votekick_ingame(line):
+    global yes, no
+    global voted_players
+    voted_players = []
+    yes, no = 0, 0
+    logging.info('Votekick command started from in game')
+    line = line.replace('[Info   : Unity Log] ', '')
+    line = re.sub(r" ?\([^)]+\)", " ", line)
+    line = line.replace(' issued: say ', '')
+    playername, *middle, kick_player = line.split()
+    contains_playername = False
+    contains_kick_player = False
+    for player in server_players:
+        if playername.upper() in player.name.upper():
+            playername = player.name
+            contains_playername = True
+        if kick_player.upper() in player.name.upper():
+            kick_player = player.name
+            contains_kick_player = True
+    # if (contains_playername is True) and (contains_kick_player is True):
+    if await server() and await find_dll() is True:
+        await asyncio.sleep(5)
+        if (yes > no):
+            print('Vote win')
+        elif (yes == no):
+            print('Vote tie')
+        else:
+            print('Vote fail')
+            # append = open(botcmd / "botcmd.txt", 'a')
+            # append.write('kick "' + kick_player + '"\n')
+            # append.close()
+
+
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     channel = config_object.getint('RoR2', 'channel')
@@ -271,48 +356,11 @@ async def chat(self):
                 # Player chat
                 if "issued: say" in line:
                     if "yes" in line:
-                        print('yes')
-                        line = line.replace('[Info   : Unity Log] ', '')
-                        line = re.sub(r" ?\([^)]+\)", " ", line)
-                        line = line.replace(' issued: say ', '')
-                        playername, *middle, vote = line.split()
-                        print(playername)
-                        if playername in voted_players:
-                            print('playername exists')
-                            pass
-                        else:
-                            print('noplayername')
-                            voted_players = voted_players.append(playername)
-                            yes = yes + 1
-                            print(yes)
-                            append = open(botcmd / "botcmd.txt", 'a')
-                            print(voted_players)
-                            append.write('say "' + str(voted_players) + '"\n')
-                            append.close()
-                            print('appended')
+                        await vote_yes(line)
+                    if "no" in line:
+                        await vote_no(line)
                     if 'votekick' in line:
-                        voted_players = []
-                        yes, no = 0, 0
-                        logging.info('Votekick command started from in game')
-                        line = line.replace('[Info   : Unity Log] ', '')
-                        line = re.sub(r" ?\([^)]+\)", " ", line)
-                        line = line.replace(' issued: say ', '')
-                        playername, *middle, kick_player = line.split()
-                        contains_playername = False
-                        contains_kick_player = False
-                        for player in server_players:
-                            if playername.upper() in player.name.upper():
-                                playername = player.name
-                                contains_playername = True
-                            if kick_player.upper() in player.name.upper():
-                                kick_player = player.name
-                                contains_kick_player = True
-                        if (contains_playername is True) and (contains_kick_player is True):
-                            if await server() and await find_dll() is True:
-                                pass
-                                # append = open(botcmd / "botcmd.txt", 'a')
-                                # append.write('kick "' + kick_player + '"\n')
-                                # append.close()
+                        await votekick_ingame(line)
                     line = line.replace('[Info   : Unity Log] ', '**')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     line = line.replace(' issued:', ':** ')
