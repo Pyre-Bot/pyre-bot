@@ -253,95 +253,6 @@ async def get_cleared_stages():
                     break
 
 
-async def vote_yes(line):
-    global yes, no
-    global voted_players
-    print('yes')
-    line = line.replace('[Info   : Unity Log] ', '')
-    line = re.sub(r" ?\([^)]+\)", " ", line)
-    line = line.replace(' issued: say ', '')
-    playername, *middle, vote = line.split()
-    print(playername)
-    if playername in voted_players:
-        print('playername exists')
-        message = 'You already voted!'
-        append = open(botcmd / "botcmd.txt", 'a')
-        print(voted_players)
-        append.write('say "' + message + '"\n')
-        append.close()
-    else:
-        print('noplayername')
-        voted_players.append(playername)
-        yes = yes + 1
-        print(yes)
-        append = open(botcmd / "botcmd.txt", 'a')
-        print(voted_players)
-        append.write('say "' + str(yes) + '"\n')
-        append.close()
-        print('appended')
-
-
-async def vote_no(line):
-    global yes, no
-    global voted_players
-    print('no')
-    line = line.replace('[Info   : Unity Log] ', '')
-    line = re.sub(r" ?\([^)]+\)", " ", line)
-    line = line.replace(' issued: say ', '')
-    playername, *middle, vote = line.split()
-    print(playername)
-    if playername in voted_players:
-        print('playername exists')
-        message = 'You already voted!'
-        append = open(botcmd / "botcmd.txt", 'a')
-        print(voted_players)
-        append.write('say "' + message + '"\n')
-        append.close()
-    else:
-        print('noplayername')
-        voted_players.append(playername)
-        yes = yes + 1
-        print(yes)
-        append = open(botcmd / "botcmd.txt", 'a')
-        print(voted_players)
-        append.write('say "' + str(yes) + '"\n')
-        append.close()
-        print('appended')
-
-
-async def votekick_ingame(line):
-    global yes, no
-    global voted_players
-    voted_players = []
-    yes, no = 0, 0
-    logging.info('Votekick command started from in game')
-    line = line.replace('[Info   : Unity Log] ', '')
-    line = re.sub(r" ?\([^)]+\)", " ", line)
-    line = line.replace(' issued: say ', '')
-    playername, *middle, kick_player = line.split()
-    contains_playername = False
-    contains_kick_player = False
-    for player in server_players:
-        if playername.upper() in player.name.upper():
-            playername = player.name
-            contains_playername = True
-        if kick_player.upper() in player.name.upper():
-            kick_player = player.name
-            contains_kick_player = True
-    # if (contains_playername is True) and (contains_kick_player is True):
-    if await server() and await find_dll() is True:
-        await asyncio.sleep(5)
-        if (yes > no):
-            print('Vote win')
-        elif (yes == no):
-            print('Vote tie')
-        else:
-            print('Vote fail')
-            # append = open(botcmd / "botcmd.txt", 'a')
-            # append.write('kick "' + kick_player + '"\n')
-            # append.close()
-
-
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     channel = config_object.getint('RoR2', 'channel')
@@ -355,12 +266,6 @@ async def chat(self):
             for line in Pygtail(str(logfile)):
                 # Player chat
                 if "issued: say" in line:
-                    if "yes" in line:
-                        await vote_yes(line)
-                    if "no" in line:
-                        await vote_no(line)
-                    if 'votekick' in line:
-                        await votekick_ingame(line)
                     line = line.replace('[Info   : Unity Log] ', '**')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     line = line.replace(' issued:', ':** ')
