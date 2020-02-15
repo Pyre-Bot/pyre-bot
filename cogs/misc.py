@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+"""Pyre Bot Risk of Rain 2 random functions."""
+
 import logging
 import random
 from configparser import ConfigParser

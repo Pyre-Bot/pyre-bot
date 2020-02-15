@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+"""Pyre Bot Risk of Rain 2 admin functions."""
+
 import ast
 import asyncio
 import logging
@@ -32,7 +36,6 @@ logfile = (BepInEx / "LogOutput.log")
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
-voted_players = []
 repeat = 0
 stagenum = -1
 run_timer = 0
@@ -260,7 +263,6 @@ async def chat(self):
     global stagenum
     global run_timer
     global yes, no
-    global voted_players
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
             for line in Pygtail(str(logfile)):

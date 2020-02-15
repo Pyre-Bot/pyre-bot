@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+"""Pyre Bot Risk of Rain 2 user functions."""
+
 import ast
 import asyncio
 import logging

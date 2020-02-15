@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+"""Pyre Bot Risk of Rain 2 setup script."""
+
 import os
 import tkinter as tk
 from configparser import ConfigParser
