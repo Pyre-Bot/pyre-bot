@@ -185,8 +185,10 @@ item = {
 }
 
 stages = {
-    'title': 'Title',  # Time not started (keep stage at 0)
-    'lobby': 'Game Lobby',  # Time not started (keep stage at 0)
+    # Time not started (keep stage at 0)
+    'title': 'Title',
+    'lobby': 'Game Lobby',
+    # Time running normal
     'blackbeach': 'Distant Roost',
     'blackbeach2': 'Distant Roost',
     'golemplains': 'Titanic Plains',
@@ -197,15 +199,11 @@ stages = {
     'wispgraveyard': 'Scorched Acres',
     'dampcave': 'Abyssal Depths',
     'shipgraveyard': "Siren's Call",
-    # Time paused, no stage progression on following stage
+    # Time paused, no stage progression on following stages
     'bazaar': 'Hidden Realm: Bazaar Between Time',
-    # Time paused, no stage progression on following stage
     'goldshores': 'Hidden Realm: Glided Coast',
-    # Time paused, no stage progression on following stage
     'mysteryspace': 'Hidden Realm: A Moment, Fractured',
-    # Time paused, no stage progression on following stage
     'limbo': 'Hidden Realm: A Moment, Whole',
-    # Time is NOT paused, no stage progression on following stage
     'arena': 'Hidden Realm: Void Fields'
 }
 
@@ -342,6 +340,17 @@ async def server_restart():
         print('Auto server restarting enabled')
         while server_restart == "true":
             await asyncio.sleep(7200)
+            if os.path.exists(BepInEx / "LogOutput.log"):
+                try:
+                    os.remove(BepInEx / "LogOutput.log")
+                except Exception:
+                    print('Unable to remove log file')
+            if os.path.exists(BepInEx / "LogOutput.log.offset"):
+                try:
+                    os.remove(BepInEx / "LogOutput.log.offset")
+                except Exception:
+                    print('Unable to remove offset! Chat may not work!')
+            await asyncio.sleep(5)
             await server()
             if server_info.player_count == 0:
                 await server_stop()
@@ -764,4 +773,6 @@ def setup(bot):
 
 def teardown(bot):
     """Prints to termianl when cog is unloaded."""
+    global repeat
     print('Unloaded cog: ror2_admin.py')
+    repeat = 0
