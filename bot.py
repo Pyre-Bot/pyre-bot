@@ -1,4 +1,15 @@
-# bot.py
+#!/usr/bin/env python3
+
+"""
+The main Python program to run and control Pyre Bot.
+
+Pyre Bot lets you manage game servers from a Discord server and is continually improving.
+
+Usage:
+    bot.py
+
+"""
+
 import logging
 import os
 import subprocess
@@ -45,7 +56,8 @@ commands_channel = config_object.getint('General', 'commands-channel')
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 cogs = [
     'cogs.ror2',
-    'cogs.admin'
+    'cogs.ror2_admin',
+    'cogs.misc'
 ]
 
 # Error handling

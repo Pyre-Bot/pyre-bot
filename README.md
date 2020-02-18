@@ -23,11 +23,12 @@ pip install -r requirements.txt
 As of writing the current requirements are:
 
 ```
-pygtail==0.11.1
+requests==2.22.0
 psutil==5.6.7
-python_valve==0.2.1
 python_a2s==1.1.1
-discord.py==1.2.5
+python_valve==0.2.1
+discord.py==1.3.1
+pygtail==0.11.1
 discord==1.0.1
 valve==0.0.0
 ```
