@@ -39,7 +39,6 @@ logfile = (BepInEx / "LogOutput.log")
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 repeat = 0
-stagenum = -1
 # These get assigned / updated every time server() is called
 server_info = ''
 server_players = ''
@@ -235,7 +234,6 @@ async def get_run_time():
 async def get_cleared_stages():
     await server()
     global server_info
-    global stagenum
     if server_info.map_name in ('lobby', 'title'):
         print('Tried to get stage number before a run has started')
         stagenum = 0
@@ -253,13 +251,14 @@ async def get_cleared_stages():
                     stagenum = int(line) + 1
                     findline = False
                     break
+    return stagenum
+    
 
 
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     channel = config_object.getint('RoR2', 'channel')
     channel = self.bot.get_channel(channel)
-    global stagenum
     global yes, no
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
@@ -285,7 +284,7 @@ async def chat(self):
                         if devstage == 'lobby':
                             await channel.send('**Entering ' + stage + '**')
                     else:
-                        await get_cleared_stages()
+                        stagenum = await get_cleared_stages()
                         if stagenum == 1:
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
                         else:
@@ -300,11 +299,12 @@ async def chat(self):
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
                     run_timer = await get_run_time()
+                    stagenum = await get_cleared_stages()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
                     player_id = re.search(r'\((.*?)\)', line).group(1)
                     player_id = re.sub("[^0-9]", "", player_id)
-                    await stats.add_player(player_id, run_timer)
+                    await stats.add_player(player_id, run_timer, stagenum)
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
                     line = line.replace(' connected. ', '')
@@ -313,11 +313,12 @@ async def chat(self):
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
                     run_timer = await get_run_time()
+                    stagenum = await get_cleared_stages()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
                     player_id = re.search(r'\((.*?)\)', line).group(1)
                     player_id = re.sub("[^0-9]", "", player_id)
-                    await stats.player_leave(player_id, run_timer)
+                    await stats.player_leave(player_id, run_timer, stagenum)
                     playername = line.replace(
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     playername = re.sub(r" ?\([^)]+\)", "", line)

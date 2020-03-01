@@ -8,9 +8,10 @@ dataDict = {}
 
 
 class Player:
-    def __init__(self, player_id, start_time):
+    def __init__(self, player_id, start_time, stagenum):
         self.id = player_id
         self.time = start_time
+        self.stagescleared = stagenum
 
 
 config_object = ConfigParser()
@@ -31,9 +32,9 @@ async def load_json():
         print('No JSON file')
 
 
-async def add_player(player_id, time):
+async def add_player(player_id, time, stagenum):
     global players
-    players.append(Player(player_id, time))
+    players.append(Player(player_id, time, stagenum))
 
 
 async def update_json(player_id):
@@ -49,11 +50,12 @@ async def update_json(player_id):
             await load_json()
 
 
-async def player_leave(player_id, time):
+async def player_leave(player_id, time, stagenum):
     global players
     for player in players:
         if player.id == player_id:
             player.time = time - player.time
+            player.stagescleared = stagenum - player.stagescleared
             await update_json(player.id)
         else:
             print("Doesn't match")
