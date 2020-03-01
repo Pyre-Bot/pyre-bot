@@ -15,6 +15,8 @@ import psutil
 from discord.ext import commands
 from pygtail import Pygtail
 
+import cogs.player_stats as stats
+
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
 config_object.read(config_file)
@@ -299,6 +301,10 @@ async def chat(self):
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
+                    await get_run_time()
+                    formattedtime = str(
+                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
+                    await stats.add_player(line, formattedtime)
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
                     line = line.replace(' connected. ', '')
@@ -306,6 +312,10 @@ async def chat(self):
                     await channel.send(line + '**')
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
+                    await get_run_time()
+                    formattedtime = str(
+                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
+                    await stats.player_leave(line, formattedtime)
                     line = line.replace(
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)

@@ -1,27 +1,16 @@
-import ast
-import asyncio
-import logging
-import os
+import json
 import re
-import sqlite3
 from configparser import ConfigParser
-from datetime import datetime
 from pathlib import Path
-from sqlite3 import Error
-
-import a2s
-import discord
-import psutil
-from discord.ext import commands
-from pygtail import Pygtail
 
 players = []
+dict = {}
 
 
 class Player:
     def __init__(self, id, start_time):
         self.id = id
-        self.start = start_time
+        self.time = start_time
 
 
 config_object = ConfigParser()
@@ -32,39 +21,45 @@ general = config_object["General"]
 server_address = config_object.get(
     'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
 
-db = Path.cwd().joinpath('stats.db')
+db = Path.cwd().joinpath('data.json')
 
 
-async def add_player(line):
+async def load_json():
+    global dict
+    try:
+        with open('data.json', 'r') as f:
+            dict = json.load(f)
+    except Exception:
+        print('No JSON file')
+
+
+async def add_player(line, time):
     global players
-    now = datetime.utcnow()
     player_id = re.search(r'\((.*?)\)', line).group(1)
     player_id = re.sub("[^0-9]", "", player_id)
-    players.append(Player(player_id, now))
+    players.append(Player(player_id, time))
 
 
-async def commit_player(line):
+async def update_json(player_id):
+    global dict
+    for player in players:
+        if player.id == player_id:
+            player_dict = dict[player.id]
+            player_dict['time'] += player.time
+            dict[player.id] = player_dict
+            players.remove(player)
+            with open('data.json', 'w') as f:
+                json.dump(dict, f, indent=4)
+            await load_json()
+
+
+async def player_leave(line, time):
     global players
-    now = datetime.utcnow()
     player_id = re.search(r'\((.*?)\)', line).group(1)
     player_id = re.sub("[^0-9]", "", player_id)
     for player in players:
-        if player_id == player.id:
-            gametime = now - player.start
-            player = (player.id, gametime)
-            try:
-                await sql_insert(player)
-            except:
-                print('Error adding to DB')
-
-
-async def sql_insert(player):
-    con = sqlite3.connect(db)
-    c = con.cursor()
-    c.execute(
-        'CREATE TABLE if not exists players(id integer PRIMARY KEY, gametime real)')
-    try:
-        c.execute('''INSERT INTO players(id, gametime) VALUES(?, ?)''', player)
-    except sqlite3.IntegrityError:
-        c.execute(f'UPDATE players SET gametime = {player[2]} WHERE id = {player[0]}')
-    con.commit()
+        if player.id == player_id:
+            player.time = time - player.time
+            await update_json(player.id)
+        else:
+            print('Doesnt match')
