@@ -8,8 +8,8 @@ dataDict = {}
 
 
 class Player:
-    def __init__(self, id, start_time):
-        self.id = id
+    def __init__(self, player_id, start_time):
+        self.id = player_id
         self.time = start_time
 
 
@@ -31,10 +31,8 @@ async def load_json():
         print('No JSON file')
 
 
-async def add_player(line, time):
+async def add_player(player_id, time):
     global players
-    player_id = re.search(r'\((.*?)\)', line).group(1)
-    player_id = re.sub("[^0-9]", "", player_id)
     players.append(Player(player_id, time))
 
 
@@ -51,13 +49,11 @@ async def update_json(player_id):
             await load_json()
 
 
-async def player_leave(line, time):
+async def player_leave(player_id, time):
     global players
-    player_id = re.search(r'\((.*?)\)', line).group(1)
-    player_id = re.sub("[^0-9]", "", player_id)
     for player in players:
         if player.id == player_id:
             player.time = time - player.time
             await update_json(player.id)
         else:
-            print('Doesnt match')
+            print("Doesn't match")

@@ -302,7 +302,9 @@ async def chat(self):
                     run_timer = await get_run_time()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    await stats.add_player(line, run_timer)
+                    player_id = re.search(r'\((.*?)\)', line).group(1)
+                    player_id = re.sub("[^0-9]", "", player_id)
+                    await stats.add_player(player_id, run_timer)
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
                     line = line.replace(' connected. ', '')
@@ -313,11 +315,13 @@ async def chat(self):
                     run_timer = await get_run_time()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    await stats.player_leave(line, run_timer)
-                    line = line.replace(
+                    player_id = re.search(r'\((.*?)\)', line).group(1)
+                    player_id = re.sub("[^0-9]", "", player_id)
+                    await stats.player_leave(player_id, run_timer)
+                    playername = line.replace(
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
-                    line = re.sub(r" ?\([^)]+\)", "", line)
-                    await channel.send(line + '**')
+                    playername = re.sub(r" ?\([^)]+\)", "", line)
+                    await channel.send(playername + '**')
         else:
             for line in Pygtail(str(logfile)):
                 pass
