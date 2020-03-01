@@ -4,7 +4,7 @@ from configparser import ConfigParser
 from pathlib import Path
 
 players = []
-dict = {}
+dataDict = {}
 
 
 class Player:
@@ -21,14 +21,12 @@ general = config_object["General"]
 server_address = config_object.get(
     'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
 
-db = Path.cwd().joinpath('data.json')
-
 
 async def load_json():
-    global dict
+    global dataDict
     try:
         with open('data.json', 'r') as f:
-            dict = json.load(f)
+            dataDict = json.load(f)
     except Exception:
         print('No JSON file')
 
@@ -41,15 +39,15 @@ async def add_player(line, time):
 
 
 async def update_json(player_id):
-    global dict
+    global dataDict
     for player in players:
         if player.id == player_id:
-            player_dict = dict[player.id]
+            player_dict = dataDict[player.id]
             player_dict['time'] += player.time
-            dict[player.id] = player_dict
+            dataDict[player.id] = player_dict
             players.remove(player)
             with open('data.json', 'w') as f:
-                json.dump(dict, f, indent=4)
+                json.dump(dataDict, f, indent=4)
             await load_json()
 
 

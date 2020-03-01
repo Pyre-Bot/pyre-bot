@@ -42,9 +42,6 @@ logfile = (BepInEx / "LogOutput.log")
 server_info = ''
 server_players = ''
 
-# Time
-run_timer = 0
-
 # Dictionaries used for functions
 stages = {
     'title': 'Title',  # Time not started (keep stage at 0)
