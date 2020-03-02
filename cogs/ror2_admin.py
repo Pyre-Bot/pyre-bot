@@ -304,6 +304,7 @@ async def chat(self):
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
                     player_id = re.search(r'\((.*?)\)', line).group(1)
                     player_id = re.sub("[^0-9]", "", player_id)
+                    player_id = str(player_id)
                     await stats.add_player(player_id, run_timer, stagenum)
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
@@ -318,6 +319,7 @@ async def chat(self):
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
                     player_id = re.search(r'\((.*?)\)', line).group(1)
                     player_id = re.sub("[^0-9]", "", player_id)
+                    player_id = str(player_id)
                     await stats.player_leave(player_id, run_timer, stagenum)
                     playername = line.replace(
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')

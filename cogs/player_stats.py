@@ -28,7 +28,8 @@ async def load_json():
     try:
         with open('data.json', 'r') as f:
             dataDict = json.load(f)
-    except Exception:
+            print('dataDict: ' + str(dataDict))  # DEBUG
+    except:
         print('No JSON file')
 
 
@@ -39,10 +40,12 @@ async def add_player(player_id, time, stagenum):
 
 async def update_json(player_id):
     global dataDict
+    global players
     for player in players:
         if player.id == player_id:
             player_dict = dataDict[player.id]
             player_dict['time'] += player.time
+            player_dict['stagenum'] += player.stagescleared
             dataDict[player.id] = player_dict
             players.remove(player)
             with open('data.json', 'w') as f:
