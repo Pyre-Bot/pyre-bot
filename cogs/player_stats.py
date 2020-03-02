@@ -29,14 +29,8 @@ async def load_json():
     global dict
     try:
         with open('data.json', 'r') as f:
-<<<<<<< HEAD
-            dataDict = json.load(f)
-            print('dataDict: ' + str(dataDict))  # DEBUG
-    except:
-=======
             dict = json.load(f)
     except Exception:
->>>>>>> parent of fd7fc95... Yeah fuck it no globals
         print('No JSON file')
 
 
@@ -46,22 +40,12 @@ async def add_player(player_id, time, stagenum):
 
 
 async def update_json(player_id):
-<<<<<<< HEAD
-    global dataDict
-    global players
-=======
     global dict
->>>>>>> parent of fd7fc95... Yeah fuck it no globals
     for player in players:
         if player.id == player_id:
             player_dict = dict[player.id]
             player_dict['time'] += player.time
-<<<<<<< HEAD
-            player_dict['stagenum'] += player.stagescleared
-            dataDict[player.id] = player_dict
-=======
             dict[player.id] = player_dict
->>>>>>> parent of fd7fc95... Yeah fuck it no globals
             players.remove(player)
             with open('data.json', 'w') as f:
                 json.dump(dict, f, indent=4)

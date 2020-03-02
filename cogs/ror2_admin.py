@@ -39,11 +39,8 @@ logfile = (BepInEx / "LogOutput.log")
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 repeat = 0
-<<<<<<< HEAD
-=======
 stagenum = -1
 run_timer = 0
->>>>>>> parent of fd7fc95... Yeah fuck it no globals
 # These get assigned / updated every time server() is called
 server_info = ''
 server_players = ''
@@ -264,11 +261,8 @@ async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     channel = config_object.getint('RoR2', 'channel')
     channel = self.bot.get_channel(channel)
-<<<<<<< HEAD
-=======
     global stagenum
     global run_timer
->>>>>>> parent of fd7fc95... Yeah fuck it no globals
     global yes, no
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
@@ -308,21 +302,10 @@ async def chat(self):
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
-<<<<<<< HEAD
-                    run_timer = await get_run_time()
-                    stagenum = await get_cleared_stages()
-                    formattedtime = str(
-                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    player_id = re.search(r'\((.*?)\)', line).group(1)
-                    player_id = re.sub("[^0-9]", "", player_id)
-                    player_id = str(player_id)
-                    await stats.add_player(player_id, run_timer, stagenum)
-=======
                     await get_run_time()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
                     await stats.add_player(line, formattedtime)
->>>>>>> parent of fd7fc95... Yeah fuck it no globals
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
                     line = line.replace(' connected. ', '')
@@ -330,23 +313,11 @@ async def chat(self):
                     await channel.send(line + '**')
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
-<<<<<<< HEAD
-                    run_timer = await get_run_time()
-                    stagenum = await get_cleared_stages()
-                    formattedtime = str(
-                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    player_id = re.search(r'\((.*?)\)', line).group(1)
-                    player_id = re.sub("[^0-9]", "", player_id)
-                    player_id = str(player_id)
-                    await stats.player_leave(player_id, run_timer, stagenum)
-                    playername = line.replace(
-=======
                     await get_run_time()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
                     await stats.player_leave(line, formattedtime)
                     line = line.replace(
->>>>>>> parent of fd7fc95... Yeah fuck it no globals
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     playername = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(playername + '**')
