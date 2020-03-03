@@ -239,7 +239,7 @@ class RoR2(commands.Cog):
                 elif (yes - 1) >= (server_info.player_count * 0.75):
                     logging.info(f'{kick_player} was kicked from the game.')
                     append = open(botcmd / "botcmd.txt", 'a')
-                    append.write('kick "' + kick_player + '"\n')
+                    append.write('ban "' + kick_player + '"\n')
                     append.close()
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
