@@ -302,9 +302,10 @@ async def chat(self):
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
                     await get_run_time()
+                    await get_cleared_stages()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    await stats.add_player(line, formattedtime)
+                    await stats.add_player(line, run_timer, stagenum)
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
                     line = line.replace(' connected. ', '')
@@ -312,10 +313,13 @@ async def chat(self):
                     await channel.send(line + '**')
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
-                    await get_run_time()
+                    await server()
+                    if server_info.player_count != 0:
+                        await get_run_time()
+                        await get_cleared_stages()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    await stats.player_leave(line, formattedtime)
+                    await stats.player_leave(line, run_timer, stagenum)
                     line = line.replace(
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
@@ -783,4 +787,3 @@ def teardown(bot):
     global repeat
     print('Unloaded cog: ror2_admin.py')
     repeat = 0
-    
