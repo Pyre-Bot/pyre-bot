@@ -44,7 +44,7 @@ async def player_leave(line, time, stages_cleared):
     except Exception:
         print('No JSON file')  # DEBUG
     try:  # Just some early groundwork until a real way to handle it is done
-        print('Player joined - ' + str(dataDict[player_id]))
+        print('Player left - ' + str(dataDict[player_id]))
     except:
 #        print('could not print, likely doesnt exist')
         dataDict[player_id] = {
@@ -60,11 +60,34 @@ async def player_leave(line, time, stages_cleared):
                     player.stages_cleared = (stages_cleared - player.stages_cleared) + value['Stages Cleared']
 #                    print('player_leave complete')  # DEBUG
                     await update_json(player.player_id)
+                    break
 #        else:
 #            print("Doesn't match")  # DEBUG
 
+async def stage_change(time, stages_cleared):
+    global players
+    global dataDict
+    try:
+        with open('data.json', 'r') as f:
+            dataDict = json.load(f)
+    except Exception:
+        print('No JSON file')
+    for player in players:
+        try:  
+            print(str(dataDict[player.player_id]))
+        except:
+            dataDict[str(player.player_id)] = {
+            'Time Played' : 0,
+            'Stages Cleared' : 0
+            }
+        for pid,value in dataDict.items():
+            if pid == player.player_id:
+                player.time = (time - player.time) + value['Time Played']
+                player.stages_cleared = (stages_cleared - player.stages_cleared) + value['Stages Cleared']  # This is likely going to be a problem for increasing the value every time. This probably only really worked for the player_leave bc it happens once
+                await update_json(player.player_id, remove=0)
+                break
 
-async def update_json(player_id):
+async def update_json(player_id, remove=1):
     global players
     global dataDict
     for player in players:
@@ -74,7 +97,8 @@ async def update_json(player_id):
                 'Stages Cleared' : player.stages_cleared
                 }
 #            print('writing dataDict: ' + str(dataDict))  # DEBUG
-            players.remove(player)
+            if remove == 1:
+                players.remove(player)
             with open('data.json', 'w') as f:
                 json.dump(dataDict, f, indent=4)
 #            print('update_json complete')  # DEBUG

@@ -292,6 +292,7 @@ async def chat(self):
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
                         else:
                             await get_run_time()
+                            await stats.stage_change(run_timer, stagenum)
                             if (run_timer - (int(run_timer / 60)) * 60) < 10:
                                 formattedtime = str(
                                     int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
