@@ -236,6 +236,7 @@ async def get_run_time():
 async def get_cleared_stages():
     await server()
     global server_info
+    global stagenum
     if server_info.map_name in ('lobby', 'title'):
         print('Tried to get stage number before a run has started')
         stagenum = 0
@@ -253,8 +254,6 @@ async def get_cleared_stages():
                     stagenum = int(line) + 1
                     findline = False
                     break
-    return stagenum
-    
 
 
 async def chat(self):
@@ -288,7 +287,7 @@ async def chat(self):
                         if devstage == 'lobby':
                             await channel.send('**Entering ' + stage + '**')
                     else:
-                        stagenum = await get_cleared_stages()
+                        await get_cleared_stages()
                         if stagenum == 1:
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
                         else:
@@ -319,8 +318,8 @@ async def chat(self):
                     await stats.player_leave(line, formattedtime)
                     line = line.replace(
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
-                    playername = re.sub(r" ?\([^)]+\)", "", line)
-                    await channel.send(playername + '**')
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    await channel.send(line + '**')
         else:
             for line in Pygtail(str(logfile)):
                 pass
@@ -329,7 +328,6 @@ async def chat(self):
 async def server():
     """
     Checks if the server is running or not.
-
     Returns:
         Boolean: Used by functions calling this to check if running
     """
@@ -396,7 +394,6 @@ async def chat_autostart(self):
 async def server_stop():
     """
     Stops the server.
-
     Returns:
         Boolean: Indicates whether server stopped or not
     """
@@ -416,7 +413,6 @@ async def server_stop():
 async def find_dll():
     """
     Checks to see if the BotCommands plugin is installed on server.
-
     Returns:
         Boolean: If true it is, otherwise it is not
     """
@@ -787,3 +783,4 @@ def teardown(bot):
     global repeat
     print('Unloaded cog: ror2_admin.py')
     repeat = 0
+    

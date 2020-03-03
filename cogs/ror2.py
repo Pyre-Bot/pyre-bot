@@ -75,7 +75,6 @@ stages = {
 async def server():
     """
     Checks if the server is running or not.
-
     Returns:
         Boolean: Used by functions calling this to check if running
     """
@@ -93,7 +92,6 @@ async def server():
 async def server_stop():
     """
     Stops the server.
-
     Returns:
         Boolean: Indicates whether server stopped or not
     """
@@ -113,7 +111,6 @@ async def server_stop():
 async def find_dll():
     """
     Checks to see if the BotCommands plugin is installed on server.
-
     Returns:
         Boolean: If true it is, otherwise it is not
     """
@@ -394,3 +391,4 @@ def setup(bot):
 def teardown(bot):
     """Prints to termianl when cog is unloaded."""
     print('Unloaded cog: RoR2.py')
+    

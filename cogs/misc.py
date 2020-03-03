@@ -173,3 +173,4 @@ def setup(bot):
 def teardown(bot):
     """Prints to termianl when cog is unloaded."""
     print('Unloaded cog: misc.py')
+    

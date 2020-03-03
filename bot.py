@@ -2,12 +2,9 @@
 
 """
 The main Python program to run and control Pyre Bot.
-
 Pyre Bot lets you manage game servers from a Discord server and is continually improving.
-
 Usage:
     bot.py
-
 """
 
 import logging
@@ -119,7 +116,6 @@ async def on_ready():
 def check_channel(ctx):
     """
     Checks if command was issued in the admin or commands channels.
-
     Returns:
         int: channel id of the issued channel
     """
@@ -137,7 +133,6 @@ def check_channel(ctx):
 async def load(ctx, extension):
     """
     Loads the specified cog.
-
     Args:
         extension (str): The file name, with .py, to load
     """
@@ -150,7 +145,6 @@ async def load(ctx, extension):
 async def unload(ctx, extension):
     """
     Unloads the specified cog.
-
     Args:
         extension (str): The file name, with .py, to unload
     """
@@ -163,7 +157,6 @@ async def unload(ctx, extension):
 async def reload(ctx, cog='all'):
     """
     Reloads the specified cog.
-
     Args:
         cog (str): The file name, with .py, to reload
     """
