@@ -3,18 +3,6 @@ import re
 from configparser import ConfigParser
 from pathlib import Path
 
-players = []
-dataDict = {}
-
-# NOTE: stages_cleared currently counts stage progression in the sense that if you join the lobby and then start stage 1, you have "cleared" 1 stage, since the value uses the current stage number
-# TODO: Come up with way to save time and stages progressed when the run ends, rather than a player leaving. Maybe create a global counters that operate separately of stagenum and run_timer, independently for each player object
-class Player:
-    def __init__(self, player_id, start_time, stages_cleared):
-        self.player_id = player_id
-        self.time = start_time
-        self.stages_cleared = stages_cleared
-
-
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
 config_object.read(config_file)
@@ -23,82 +11,58 @@ general = config_object["General"]
 server_address = config_object.get(
     'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
 
+dataDict = {}
+
+# TODO: Come up with way to save time and stages progressed when the run ends, rather than a player leaving. Maybe create a global counters that operate separately of stagenum and run_timer, independently for each player object
 
 async def add_player(line, time, stages_cleared):
-    global players
-    player_id = re.search(r'\((.*?)\)', line).group(1)
-    player_id = re.sub("[^0-9]", "", player_id)
-    players.append(Player(player_id, time, stages_cleared))
-    
-
-async def player_leave(line, time, stages_cleared):
-#    print('stages_cleared: ' + str(stages_cleared))  # DEBUG
-    global players
     global dataDict
     player_id = re.search(r'\((.*?)\)', line).group(1)
     player_id = re.sub("[^0-9]", "", player_id)
+    dataDict[player_id] = {
+    'Time Played' : time,
+    'Stages Cleared' : stages_cleared
+    }
+
+# TODO: Save stats at the end of a run using IL hooking on run_end (if possible, otherwise find another way)
+async def update_stats(time, stages_cleared):
+    global dataDict
+    stages_cleared = stages_cleared - 1  # Required currently due to the way stages_cleared works
     try:
-        with open('data.json', 'r') as f:
-            dataDict = json.load(f)
+        with open('data.json', 'r') as fr:
+            loadJSON = json.load(fr)
 #        print('player_leave JSON file loaded')  # DEBUG
     except Exception:
-        print('No JSON file')  # DEBUG
-    try:  # Just some early groundwork until a real way to handle it is done
-        print('Player left - ' + str(dataDict[player_id]))
-    except:
-#        print('could not print, likely doesnt exist')
-        dataDict[player_id] = {
-        'Time Played' : 0,
-        'Stages Cleared' : 0
-        }
-    for player in players:
-        if player.player_id == player_id:
-            for pid,value in dataDict.items():
-                if pid == player.player_id:
-#                    print('pid match')  # DEBUG
-                    player.time = (time - player.time) + value['Time Played']
-                    player.stages_cleared = (stages_cleared - player.stages_cleared) + value['Stages Cleared']
-#                    print('player_leave complete')  # DEBUG
-                    await update_json(player.player_id)
-                    break
-#        else:
-#            print("Doesn't match")  # DEBUG
-
-async def stage_change(time, stages_cleared):
-    global players
-    global dataDict
-    try:
-        with open('data.json', 'r') as f:
-            dataDict = json.load(f)
-    except Exception:
-        print('No JSON file')
-    for player in players:
-        try:  
-            print(str(dataDict[player.player_id]))
-        except:
-            dataDict[str(player.player_id)] = {
-            'Time Played' : 0,
-            'Stages Cleared' : 0
+        with open('data.json', 'w') as fw:
+            json.dump(dataDict, fw, indent=4)
+        with open('data.json', 'r') as fr:
+            loadJSON = json.load(fr)
+        print('JSON file created')  # DEBUG
+    for pid, value in dataDict.items():
+        value['Time Played'] = time - value['Time Played']
+        value['Stages Cleared'] = stages_cleared - value['Stages Cleared']
+        jsonvalue = loadJSON.get(pid)  # I do not at all understand how the commented out code below is not required to reassign those values to loadJSON. Somehow this works without it. I'm not galaxy brained enough to get it, but okay
+        if jsonvalue != None:
+            jsonvalue['Time Played'] = value['Time Played'] + jsonvalue['Time Played']
+            jsonvalue['Stages Cleared'] = value['Stages Cleared'] + jsonvalue['Stages Cleared']
+#            loadJSON[pid] = {
+#                'Time Played' : jsonvalue['Time Played'],
+#                'Stages Cleared' : jsonvalue['Stages Cleared'],
+#            }
+        else:
+            loadJSON[pid] = {
+                'Time Played' : value['Time Played'],
+                'Stages Cleared' : value['Stages Cleared']
             }
-        for pid,value in dataDict.items():
-            if pid == player.player_id:
-                player.time = (time - player.time) + value['Time Played']
-                player.stages_cleared = (stages_cleared - player.stages_cleared) + value['Stages Cleared']  # This is likely going to be a problem for increasing the value every time. This probably only really worked for the player_leave bc it happens once
-                await update_json(player.player_id, remove=0)
-                break
+        value['Time Played'] = time
+        value['Stages Cleared'] = stages_cleared
 
-async def update_json(player_id, remove=1):
-    global players
-    global dataDict
-    for player in players:
-        if player.player_id == player_id:
-            dataDict[player.player_id] = {
-                'Time Played' : player.time,
-                'Stages Cleared' : player.stages_cleared
-                }
-#            print('writing dataDict: ' + str(dataDict))  # DEBUG
-            if remove == 1:
-                players.remove(player)
-            with open('data.json', 'w') as f:
-                json.dump(dataDict, f, indent=4)
-#            print('update_json complete')  # DEBUG
+#    print('player_leave complete')  # DEBUG
+    await write_json(loadJSON)
+
+
+async def write_json(jsonobj):
+#    print('writing jsonobj: ' + str(jsonobj))  # DEBUG
+    with open('data.json', 'w') as f:
+        json.dump(jsonobj, f, indent=4)
+#    print('write_json complete')  # DEBUG

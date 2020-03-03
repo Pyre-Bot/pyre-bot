@@ -288,11 +288,11 @@ async def chat(self):
                             await channel.send('**Entering ' + stage + '**')
                     else:
                         await get_cleared_stages()
+                        await get_run_time()
                         if stagenum == 1:
                             await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
                         else:
-                            await get_run_time()
-                            await stats.stage_change(run_timer, stagenum)
+                            await stats.update_stats(run_timer, stagenum)
                             if (run_timer - (int(run_timer / 60)) * 60) < 10:
                                 formattedtime = str(
                                     int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
@@ -320,7 +320,7 @@ async def chat(self):
                         await get_cleared_stages()
                     formattedtime = str(
                         int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    await stats.player_leave(line, run_timer, stagenum)
+                    await stats.update_stats(run_timer, stagenum)
                     line = line.replace(
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
