@@ -39,7 +39,7 @@ logfile = (BepInEx / "LogOutput.log")
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 repeat = 0
-stagenum = -1
+stagenum = 0
 run_timer = 0
 # These get assigned / updated every time server() is called
 server_info = ''
@@ -209,53 +209,6 @@ stages = {
     'arena': 'Hidden Realm: Void Fields'
 }
 
-
-async def get_run_time():
-    await server()
-    global server_info
-    global run_timer
-    if server_info.map_name in ('lobby', 'title'):
-        print('Tried to get run time before a run has started')
-        run_timer = 0
-    else:
-        append = open(botcmd / "botcmd.txt", 'a')
-        append.write('fixed_time' + '\n')
-        append.close()
-        findline = True
-        while findline:
-            for line in Pygtail(str(logfile)):
-                # [Info   : Unity Log] Run time is 29.34971
-                if ('[Info   : Unity Log] Run time is ' in line):
-                    line = str(line.replace('[Info   : Unity Log] Run time is ', ''))
-                    run_timer = float(line)
-                    run_timer = int(run_timer)
-                    findline = False
-                    break
-
-
-async def get_cleared_stages():
-    await server()
-    global server_info
-    global stagenum
-    if server_info.map_name in ('lobby', 'title'):
-        print('Tried to get stage number before a run has started')
-        stagenum = 0
-    else:
-        append = open(botcmd / "botcmd.txt", 'a')
-        append.write('get_stages_cleared' + '\n')
-        append.close()
-        findline = True
-        while findline:
-            for line in Pygtail(str(logfile)):
-                # [Info   : Unity Log] Stages cleared: 3
-                if ('[Info   : Unity Log] Stages cleared: ' in line):
-                    line = str(line.replace(
-                        '[Info   : Unity Log] Stages cleared: ', ''))
-                    stagenum = int(line) + 1
-                    findline = False
-                    break
-
-
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     channel = config_object.getint('RoR2', 'channel')
@@ -266,6 +219,7 @@ async def chat(self):
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
             for line in Pygtail(str(logfile)):
+                updatestats = False  # Required to limit the updates to once per line
                 # Player chat
                 if "issued: say" in line:
                     line = line.replace('[Info   : Unity Log] ', '**')
@@ -273,6 +227,20 @@ async def chat(self):
                     line = line.replace(' issued:', ':** ')
                     line = line.replace(' say ', '')
                     await channel.send(line)
+                # Run time
+                elif ('[Info   : Unity Log] Run time is ' in line):
+                    line = str(line.replace('[Info   : Unity Log] Run time is ', ''))
+                    run_timer = float(line)
+                    run_timer = int(run_timer)
+#                    print('run_timer: ' + str(run_timer))  # DEBUG
+                    updatestats = True
+                # Stages cleared
+                elif ('[Info   : Unity Log] Stages cleared: ' in line):
+                    line = str(line.replace(
+                        '[Info   : Unity Log] Stages cleared: ', ''))
+                    stagenum = int(line)
+#                    print('stagenum: ' + str(stagenum))  # DEBUG
+                    updatestats = True
                 # Stage change
                 elif "Active scene changed from" in line:
                     for key, value in stages.items():
@@ -287,26 +255,20 @@ async def chat(self):
                         if devstage == 'lobby':
                             await channel.send('**Entering ' + stage + '**')
                     else:
-                        await get_cleared_stages()
-                        await get_run_time()
-                        if stagenum == 1:
-                            await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + '**')
+                        if stagenum == 0:
+                            await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
                         else:
-                            await stats.update_stats(run_timer, stagenum)
                             if (run_timer - (int(run_timer / 60)) * 60) < 10:
                                 formattedtime = str(
                                     int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
                             else:
                                 formattedtime = str(
                                     int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                            await channel.send('**Entering Stage ' + str(stagenum) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
+                            await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
-                    await get_run_time()
-                    await get_cleared_stages()
-                    formattedtime = str(
-                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    await stats.add_player(line, run_timer, stagenum)
+                    await stats.add_player(line, run_timer, stagenum)  # Still required for now
+                    updatestats = False
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
                     line = line.replace(' connected. ', '')
@@ -314,17 +276,12 @@ async def chat(self):
                     await channel.send(line + '**')
                 # Player leaves
                 elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
-                    await server()
-                    if server_info.player_count != 0:
-                        await get_run_time()
-                        await get_cleared_stages()
-                    formattedtime = str(
-                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                    await stats.update_stats(run_timer, stagenum)
                     line = line.replace(
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
+                if updatestats:
+                    await stats.update_stats(run_timer, stagenum)
         else:
             for line in Pygtail(str(logfile)):
                 pass

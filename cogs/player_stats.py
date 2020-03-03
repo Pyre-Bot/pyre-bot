@@ -13,8 +13,6 @@ server_address = config_object.get(
 
 dataDict = {}
 
-# TODO: Come up with way to save time and stages progressed when the run ends, rather than a player leaving. Maybe create a global counters that operate separately of stagenum and run_timer, independently for each player object
-
 async def add_player(line, time, stages_cleared):
     global dataDict
     player_id = re.search(r'\((.*?)\)', line).group(1)
@@ -27,7 +25,6 @@ async def add_player(line, time, stages_cleared):
 # TODO: Save stats at the end of a run using IL hooking on run_end (if possible, otherwise find another way)
 async def update_stats(time, stages_cleared):
     global dataDict
-    stages_cleared = stages_cleared - 1  # Required currently due to the way stages_cleared works
     try:
         with open('data.json', 'r') as fr:
             loadJSON = json.load(fr)
