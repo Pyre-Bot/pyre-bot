@@ -10,7 +10,6 @@ import json
 import datetime
 
 import discord
-from discord.guild import Guild
 from discord.ext import commands
 
 config_object = ConfigParser()
@@ -174,7 +173,7 @@ class misc(commands.Cog):
                       usage='steamid')
     async def link(self, ctx, steamid):
         linked = False
-        user = ctx.message.author # User becomes a Member/User class object
+        user = ctx.message.author # Sender is a Member class object
         linkedrole = self.guild.get_role(677627882125787136)  # Hardcoded for now
         userDict = {}
         for role in user.roles:
@@ -201,6 +200,7 @@ class misc(commands.Cog):
             await ctx.send(f'Steam ID updated for {user.name}')
         logging.info(
             f'{user.name} has linked to their Steam ID ({steamid}) using the {ctx.command.name} command.')
+
 
     @commands.command(name='stats',
                       help='Retrieves player stats for the Risk of Rain 2 server')

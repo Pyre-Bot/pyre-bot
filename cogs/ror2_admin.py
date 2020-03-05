@@ -282,6 +282,8 @@ async def chat(self):
                     await channel.send(line + '**')
                 elif "[Info   : Unity Log] Server(0) issued: run_end" in line:
                     await stats.update_stats(run_timer, stagenum, 1)
+                    run_timer = 0
+                    stagenum = 0
                     updatestats = False
                 if updatestats:
                     await stats.update_stats(run_timer, stagenum)
