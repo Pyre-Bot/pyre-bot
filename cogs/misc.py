@@ -6,8 +6,11 @@ import logging
 import random
 from configparser import ConfigParser
 from pathlib import Path
+import json
+import datetime
 
 import discord
+from discord.guild import Guild
 from discord.ext import commands
 
 config_object = ConfigParser()
@@ -52,6 +55,7 @@ colors = {
 class misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.guild = bot.get_guild(660914305515913227)  # Hardcoded for now
 
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):
@@ -162,6 +166,78 @@ class misc(commands.Cog):
                 + f'Error: {error}')
             await ctx.send('Please enter the number of messages to delete. '
                            + 'Example: ```delete 5```')
+
+
+    # TODO: Make users.json a file that is shared by all the bots
+    @commands.command(name='link',
+                      help='Links a user to their Steam ID',
+                      usage='steamid')
+    async def link(self, ctx, steamid):
+        linked = False
+        user = ctx.message.author # User becomes a Member/User class object
+        linkedrole = self.guild.get_role(677627882125787136)  # Hardcoded for now
+        userDict = {}
+        for role in user.roles:
+            if role == linkedrole:
+                linked = True
+                break
+        try:  # In case the file does not exist
+            with open('users.json', 'r') as fr:
+                userDict = json.load(fr)
+        except Exception:
+            with open('users.json', 'w') as fw:
+                json.dump(userDict, fw, indent=4)
+            with open('users.json', 'r') as fr:
+                userDict = json.load(fr)
+            print('JSON file created')  # DEBUG
+        finally:
+            userDict[str(user.id)] = steamid
+            with open('users.json', 'w') as fw:
+                json.dump(userDict, fw, indent=4)
+        if linked == False:
+            await user.add_roles(linkedrole)
+            await ctx.send(f'Steam ID linked for {user.name}')
+        else:
+            await ctx.send(f'Steam ID updated for {user.name}')
+        logging.info(
+            f'{user.name} has linked to their Steam ID ({steamid}) using the {ctx.command.name} command.')
+
+    @commands.command(name='stats',
+                      help='Retrieves player stats for the Risk of Rain 2 server')
+    async def stats(self, ctx):
+        proceed = False
+        user = ctx.message.author
+        linkedrole = self.guild.get_role(677627882125787136)
+        for role in user.roles:
+            if role == linkedrole:
+                proceed = True
+                break
+        if proceed:
+            dataDict = {}
+            with open('users.json', 'r') as fr:
+                userDict = json.load(fr)
+            steamid = userDict.get(str(user.id))
+            with open('data.json', 'r') as fr:
+                dataDict = json.load(fr)
+            stats = dataDict.get(steamid)
+#            print(str(stats))  # DEBUG
+            if stats == None:
+                await ctx.send('Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
+            else:
+                # Create embed
+                embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
+                embed.set_thumbnail(url=user.avatar_url)
+                embed.set_author(name=self.bot.guilds[0])
+                for key, value in stats.items():
+                    if key == 'Time Played':
+                        value = datetime.timedelta(seconds=value)
+                    embed.add_field(
+                        name=str(key), value=str(value), inline=False)
+                await ctx.send(embed=embed)
+            logging.info(
+                f'{user.name} used {ctx.command.name}')
+        else:
+            await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
 
 
 def setup(bot):

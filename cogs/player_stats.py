@@ -1,29 +1,23 @@
 import json
 import re
-from configparser import ConfigParser
-from pathlib import Path
-
-config_object = ConfigParser()
-config_file = Path.cwd().joinpath('config', 'config.ini')
-config_object.read(config_file)
-ror2 = config_object["RoR2"]
-general = config_object["General"]
-server_address = config_object.get(
-    'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
 
 dataDict = {}
 
+# NOTE: Bug I noticed, if you launch the bot after a game has started and people have joined, this won't get called before update_stats and so weird things happen
+# One fix for this could be to call this function on startup of the bot, get all players from the server info with server()
+# That gives me an idea actually, we should be getting steam IDs from the server info if possible, rather than from chat output
 async def add_player(line, time, stages_cleared):
     global dataDict
     player_id = re.search(r'\((.*?)\)', line).group(1)
     player_id = re.sub("[^0-9]", "", player_id)
     dataDict[player_id] = {
     'Time Played' : time,
-    'Stages Cleared' : stages_cleared
+    'Stages Cleared' : stages_cleared,
+    'Runs Completed' : 0
     }
 
 # TODO: Save stats at the end of a run using IL hooking on run_end (if possible, otherwise find another way)
-async def update_stats(time, stages_cleared):
+async def update_stats(time, stages_cleared, runcompleted=0):
     global dataDict
     try:
         with open('data.json', 'r') as fr:
@@ -38,22 +32,26 @@ async def update_stats(time, stages_cleared):
     for pid, value in dataDict.items():
         value['Time Played'] = time - value['Time Played']
         value['Stages Cleared'] = stages_cleared - value['Stages Cleared']
-        jsonvalue = loadJSON.get(pid)  # I do not at all understand how the commented out code below is not required to reassign those values to loadJSON. Somehow this works without it. I'm not galaxy brained enough to get it, but okay
+        value['Runs Completed'] = runcompleted - value['Runs Completed']
+        jsonvalue = loadJSON.get(pid)
         if jsonvalue != None:
             jsonvalue['Time Played'] = value['Time Played'] + jsonvalue['Time Played']
             jsonvalue['Stages Cleared'] = value['Stages Cleared'] + jsonvalue['Stages Cleared']
+            jsonvalue['Runs Completed'] = value['Runs Completed'] + jsonvalue['Runs Completed']
 #            loadJSON[pid] = {
 #                'Time Played' : jsonvalue['Time Played'],
 #                'Stages Cleared' : jsonvalue['Stages Cleared'],
+#                'Runs Completed' : jsonvalue['Runs Completed']
 #            }
         else:
             loadJSON[pid] = {
                 'Time Played' : value['Time Played'],
-                'Stages Cleared' : value['Stages Cleared']
+                'Stages Cleared' : value['Stages Cleared'],
+                'Runs Completed' : value['Runs Completed']
             }
         value['Time Played'] = time
         value['Stages Cleared'] = stages_cleared
-
+        value['Runs Completed'] = runcompleted
 #    print('player_leave complete')  # DEBUG
     await write_json(loadJSON)
 

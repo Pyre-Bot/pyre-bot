@@ -42,9 +42,6 @@ logfile = (BepInEx / "LogOutput.log")
 server_info = ''
 server_players = ''
 
-# Time
-run_timer = 0
-
 # Dictionaries used for functions
 stages = {
     'title': 'Title',  # Time not started (keep stage at 0)
@@ -305,8 +302,8 @@ class RoR2(commands.Cog):
 
     # Displays the status of the server
     @commands.command(
-        name='status',
-        help='Displays the status of the Risk of Rain 2 server'
+        name='info',
+        help='Displays Risk of Rain 2 server information'
     )
     async def status(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')

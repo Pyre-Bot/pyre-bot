@@ -280,6 +280,9 @@ async def chat(self):
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
+                elif "[Info   : Unity Log] Server(0) issued: run_end" in line:
+                    await stats.update_stats(run_timer, stagenum, 1)
+                    updatestats = False
                 if updatestats:
                     await stats.update_stats(run_timer, stagenum)
         else:
