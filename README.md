@@ -25,7 +25,7 @@ As of writing the current requirements are:
 ```
 requests==2.22.0
 psutil==5.6.7
-python_a2s==1.1.1
+python_a2s==1.1.2
 python_valve==0.2.1
 discord.py==1.3.1
 pygtail==0.11.1
@@ -88,18 +88,18 @@ hidden_mods = hidden-mods-here
 
 #### Risk of Rain 2 requirements
 
-The bot assumes that you are using mods in your RoR2 server, or at the very least have BepInEx loaded.
+The bot requires that you are using the following mods in your RoR2 server. Not having all of these mods installed and updated to their latest builds can result in certain features not working properly.
 
-**Required**
+**Required Mods**
 * [BepInEx](https://thunderstore.io/package/bbepis/BepInExPack/)
   * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
 * [BotCommands](https://github.com/SuperRayss/BotCommands)
   * Used to send commands to the server from Discord
-* [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/)
-  * Enables additional commands to be sent to the server (i.e. give_item, give_equip)
-
-**Recommended**
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/)
+  * Outputs steam player names and IDs
+* [DebugToolkit (Custom Fork by Rayss)](https://github.com/SuperRayss/DebugToolkit)
+  * Outputs run time and stages cleared
+  * Enables additional commands to be sent to the server (i.e. give_item, give_equip)
 
 ## Running and using the bot
 
@@ -110,11 +110,16 @@ The bot can be used by running **bot.py** in the main directory. The bot will ou
 ### Available to everyone
 * restart : Initiates a vote to restart the server
   * Requires a majority vote (at least 75% of in-game player count)
-* votekick [player] : Initiates a 30-second vote to kick [player] from the Risk of Rain 2 server
+* votekick {player}: Initiates a 30-second vote to kick {player} from the Risk of Rain 2 server
   * Requires a majority vote (at least 75% of in-game player count)
 * endrun : Initiates a 30-second vote to end the current run in the Risk of Rain 2 server
   * Requires a majority vote (at least 75% of in-game player count)
-* status : Lists the game server status via Steamworks API
+* info : Lists the game server status via Steamworks API
+  * Listed info includes server name, current stage, player count, player names, and ping
+* link {SteamID} : Allows players to see their play stats for the Risk of Rain 2 server
+  * Assigns the "Linked" role (NOTE: requires further config to not be hardcoded)
+* stats : Outputs your player stats to chat
+  * Currently supported stats are Time Played, Stages Cleared, and Runs Completed
 * mods : Outputs a list of mods to chat
 * config : Outputs the current server config to chat
   * Coming soon!
@@ -127,6 +132,8 @@ The bot can be used by running **bot.py** in the main directory. The bot will ou
 * start_chat : Reads the Risk of Rain 2 server logs and outputs live chat from the game to a specified Discord chat channel
 * stop_chat : Stops reading out Risk of Rain 2 server chat
 * say {message} : Sends an in-game message from the perspective of the server
+* cmd {command with args} : Passes on a command to execute by the server
+  * Very experimental as of now, only use when you are sure of the results, as passing commands in certain contexts can cause unhandled exceptions with BotCommands
 * giveitem {player} {item} {quantity (default - 1)} : Gives a player a specified quantity of an item
 * giveequip {player} {equip} : Gives a player a specified equipment
 
@@ -157,6 +164,12 @@ See also the list of [contributors](https://github.com/InfernalPlacebo/pyre-bot/
 This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details
 
 ## Changelog
+
+### 0.7.0
+* Added player stat tracking
+* Improved integration with DebugToolkit
+* Gets run time and stage number from the server log output directly
+* Other things I've likely just forgotten about ... it's been a while
 
 ### 0.6.0
 * Added configuration options for admin and command channels
