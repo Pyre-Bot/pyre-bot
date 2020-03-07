@@ -2,12 +2,12 @@
 
 """Pyre Bot Risk of Rain 2 random functions."""
 
+import datetime
+import json
 import logging
 import random
 from configparser import ConfigParser
 from pathlib import Path
-import json
-import datetime
 
 import discord
 from discord.ext import commands
@@ -18,6 +18,7 @@ config_object.read(config_file)
 ror2 = config_object["RoR2"]
 general = config_object["General"]
 role = general["role"]
+guild_id = int(general["guild-id"])
 
 colors = {
     'DEFAULT': 0x000000,
@@ -166,15 +167,14 @@ class misc(commands.Cog):
             await ctx.send('Please enter the number of messages to delete. '
                            + 'Example: ```delete 5```')
 
-
     # TODO: Make users.json a file that is shared by all the bots
     @commands.command(name='link',
                       help='Links a user to their Steam ID',
                       usage='steamid')
     async def link(self, ctx, steamid):
         linked = False
-        user = ctx.message.author # Sender is a Member class object
-        linkedrole = self.guild.get_role(677627882125787136)  # Hardcoded for now
+        user = ctx.message.author  # Sender is a Member class object
+        linkedrole = self.guild.get_role(guild_id)
         userDict = {}
         for role in user.roles:
             if role == linkedrole:
@@ -193,7 +193,7 @@ class misc(commands.Cog):
             userDict[str(user.id)] = steamid
             with open('users.json', 'w') as fw:
                 json.dump(userDict, fw, indent=4)
-        if linked == False:
+        if linked is False:
             await user.add_roles(linkedrole)
             await ctx.send(f'Steam ID linked for {user.name}')
         else:
@@ -201,13 +201,12 @@ class misc(commands.Cog):
         logging.info(
             f'{user.name} has linked to their Steam ID ({steamid}) using the {ctx.command.name} command.')
 
-
     @commands.command(name='stats',
                       help='Retrieves player stats for the Risk of Rain 2 server')
     async def stats(self, ctx):
         proceed = False
         user = ctx.message.author
-        linkedrole = self.guild.get_role(677627882125787136)
+        linkedrole = self.guild.get_role(guild_id)
         for role in user.roles:
             if role == linkedrole:
                 proceed = True
@@ -221,11 +220,12 @@ class misc(commands.Cog):
                 dataDict = json.load(fr)
             stats = dataDict.get(steamid)
 #            print(str(stats))  # DEBUG
-            if stats == None:
+            if stats is None:
                 await ctx.send('Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
             else:
                 # Create embed
-                embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
+                embed = discord.Embed(
+                    title=f'Stats for {user.name}', colour=discord.Colour.orange())
                 embed.set_thumbnail(url=user.avatar_url)
                 embed.set_author(name=self.bot.guilds[0])
                 for key, value in stats.items():
@@ -249,4 +249,3 @@ def setup(bot):
 def teardown(bot):
     """Prints to termianl when cog is unloaded."""
     print('Unloaded cog: misc.py')
-    
