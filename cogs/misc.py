@@ -18,7 +18,7 @@ config_object.read(config_file)
 ror2 = config_object["RoR2"]
 general = config_object["General"]
 role = general["role"]
-guild_id = int(general["guild-id"])
+linked_id = int(general["linked-id"])
 
 colors = {
     'DEFAULT': 0x000000,
@@ -174,7 +174,7 @@ class misc(commands.Cog):
     async def link(self, ctx, steamid):
         linked = False
         user = ctx.message.author  # Sender is a Member class object
-        linkedrole = self.guild.get_role(guild_id)
+        linkedrole = self.guild.get_role(linked_id)
         userDict = {}
         for role in user.roles:
             if role == linkedrole:
@@ -206,7 +206,7 @@ class misc(commands.Cog):
     async def stats(self, ctx):
         proceed = False
         user = ctx.message.author
-        linkedrole = self.guild.get_role(guild_id)
+        linkedrole = self.guild.get_role(linked_id)
         for role in user.roles:
             if role == linkedrole:
                 proceed = True
