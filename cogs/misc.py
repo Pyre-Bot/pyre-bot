@@ -55,7 +55,6 @@ colors = {
 class misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.guild = bot.get_guild(660914305515913227)  # Hardcoded for now
 
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):
@@ -174,7 +173,7 @@ class misc(commands.Cog):
     async def link(self, ctx, steamid):
         linked = False
         user = ctx.message.author  # Sender is a Member class object
-        linkedrole = self.guild.get_role(linked_id)
+        linkedrole = ctx.guild.get_role(linked_id)
         userDict = {}
         for role in user.roles:
             if role == linkedrole:
@@ -206,7 +205,7 @@ class misc(commands.Cog):
     async def stats(self, ctx):
         proceed = False
         user = ctx.message.author
-        linkedrole = self.guild.get_role(linked_id)
+        linkedrole = ctx.guild.get_role(linked_id)
         for role in user.roles:
             if role == linkedrole:
                 proceed = True
@@ -219,7 +218,7 @@ class misc(commands.Cog):
             with open('data.json', 'r') as fr:
                 dataDict = json.load(fr)
             stats = dataDict.get(steamid)
-#            print(str(stats))  # DEBUG
+            print(str(stats))  # DEBUG
             if stats is None:
                 await ctx.send('Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
             else:

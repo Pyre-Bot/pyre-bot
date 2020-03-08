@@ -96,7 +96,7 @@ async def on_command_error(ctx, error):
 async def on_ready():
     """Outputs to terminal when bot is ready."""
     await bot.change_presence(
-        status=discord.Status.online,
+        status=discord.Status.online
     )
     print(
         f'Connected to Discord as: \n'
