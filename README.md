@@ -57,6 +57,7 @@ discord_token = token
 role = privileged-server-role
 admin-channel = admin-channel-id
 commands-channel = commands-channel-id
+linked-id = linked-role-id
 
 [RoR2]
 server_address = your-server-address
@@ -73,6 +74,7 @@ hidden_mods = hidden-mods-here
 * **discord_token**: The API key you retrieved in the earlier step
 * **role**: The Discord role you want using protected commands
 * **admin-channel**: The channel ID that is used to issue admin commands
+* **linked-id**: The id of the "Linked" Discord role
 * **commands-channel**: The channel ID that anyone can use to issue commands
 * **server_address**: the IP/domain of your server
 * **server_port**: The port configured for queries
