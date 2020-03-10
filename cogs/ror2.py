@@ -42,9 +42,6 @@ logfile = (BepInEx / "LogOutput.log")
 server_info = ''
 server_players = ''
 
-# Time
-run_timer = 0
-
 # Dictionaries used for functions
 stages = {
     'title': 'Title',  # Time not started (keep stage at 0)
@@ -75,7 +72,6 @@ stages = {
 async def server():
     """
     Checks if the server is running or not.
-
     Returns:
         Boolean: Used by functions calling this to check if running
     """
@@ -93,7 +89,6 @@ async def server():
 async def server_stop():
     """
     Stops the server.
-
     Returns:
         Boolean: Indicates whether server stopped or not
     """
@@ -113,7 +108,6 @@ async def server_stop():
 async def find_dll():
     """
     Checks to see if the BotCommands plugin is installed on server.
-
     Returns:
         Boolean: If true it is, otherwise it is not
     """
@@ -242,7 +236,7 @@ class RoR2(commands.Cog):
                 elif (yes - 1) >= (server_info.player_count * 0.75):
                     logging.info(f'{kick_player} was kicked from the game.')
                     append = open(botcmd / "botcmd.txt", 'a')
-                    append.write('kick "' + kick_player + '"\n')
+                    append.write('ban "' + kick_player + '"\n')
                     append.close()
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
@@ -308,8 +302,8 @@ class RoR2(commands.Cog):
 
     # Displays the status of the server
     @commands.command(
-        name='status',
-        help='Displays the status of the Risk of Rain 2 server'
+        name='info',
+        help='Displays Risk of Rain 2 server information'
     )
     async def status(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
@@ -394,3 +388,4 @@ def setup(bot):
 def teardown(bot):
     """Prints to termianl when cog is unloaded."""
     print('Unloaded cog: RoR2.py')
+    

@@ -135,3 +135,5 @@ site/
 Discord Test
 config/config.ini
 cogs/config
+.vscode/
+*.json
