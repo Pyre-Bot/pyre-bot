@@ -16,7 +16,6 @@ async def add_player(line, time, stages_cleared):
     'Runs Completed' : 0
     }
 
-# TODO: Save stats at the end of a run using IL hooking on run_end (if possible, otherwise find another way)
 async def update_stats(time, stages_cleared, runcompleted=0):
     global dataDict
     try:

@@ -218,7 +218,7 @@ class misc(commands.Cog):
             with open('data.json', 'r') as fr:
                 dataDict = json.load(fr)
             stats = dataDict.get(steamid)
-            print(str(stats))  # DEBUG
+#            print(str(stats))  # DEBUG
             if stats is None:
                 await ctx.send('Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
             else:
