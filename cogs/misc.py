@@ -54,9 +54,17 @@ colors = {
     'NOT_QUITE_BLACK': 0x23272A
 }
 
+channels = {
+    'Server1': {'admin': 670373469845979136, 'commands': 665998238171660320},
+    'Server2': {'admin': 671917010422333460, 'commands': 671921930873602099},
+    'Server3': {'admin': 672682539390992384, 'commands': 672682345089859654},
+    'Server4': {'admin': 672940159091867648, 'commands': 672939900600975362}
+}
+
 # Connects to Amazon DynamoDB and access the tables
 dynamodb = boto3.resource('dynamodb', region_name='us-east-2', endpoint_url="https://dynamodb.us-east-2.amazonaws.com")
 players = dynamodb.Table('Players')
+stats = dynamodb.Table('Stats')
 
 
 class misc(commands.Cog):
@@ -173,7 +181,6 @@ class misc(commands.Cog):
             await ctx.send('Please enter the number of messages to delete. '
                            + 'Example: ```delete 5```')
 
-    # TODO: Make users.json a file that is shared by all the bots
     @commands.command(name='link',
                       help='Links a user to their Steam ID',
                       usage='steamid')
@@ -188,6 +195,7 @@ class misc(commands.Cog):
                 linked = True
                 break
         try:
+            # Adds the items to the database or overwrites the current values
             await players.put_item(
                 Item={
                     'steamid64': int(steamid),
@@ -196,6 +204,9 @@ class misc(commands.Cog):
                 }
             )
         except:
+            # For some reason the above is always throwing an Error
+            # Temporary just pass so that it proceeds (everything works)
+            # TODO: Figure out why it throws an error
             pass
 
         if linked is False:
@@ -217,32 +228,42 @@ class misc(commands.Cog):
                 proceed = True
                 break
         if proceed:
-            dataDict = {}
-            with open('users.json', 'r') as fr:
-                userDict = json.load(fr)
-            steamid = userDict.get(str(user.id))
-            with open('data.json', 'r') as fr:
-                dataDict = json.load(fr)
-            stats = dataDict.get(steamid)
-#            print(str(stats))  # DEBUG
-            if stats is None:
-                await ctx.send('Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
-            else:
+            for key, value in channels.items():
+                for k, v in channels[key].items():
+                    if ctx.channel.id == v:
+                        server = key
+            try:
+                # The key variable is used to find the entry in the table
+                key = {'DiscordID': str(user.id)}
+                steamid = players.get_item(Key=key)
+                steamid = steamid['Item']['steamid64']
+                key = {'SteamID64': str(steamid)}
+                response = stats.get_item(Key=key)
+                # If you don't do the below you also get the metadata
+                response = response['Item'][server]
+
                 # Create embed
                 embed = discord.Embed(
-                    title=f'Stats for {user.name}', colour=discord.Colour.orange())
+                    title=f'Stats for {user.name}',
+                    colour=discord.Colour.orange()
+                    )
                 embed.set_thumbnail(url=user.avatar_url)
                 embed.set_author(name=self.bot.guilds[0])
-                for key, value in stats.items():
+                for key, value in response.items():
                     if key == 'Time Played':
-                        value = datetime.timedelta(seconds=value)
+                        value = datetime.timedelta(seconds=int(value))
                     embed.add_field(
                         name=str(key), value=str(value), inline=False)
                 await ctx.send(embed=embed)
-            logging.info(
-                f'{user.name} used {ctx.command.name}')
+
+            except KeyError:
+                # Called if the SteamID isn't linked in the Players table
+                await ctx.send('Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
+
         else:
             await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
+        logging.info(
+            f'{user.name} used {ctx.command.name}')
 
 
 def setup(bot):
