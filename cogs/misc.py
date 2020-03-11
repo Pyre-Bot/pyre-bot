@@ -3,16 +3,15 @@
 """Pyre Bot Risk of Rain 2 random functions."""
 
 import datetime
-import json
 import logging
 import random
 import decimal
+import requests
 from configparser import ConfigParser
 from pathlib import Path
 
 import discord
 import boto3
-from botocore.exceptions import ClientError
 from discord.ext import commands
 
 config_object = ConfigParser()
@@ -22,6 +21,7 @@ ror2 = config_object["RoR2"]
 general = config_object["General"]
 role = general["role"]
 linked_id = int(general["linked-id"])
+request_url = 'https://steamid.io/lookup/'
 
 colors = {
     'DEFAULT': 0x000000,
@@ -185,10 +185,20 @@ class misc(commands.Cog):
                       help='Links a user to their Steam ID',
                       usage='steamid')
     async def link(self, ctx, steamid):
-        global table
         linked = False
         user = ctx.message.author  # Sender is a Member class object
         linkedrole = ctx.guild.get_role(linked_id)
+        r = requests.get(request_url + str(steamid))
+        r_list = r.text.splitlines()
+
+        for line in r_list:
+            if '"keywords":' in line:
+                keyword_line = line.replace('                "keywords": "steamid, ', '')
+                keyword_line = keyword_line.replace('",', '')
+                keyword_line = keyword_line.replace(', ', ';')
+                keyword_line = keyword_line.split(';')
+                if len(keyword_line) == 3:
+                    keyword_line.append('None')
 
         for role in user.roles:
             if role == linkedrole:
@@ -198,9 +208,12 @@ class misc(commands.Cog):
             # Adds the items to the database or overwrites the current values
             await players.put_item(
                 Item={
-                    'steamid64': int(steamid),
                     'DiscordID': str(user.id),
-                    'DiscordName': str(user.name)
+                    'DiscordName': str(user.name),
+                    'steamid64': int(keyword_line[2]),
+                    'SteamID': str(keyword_line[0]),
+                    'SteamID3': str(keyword_line[1]),
+                    'Steam CustomURL': str(keyword_line[3])
                 }
             )
         except:
