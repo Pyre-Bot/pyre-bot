@@ -6,10 +6,13 @@ import datetime
 import json
 import logging
 import random
+import decimal
 from configparser import ConfigParser
 from pathlib import Path
 
 import discord
+import boto3
+from botocore.exceptions import ClientError
 from discord.ext import commands
 
 config_object = ConfigParser()
@@ -50,6 +53,10 @@ colors = {
     'DARK_BUT_NOT_BLACK': 0x2C2F33,
     'NOT_QUITE_BLACK': 0x23272A
 }
+
+# Connects to Amazon DynamoDB and access the tables
+dynamodb = boto3.resource('dynamodb', region_name='us-east-2', endpoint_url="https://dynamodb.us-east-2.amazonaws.com")
+players = dynamodb.Table('Players')
 
 
 class misc(commands.Cog):
@@ -171,27 +178,26 @@ class misc(commands.Cog):
                       help='Links a user to their Steam ID',
                       usage='steamid')
     async def link(self, ctx, steamid):
+        global table
         linked = False
         user = ctx.message.author  # Sender is a Member class object
         linkedrole = ctx.guild.get_role(linked_id)
-        userDict = {}
+
         for role in user.roles:
             if role == linkedrole:
                 linked = True
                 break
-        try:  # In case the file does not exist
-            with open('users.json', 'r') as fr:
-                userDict = json.load(fr)
-        except Exception:
-            with open('users.json', 'w') as fw:
-                json.dump(userDict, fw, indent=4)
-            with open('users.json', 'r') as fr:
-                userDict = json.load(fr)
-            print('JSON file created')  # DEBUG
-        finally:
-            userDict[str(user.id)] = steamid
-            with open('users.json', 'w') as fw:
-                json.dump(userDict, fw, indent=4)
+        try:
+            await players.put_item(
+                Item={
+                    'steamid64': int(steamid),
+                    'DiscordID': str(user.id),
+                    'DiscordName': str(user.name)
+                }
+            )
+        except:
+            pass
+
         if linked is False:
             await user.add_roles(linkedrole)
             await ctx.send(f'Steam ID linked for {user.name}')
