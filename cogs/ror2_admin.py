@@ -209,6 +209,7 @@ stages = {
     'arena': 'Hidden Realm: Void Fields'
 }
 
+
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     channel = config_object.getint('RoR2', 'channel')
@@ -232,14 +233,12 @@ async def chat(self):
                     line = str(line.replace('[Info   : Unity Log] Run time is ', ''))
                     run_timer = float(line)
                     run_timer = int(run_timer)
-#                    print('run_timer: ' + str(run_timer))  # DEBUG
                     updatestats = True
                 # Stages cleared
                 elif ('[Info   : Unity Log] Stages cleared: ' in line):
                     line = str(line.replace(
                         '[Info   : Unity Log] Stages cleared: ', ''))
                     stagenum = int(line)
-#                    print('stagenum: ' + str(stagenum))  # DEBUG
                     updatestats = True
                 # Stage change
                 elif "Active scene changed from" in line:
@@ -267,7 +266,8 @@ async def chat(self):
                             await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
-                    await stats.add_player(line, run_timer, stagenum)  # Still required for now
+                    # Still required for now
+                    await stats.add_player(line, run_timer, stagenum)
                     updatestats = False
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
@@ -305,7 +305,6 @@ async def server():
         server_players = a2s.players(server_address)
         return True
     except:
-        #        print("Server error:", sys.exc_info()[0], sys.exc_info()[1]) #  Used for debugging
         return False
 
 
@@ -486,7 +485,6 @@ class ror2_admin(commands.Cog):
             await ctx.send('You must stop the server prior to updating!')
 
     # Executes say on the server
-
     @commands.command(
         name='say',
         help='Sends a message from the server',

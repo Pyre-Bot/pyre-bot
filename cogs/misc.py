@@ -5,13 +5,12 @@
 import datetime
 import logging
 import random
-import decimal
-import requests
 from configparser import ConfigParser
 from pathlib import Path
 
-import discord
 import boto3
+import discord
+import requests
 from discord.ext import commands
 
 config_object = ConfigParser()
@@ -54,15 +53,25 @@ colors = {
     'NOT_QUITE_BLACK': 0x23272A
 }
 
+# Used to determine which server stats need updating
 channels = {
-    'Server1': {'admin': 670373469845979136, 'commands': 665998238171660320},
-    'Server2': {'admin': 671917010422333460, 'commands': 671921930873602099},
-    'Server3': {'admin': 672682539390992384, 'commands': 672682345089859654},
-    'Server4': {'admin': 672940159091867648, 'commands': 672939900600975362}
+    'Server1': {'admin': 670373469845979136,
+                'commands': 665998238171660320,
+                'chat': 667473663343198220},
+    'Server2': {'admin': 671917010422333460,
+                'commands': 671921930873602099,
+                'chat': 671918498531770378},
+    'Server3': {'admin': 672682539390992384,
+                'commands': 672682345089859654,
+                'chat': 672682313003565057},
+    'Server4': {'admin': 672940159091867648,
+                'commands': 672939900600975362,
+                'chat': 672939927507435533}
 }
 
 # Connects to Amazon DynamoDB and access the tables
-dynamodb = boto3.resource('dynamodb', region_name='us-east-2', endpoint_url="https://dynamodb.us-east-2.amazonaws.com")
+dynamodb = boto3.resource('dynamodb', region_name='us-east-2',
+                          endpoint_url="https://dynamodb.us-east-2.amazonaws.com")
 players = dynamodb.Table('Players')
 stats = dynamodb.Table('Stats')
 
@@ -193,7 +202,8 @@ class misc(commands.Cog):
 
         for line in r_list:
             if '"keywords":' in line:
-                keyword_line = line.replace('                "keywords": "steamid, ', '')
+                keyword_line = line.replace(
+                    '                "keywords": "steamid, ', '')
                 keyword_line = keyword_line.replace('",', '')
                 keyword_line = keyword_line.replace(', ', ';')
                 keyword_line = keyword_line.split(';')
@@ -259,7 +269,7 @@ class misc(commands.Cog):
                 embed = discord.Embed(
                     title=f'Stats for {user.name}',
                     colour=discord.Colour.orange()
-                    )
+                )
                 embed.set_thumbnail(url=user.avatar_url)
                 embed.set_author(name=self.bot.guilds[0])
                 for key, value in response.items():
