@@ -64,7 +64,6 @@ async def update_stats(time, stages_cleared, runcompleted=0):
         for k, v in channels[key].items():
             if channel == v:
                 server = key
-                print(f'Server detected: {server}')
 
     for pid, value in dataDict.items():
         value['Time Played'] = time - value['Time Played']
