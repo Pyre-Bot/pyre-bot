@@ -20,6 +20,7 @@ players = dynamodb.Table('Players')
 stats = dynamodb.Table('Stats')
 
 # Used to determine which server stats need updating
+# TODO: Save these identifiers to the db rather than hardcoding
 channels = {
     'Server1': {'admin': 670373469845979136,
                 'commands': 665998238171660320,
