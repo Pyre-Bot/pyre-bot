@@ -219,78 +219,74 @@ async def chat(self):
     global yes, no
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
-            try:
-                for line in Pygtail(str(logfile)):
-#                    print(str(line))  # DEBUG
-                    updatestats = False  # Required to limit the updates to once per line
-                    # Player chat
-                    if "issued: say" in line:
-                        line = line.replace('[Info   : Unity Log] ', '**')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        line = line.replace(' issued:', ':** ')
-                        line = line.replace(' say ', '')
-                        await channel.send(line)
-                    # Run time
-                    elif ('[Info   : Unity Log] Run time is ' in line):
-                        line = str(line.replace('[Info   : Unity Log] Run time is ', ''))
-                        run_timer = float(line)
-                        run_timer = int(run_timer)
-                        updatestats = True
-                    # Stages cleared
-                    elif ('[Info   : Unity Log] Stages cleared: ' in line):
-                        line = str(line.replace(
-                            '[Info   : Unity Log] Stages cleared: ', ''))
-                        stagenum = int(line)
-                        updatestats = True
-                    # Stage change
-                    elif "Active scene changed from" in line:
-                        for key, value in stages.items():
-                            if key in line:
-                                devstage = key
-                                stage = value
-                                break
-                        if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena'):
-                            await channel.send('**Entering Stage - ' + stage + '**')
-                        # Won't output if the stage is title, done on purpose
-                        elif devstage in ('lobby', 'title'):
-                            if devstage == 'lobby':
-                                await channel.send('**Entering ' + stage + '**')
+            for line in Pygtail(str(logfile)):
+                updatestats = False  # Required to limit the updates to once per line
+                # Player chat
+                if "issued: say" in line:
+                    line = line.replace('[Info   : Unity Log] ', '**')
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    line = line.replace(' issued:', ':** ')
+                    line = line.replace(' say ', '')
+                    await channel.send(line)
+                # Run time
+                elif ('[Info   : Unity Log] Run time is ' in line):
+                    line = str(line.replace('[Info   : Unity Log] Run time is ', ''))
+                    run_timer = float(line)
+                    run_timer = int(run_timer)
+                    updatestats = True
+                # Stages cleared
+                elif ('[Info   : Unity Log] Stages cleared: ' in line):
+                    line = str(line.replace(
+                        '[Info   : Unity Log] Stages cleared: ', ''))
+                    stagenum = int(line)
+                    updatestats = True
+                # Stage change
+                elif "Active scene changed from" in line:
+                    for key, value in stages.items():
+                        if key in line:
+                            devstage = key
+                            stage = value
+                            break
+                    if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena'):
+                        await channel.send('**Entering Stage - ' + stage + '**')
+                    # Won't output if the stage is title, done on purpose
+                    elif devstage in ('lobby', 'title'):
+                        if devstage == 'lobby':
+                            await channel.send('**Entering ' + stage + '**')
+                    else:
+                        if stagenum == 0:
+                            await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
                         else:
-                            if stagenum == 0:
-                                await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
+                            if (run_timer - (int(run_timer / 60)) * 60) < 10:
+                                formattedtime = str(
+                                    int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
                             else:
-                                if (run_timer - (int(run_timer / 60)) * 60) < 10:
-                                    formattedtime = str(
-                                        int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
-                                else:
-                                    formattedtime = str(
-                                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                                await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
-                    # Player joins
-                    elif "[Info   :     R2DSE] New player : " in line:
-                        # Still required for now
-                        await stats.add_player(line, run_timer, stagenum)
-                        updatestats = False
-                        line = line.replace(
-                            '[Info   :     R2DSE] New player : ', '**Player Joined - ')
-                        line = line.replace(' connected. ', '')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        await channel.send(line + '**')
-                    # Player leaves
-                    elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
-                        line = line.replace(
-                            '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        await channel.send(line + '**')
-                    elif "[Info   : Unity Log] Server(0) issued: run_end" in line:
-                        await stats.update_stats(run_timer, stagenum, 1)
-                        run_timer = 0
-                        stagenum = 0
-                        updatestats = False
-                    if updatestats:
-                        await stats.update_stats(run_timer, stagenum)
-            except UnicodeDecodeError:
-                print('UnicodeDecodeError')
+                                formattedtime = str(
+                                    int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
+                            await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
+                # Player joins
+                elif "[Info   :     R2DSE] New player : " in line:
+                    # Still required for now
+                    await stats.add_player(line, run_timer, stagenum)
+                    updatestats = False
+                    line = line.replace(
+                        '[Info   :     R2DSE] New player : ', '**Player Joined - ')
+                    line = line.replace(' connected. ', '')
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    await channel.send(line + '**')
+                # Player leaves
+                elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
+                    line = line.replace(
+                        '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
+                    line = re.sub(r" ?\([^)]+\)", "", line)
+                    await channel.send(line + '**')
+                elif "[Info   : Unity Log] Server(0) issued: run_end" in line:
+                    await stats.update_stats(run_timer, stagenum, 1)
+                    run_timer = 0
+                    stagenum = 0
+                    updatestats = False
+                if updatestats:
+                    await stats.update_stats(run_timer, stagenum)
         else:
             for line in Pygtail(str(logfile)):
                 pass
@@ -355,8 +351,6 @@ async def chat_autostart(self):
             except Exception:
                 print('Unable to remove offset! Chat may not work!')
         while repeat == 1:
-            # Sending a chat message in other languages, such as Russian, can result in breaking the function
-            # Temporary fix until proper character mapping is done for non-english characters
             await chat(self)
             await asyncio.sleep(1)
     else:
