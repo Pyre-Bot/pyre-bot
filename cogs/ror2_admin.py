@@ -287,9 +287,9 @@ async def chat(self):
                     updatestats = False
                 if updatestats:
                     await stats.update_stats(run_timer, stagenum)
-        else:
-            for line in Pygtail(str(logfile)):
-                pass
+            else:
+                for line in Pygtail(str(logfile)):
+                    pass
 
 
 async def server():
