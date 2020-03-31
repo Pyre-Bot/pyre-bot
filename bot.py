@@ -7,6 +7,7 @@ Usage:
     bot.py
 """
 
+import asyncio
 import logging
 import os
 import subprocess
@@ -57,6 +58,14 @@ cogs = [
     'cogs.misc'
 ]
 
+
+# Bot autorestart
+async def bot_restart():
+    await asyncio.sleep(18000)
+    os.startfile(__file__)
+    sys.exit()
+
+
 # Error handling
 @bot.event
 async def on_command_error(ctx, error):
@@ -95,6 +104,9 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_ready():
     """Outputs to terminal when bot is ready."""
+    # Bot Restart function
+    asyncio.gather(bot_restart())
+
     await bot.change_presence(
         status=discord.Status.online
     )
