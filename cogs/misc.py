@@ -76,7 +76,7 @@ players = dynamodb.Table('Players')
 stats = dynamodb.Table('Stats')
 
 
-class misc(commands.Cog):
+class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -291,10 +291,10 @@ class misc(commands.Cog):
 
 def setup(bot):
     """Loads the cog into bot.py."""
-    bot.add_cog(misc(bot))
+    bot.add_cog(Misc(bot))
     print('Loaded cog: misc.py')
 
 
 def teardown(bot):
-    """Prints to termianl when cog is unloaded."""
+    """Prints to terminal when cog is unloaded."""
     print('Unloaded cog: misc.py')

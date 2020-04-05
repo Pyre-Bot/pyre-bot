@@ -187,10 +187,8 @@ item = {
 }
 
 stages = {
-    # Time not started (keep stage at 0)
     'title': 'Title',
     'lobby': 'Game Lobby',
-    # Time running normal
     'blackbeach': 'Distant Roost',
     'blackbeach2': 'Distant Roost',
     'golemplains': 'Titanic Plains',
@@ -201,12 +199,13 @@ stages = {
     'wispgraveyard': 'Scorched Acres',
     'dampcave': 'Abyssal Depths',
     'shipgraveyard': "Siren's Call",
-    # Time paused, no stage progression on following stages
+    'arena': 'Hidden Realm: Void Fields',
     'bazaar': 'Hidden Realm: Bazaar Between Time',
     'goldshores': 'Hidden Realm: Glided Coast',
     'mysteryspace': 'Hidden Realm: A Moment, Fractured',
     'limbo': 'Hidden Realm: A Moment, Whole',
-    'arena': 'Hidden Realm: Void Fields'
+    'artifactworld': 'Hidden Realm: Artifact World',
+    'skymeadow': 'Sky Meadow'
 }
 
 
@@ -219,7 +218,7 @@ async def chat(self):
     global yes, no
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
-            for line in Pygtail(str(logfile)):
+            for line in Pygtail(str(logfile), read_from_end=True):
                 updatestats = False  # Required to limit the updates to once per line
                 # Player chat
                 if "issued: say" in line:
@@ -242,12 +241,14 @@ async def chat(self):
                     updatestats = True
                 # Stage change
                 elif "Active scene changed from" in line:
+                    devstage = '???'
+                    stage = '???'
                     for key, value in stages.items():
                         if key in line:
                             devstage = key
                             stage = value
                             break
-                    if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena'):
+                    if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld'):
                         await channel.send('**Entering Stage - ' + stage + '**')
                     # Won't output if the stage is title, done on purpose
                     elif devstage in ('lobby', 'title'):
@@ -287,9 +288,9 @@ async def chat(self):
                     updatestats = False
                 if updatestats:
                     await stats.update_stats(run_timer, stagenum)
-            else:
-                for line in Pygtail(str(logfile)):
-                    pass
+        else:
+            for line in Pygtail(str(logfile), read_from_end=True):
+                pass
 
 
 async def server():
@@ -390,7 +391,7 @@ async def find_dll():
     return False
 
 
-class ror2_admin(commands.Cog):
+class Ror2_Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         asyncio.gather(chat_autostart(self), server_restart())
@@ -523,7 +524,7 @@ class ror2_admin(commands.Cog):
                 append.close()
                 findline = True
                 consoleout = ''
-                tempreader = Pygtail(str(logfile))
+                tempreader = Pygtail(str(logfile), read_from_end=True)
                 while findline:
                     for line in tempreader:
                         #                    print('line -' + str(line))  # DEBUG
@@ -583,7 +584,7 @@ class ror2_admin(commands.Cog):
                                  + qty + ' "' + playername + '"\n')
                     append.close()
                     findline = True
-                    tempreader = Pygtail(str(logfile))
+                    tempreader = Pygtail(str(logfile), read_from_end=True)
                     while findline:
                         for line in tempreader:
                             if ('[Info   : Unity Log] The requested object could not be '
@@ -652,7 +653,7 @@ class ror2_admin(commands.Cog):
                                  + playername + '"\n')
                     append.close()
                     findline = True
-                    tempreader = Pygtail(str(logfile))
+                    tempreader = Pygtail(str(logfile), read_from_end=True)
                     while findline:
                         for line in tempreader:
                             if ('[Info   : Unity Log] The requested object could not be '
@@ -745,12 +746,12 @@ class ror2_admin(commands.Cog):
 
 def setup(bot):
     """Loads the cog into bot.py."""
-    bot.add_cog(ror2_admin(bot))
+    bot.add_cog(Ror2_Admin(bot))
     print('Loaded cog: ror2_admin.py')
 
 
 def teardown(bot):
-    """Prints to termianl when cog is unloaded."""
+    """Prints to terminal when cog is unloaded."""
     global repeat
     print('Unloaded cog: ror2_admin.py')
     repeat = 0

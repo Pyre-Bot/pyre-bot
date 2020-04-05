@@ -44,8 +44,8 @@ server_players = ''
 
 # Dictionaries used for functions
 stages = {
-    'title': 'Title',  # Time not started (keep stage at 0)
-    'lobby': 'Game Lobby',  # Time not started (keep stage at 0)
+    'title': 'Title',
+    'lobby': 'Game Lobby',
     'blackbeach': 'Distant Roost',
     'blackbeach2': 'Distant Roost',
     'golemplains': 'Titanic Plains',
@@ -56,16 +56,13 @@ stages = {
     'wispgraveyard': 'Scorched Acres',
     'dampcave': 'Abyssal Depths',
     'shipgraveyard': "Siren's Call",
-    # Time paused, no stage progression on following stage
+    'arena': 'Hidden Realm: Void Fields',
     'bazaar': 'Hidden Realm: Bazaar Between Time',
-    # Time paused, no stage progression on following stage
     'goldshores': 'Hidden Realm: Glided Coast',
-    # Time paused, no stage progression on following stage
     'mysteryspace': 'Hidden Realm: A Moment, Fractured',
-    # Time paused, no stage progression on following stage
     'limbo': 'Hidden Realm: A Moment, Whole',
-    # Time is NOT paused, no stage progression on following stage
-    'arena': 'Hidden Realm: Void Fields'
+    'artifactworld': 'Hidden Realm: Artifact World',
+    'skymeadow': 'Sky Meadow'
 }
 
 
@@ -308,6 +305,7 @@ class RoR2(commands.Cog):
     async def status(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await server():
+            stage = '???'
             # Create embed
             embed = discord.Embed(
                 title='Server Information',
@@ -325,7 +323,7 @@ class RoR2(commands.Cog):
                 if key in server_info.map_name:
                     stage = value
                     break
-
+                
             # Embed information
             embed.set_footer(
                 text=f'Requested by {ctx.message.author.name}',
@@ -382,10 +380,10 @@ class RoR2(commands.Cog):
 def setup(bot):
     """Loads the cog into bot.py."""
     bot.add_cog(RoR2(bot))
-    print('Loaded cog: RoR2.py')
+    print('Loaded cog: ror2.py')
 
 
 def teardown(bot):
-    """Prints to termianl when cog is unloaded."""
-    print('Unloaded cog: RoR2.py')
+    """Prints to terminal when cog is unloaded."""
+    print('Unloaded cog: ror2.py')
     
