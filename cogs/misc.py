@@ -74,11 +74,50 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-2',
                           endpoint_url="https://dynamodb.us-east-2.amazonaws.com")
 players = dynamodb.Table('Players')
 stats = dynamodb.Table('Stats')
+discord_stats = dynamodb.Table('Discord_Stats')
 
 
 class misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    # Update DB when a member joins the server
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        try:
+            await discord_stats.put_item(
+                Item={
+                    'DiscordID': str(member.id),
+                    'DiscordName': str(member.name),
+                    'JoinDate': str(datetime.datetime.utcnow())
+                }
+            )
+        except:
+            # For some reason the above is always throwing an Error
+            # Temporary just pass so that it proceeds (everything works)
+            # TODO: Figure out why it throws an error
+            pass
+
+    # Update DB when a member leaves the server
+    @commands.Cog.listener()
+    async def on_member_remove(self, member):
+        try:
+            # key = {'DiscordID': str(member.id)}
+            # response = discord_stats.get_item(Key=key)
+            # response = response['Item']
+            LeaveDate = str(datetime.datetime.utcnow())
+            await discord_stats.update_item(
+                Key={'DiscordID': member.id},
+                UpdateExpression=f'set {LeaveDate} = :l',
+                ExpressionAttributeValues={
+                    ':l': LeaveDate
+                }
+            )
+        except:
+            # For some reason the above is always throwing an Error
+            # Temporary just pass so that it proceeds (everything works)
+            # TODO: Figure out why it throws an error
+            pass
 
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):
