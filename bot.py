@@ -62,6 +62,8 @@ cogs = [
 # Bot autorestart
 async def bot_restart():
     await asyncio.sleep(18000)
+    for cog in cogs:
+        bot.unload_extension(cog)
     os.startfile(__file__)
     sys.exit()
 
@@ -118,8 +120,18 @@ async def on_ready():
     )
     logging.info(f'Bot connected as {bot.user.name}(id: {bot.user.id})')
     for cog in cogs:
-        bot.load_extension(cog)
-        logging.info(f'Loaded {cog}')
+        try:
+            bot.load_extension(cog)
+            logging.info(f'Loaded {cog}')
+        except Exception:
+            logging.warning(f'Error loading {cog}, trying second method.')
+            try:
+                bot.unload_extension(cog)
+                bot.load_extension(cog)
+                logging.info(f'Loaded {cog}')
+            except Exception:
+                logging.warning(f'Unable to load cog: {cog}')
+                print(f'Unable to load {cog}')
 
 
 # Checks the channel the message was sent in
