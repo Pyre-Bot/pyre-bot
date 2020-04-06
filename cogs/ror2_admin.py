@@ -81,7 +81,9 @@ equip = {
     'Cleanse': 'Blast Shower',
     'FireBallDash': 'Volcanic Egg',
     'AffixHaunted': 'Spectral Circlet',
-    'GainArmor': 'Jade Elephant'
+    'GainArmor': 'Jade Elephant',
+    'Sawmerang': 'Sawmerang',
+    'Recycler': 'Recycler'
 }
 
 item = {
@@ -183,7 +185,13 @@ item = {
     'LaserTurbine': 'Resonance Disc',
     'LunarPrimaryReplacement': 'Visions of Heresy',
     'NovaOnLowHealth': 'Genesis Loop',
-    'LunarTrinket': 'Beads of Fealty'
+    'LunarTrinket': 'Beads of Fealty',
+    'FocusedConvergence': 'Focused Convergence',
+    'RepulsionArmorPlate': 'Repulsion Armor Plate',
+    'SquidTurret': 'Squid Polyp',
+    'DeathMark': 'Death Mark',
+    'InterstellarDeskPlant': 'Interstellar Desk Plant',
+    'AncestralIncubator': 'Ancestral Incubator'
 }
 
 stages = {
