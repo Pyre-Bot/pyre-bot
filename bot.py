@@ -59,15 +59,6 @@ cogs = [
 ]
 
 
-# Bot autorestart
-async def bot_restart():
-    await asyncio.sleep(18000)
-    for cog in cogs:
-        bot.unload_extension(cog)
-    os.startfile(__file__)
-    sys.exit()
-
-
 # Error handling
 @bot.event
 async def on_command_error(ctx, error):
