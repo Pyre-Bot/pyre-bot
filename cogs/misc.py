@@ -102,17 +102,25 @@ class Misc(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         try:
-            # key = {'DiscordID': str(member.id)}
-            # response = discord_stats.get_item(Key=key)
-            # response = response['Item']
-            LeaveDate = str(datetime.datetime.utcnow())
-            await discord_stats.update_item(
-                Key={'DiscordID': member.id},
-                UpdateExpression=f'set {LeaveDate} = :l',
-                ExpressionAttributeValues={
-                    ':l': LeaveDate
-                }
-            )
+            r_key = {'DiscordID': str(member.id)}
+            try:
+                response = discord_stats.get_item(Key=r_key)
+            except:
+                pass
+            response = response['Item']
+            response['LeaveDate'] = str(datetime.datetime.utcnow())
+            print(response)
+            try:
+                discord_stats.put_item(
+                    Item={
+                        'DiscordID': str(response['DiscordID']),
+                        'DiscordName': str(response['DiscordName']),
+                        'JoinDate': str(response['JoinDate']),
+                        'LeaveDate': str(response['LeaveDate'])
+                    }
+                )
+            except:
+                pass
         except:
             # For some reason the above is always throwing an Error
             # Temporary just pass so that it proceeds (everything works)
