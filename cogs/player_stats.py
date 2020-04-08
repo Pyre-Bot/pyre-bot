@@ -49,6 +49,7 @@ async def add_player(line, time, stages_cleared):
     global dataDict
     player_id = re.search(r'\((.*?)\)', line).group(1)
     player_id = re.sub("[^0-9]", "", player_id)
+    # Adds at current time and stages because it gets used as an offset by update_stats
     dataDict[player_id] = {
         'Time Played': time,
         'Stages Cleared': stages_cleared,
@@ -126,6 +127,7 @@ async def update_stats(time, stages_cleared, runcompleted=0):
                 pass
 
         # Updates current values in dictionary
+        # Does this to update the offset again after the difference in stats has been updated with the db
         value['Time Played'] = time
         value['Stages Cleared'] = stages_cleared
         value['Runs Completed'] = runcompleted
