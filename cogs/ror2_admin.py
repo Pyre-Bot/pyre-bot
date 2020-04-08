@@ -13,9 +13,9 @@ from pathlib import Path
 import a2s
 import psutil
 from discord.ext import commands
-from libs.pygtail import Pygtail
 
 import cogs.player_stats as stats
+from libs.pygtail import Pygtail
 
 config_object = ConfigParser()
 config_file = Path.cwd().joinpath('config', 'config.ini')
@@ -323,21 +323,21 @@ async def server_restart():
         print('Auto server restarting enabled')
         while server_restart == "true":
             await asyncio.sleep(7200)
-            if os.path.exists(BepInEx / "LogOutput.log"):
-                try:
-                    os.remove(BepInEx / "LogOutput.log")
-                except Exception:
-                    print('Unable to remove log file')
-            if os.path.exists(BepInEx / "LogOutput.log.offset"):
-                try:
-                    os.remove(BepInEx / "LogOutput.log.offset")
-                except Exception:
-                    print('Unable to remove offset! Chat may not work!')
-            await asyncio.sleep(5)
             await server()
             if server_info.player_count == 0:
                 await server_stop()
                 await asyncio.sleep(10)
+                if os.path.exists(BepInEx / "LogOutput.log"):
+                    try:
+                        os.remove(BepInEx / "LogOutput.log")
+                    except Exception:
+                        print('Unable to remove log file')
+                if os.path.exists(BepInEx / "LogOutput.log.offset"):
+                    try:
+                        os.remove(BepInEx / "LogOutput.log.offset")
+                    except Exception:
+                        print('Unable to remove offset! Chat may not work!')
+                await asyncio.sleep(5)
                 os.startfile(ror2ds / "Risk of Rain 2.exe")
                 print('Server restarted')
             elif server_info.player_count > 0:
