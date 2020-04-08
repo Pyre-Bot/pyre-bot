@@ -1,5 +1,13 @@
 ## Changelog
 
+### 0.8.0
+* Moved all stat tracking to Amazon DynamoDB for a better experience
+* Custom version of the Pygtail module is now packaged with the bot
+* Fixed an exception that occurred when the bot reconnected to Discord servers.
+* Complete rewrite of setup.py
+* Updated all requirements to newest versions
+* Various fixes, improvements, and optimizations that makes everyone's lives better
+
 ### 0.6.0
 * Added configuration options for admin and command channels
   * This allows running multiple bot instances to manage more than one server

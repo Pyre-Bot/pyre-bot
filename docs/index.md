@@ -21,12 +21,12 @@ pip install -r requirements.txt
 As of writing the current requirements are:
 
 ```
-requests==2.22.0
+boto3==1.12.37
+python_a2s==1.1.4
+discord.py==1.3.3
 psutil==5.6.7
-python_a2s==1.1.1
+requests==2.22.0
 python_valve==0.2.1
-discord.py==1.3.1
-pygtail==0.11.1
 discord==1.0.1
 valve==0.0.0
 ```
@@ -42,7 +42,18 @@ pip install --no-use-pep517 discord.py
 Clone the repo to wherever you want the bot to reside. You can run the bot by calling **bot.py**. You will also need [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) installed on your machine to run the updates for the game servers. When the bot first runs it will open a setup window where it prompts you for configuration settings. The window will also allow you to install the BotCommands plugin, this is required if you want access to functions that utilize in-game commands from Discord.
 
 #### API Tokens
+
+##### Discord
 You need to get an API token from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro). The token is added to the config.ini file in the config folder.
+
+##### AWS
+Pyre Bot uses Amazon DynamoDB to store player stats from the servers and link Discord IDs to SteamIDs. You will need to setup an AWS account an add some tables to DynamoDB for this to work. Create the following tables:
+
+* **Discord_Stats** - Primary key: DiscordID (String)
+* **Players** - Primary key: DiscordID (String)
+* **Stats** - Primary key: SteamID64 (String)
+
+You also need to setup AWS credentials on your computer. You can use [AWS CLI](https://aws.amazon.com/cli/) to do this.
 
 #### Setting variables
 Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. These variables are setup when the bot first runs when it opens the setup window. In the **config/config.ini** file you will be able to config the following:
@@ -84,20 +95,18 @@ hidden_mods = hidden-mods-here
 
 #### Risk of Rain 2 requirements
 
-The bot assumes that you are using mods in your RoR2 server, or at the very least have BepInEx loaded.
+The bot requires that you are using the following mods in your RoR2 server. Not having all of these mods installed and updated to their latest builds can result in certain features not working properly.
 
-**Required**
-
+**Required Mods**
 * [BepInEx](https://thunderstore.io/package/bbepis/BepInExPack/)
     * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
 * [BotCommands](https://github.com/SuperRayss/BotCommands)
     * Used to send commands to the server from Discord
-* [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/)
-    * Enables additional commands to be sent to the server (i.e. give_item, give_equip)
-
-**Recommended**
-
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/)
+    * Outputs steam player names and IDs
+* [DebugToolkit (Custom Fork by Rayss)](https://github.com/SuperRayss/DebugToolkit)
+    * Outputs run time and stages cleared
+    * Enables additional commands to be sent to the server (i.e. give_item, give_equip)
 
 ## Running and using the bot
 
@@ -156,6 +165,20 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE.m
 ## Changelog
 *Complete changelog available: [CHANGELOG](CHANGELOG.md)*
 
+### 0.8.0
+* Moved all stat tracking to Amazon DynamoDB for a better experience
+* Custom version of the Pygtail module is now packaged with the bot
+* Fixed an exception that occurred when the bot reconnected to Discord servers.
+* Complete rewrite of setup.py
+* Updated all requirements to newest versions
+* Various fixes, improvements, and optimizations that makes everyone's lives better
+
+### 0.7.0
+* Added player stat tracking
+* Improved integration with DebugToolkit
+* Gets run time and stage number from the server log output directly
+* Other things I've likely just forgotten about ... it's been a while
+
 ### 0.6.0
 * Added configuration options for admin and command channels
     * This allows running multiple bot instances to manage more than one server
@@ -182,18 +205,3 @@ This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE.m
 * Added automatic server restarts
     * Enabled by default, change in config.ini
 * Using new Steamworks API
-
-### 0.4.1
-* Able to view server mods with the >mods commands
-* ror2.py outputs load AND unload to terminal
-* Misc code cleanup
-
-### 0.4.0
-* We welcome **Rayss** as a contributor to the project!
-* Added config.ini
-* New function to allow commands to output to a specified Discord channel
-    * Requires the role specified in config.ini to use these commands
-    * Discord channel is specified in config.ini
-* ror2.py now outputs to terminal when it is loaded
-* Minor fix to update command, removes log file *before* starting the update now
-* Commands no longer require proper capitalization
