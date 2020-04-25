@@ -109,7 +109,6 @@ class Misc(commands.Cog):
                 pass
             response = response['Item']
             response['LeaveDate'] = str(datetime.datetime.utcnow())
-            print(response)
             try:
                 discord_stats.put_item(
                     Item={
