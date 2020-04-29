@@ -138,6 +138,7 @@ def check_channel(ctx):
     else:
         return False
 
+
 # Load and Unload cogs stuff
 @bot.command()
 @commands.has_role(role)
@@ -180,6 +181,7 @@ async def reload(ctx, cog='all'):
         bot.unload_extension(cog)
         bot.load_extension(cog)
         logging.info(f'Reloaded {cog}')
+
 
 bot.remove_command('help')
 

@@ -84,13 +84,12 @@ async def update_stats(time, stages_cleared, runcompleted=0):
             response['Runs Completed'] = value['Runs Completed'] + \
                 response['Runs Completed']
 
-            # Creates a ditionary used to update stats
-            stats_dict = {}
-            stats_dict[pid] = {
+            # Creates a dictionary used to update stats
+            stats_dict = {pid: {
                 'Time Played': response['Time Played'],
                 'Stages Cleared': response['Stages Cleared'],
                 'Runs Completed': response['Runs Completed']
-            }
+            }}
             try:
                 stats.update_item(
                     Key={'SteamID64': pid},
@@ -106,12 +105,11 @@ async def update_stats(time, stages_cleared, runcompleted=0):
                 pass
         except KeyError:
             # Called when stats for the specified server aren't in DB
-            stats_dict = {}
-            stats_dict[pid] = {
+            stats_dict = {pid: {
                 'Time Played': value['Time Played'],
                 'Stages Cleared': value['Stages Cleared'],
                 'Runs Completed': value['Runs Completed']
-            }
+            }}
             try:
                 stats.update_item(
                     Key={'SteamID64': pid},

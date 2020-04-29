@@ -74,6 +74,7 @@ dynamodb = boto3.resource('dynamodb', region_name='us-east-2',
                           endpoint_url="https://dynamodb.us-east-2.amazonaws.com")
 players = dynamodb.Table('Players')
 stats = dynamodb.Table('Stats')
+server_stats = dynamodb.Table('BotCommands_Stats')
 discord_stats = dynamodb.Table('Discord_Stats')
 
 
@@ -329,6 +330,61 @@ class Misc(commands.Cog):
                 # Called if the SteamID isn't linked in the Players table
                 await ctx.send('Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
 
+        else:
+            await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
+        logging.info(
+            f'{user.name} used {ctx.command.name}')
+
+    # TODO: Rename to 'stats', remove the role check
+    @commands.command(name='stats_new', help='Retrieves player stats for the Risk of Rain 2 server')
+    @commands.has_role(role)
+    async def stats_new(self, ctx):
+        statNames = {
+            'totalStagesCompleted': 'Stages Completed',
+            'totalDistanceTraveled': 'Distance Traveled',
+            'totalKills': 'Kills',
+            'totalTimeAlive': 'Time Alive',
+            'totalPurchases': 'Purchases',
+            'totalDeaths': 'Deaths',
+            'totalItemsCollected': 'Items Collected',
+            'totalGoldCollected': 'Gold Collected'
+        }
+        proceed = False
+        user = ctx.message.author
+        linkedrole = ctx.guild.get_role(linked_id)
+        for role in user.roles:
+            if role == linkedrole:
+                proceed = True
+                break
+        if proceed:
+            for key, value in channels.items():
+                for k, v in channels[key].items():
+                    if ctx.channel.id == v:
+                        server = key
+            try:
+                key = {'DiscordID': str(user.id)}
+                steamid = players.get_item(Key=key)
+                steamid = steamid['Item']['steamid64']
+                key = {'SteamID64': int(steamid)}
+                response = server_stats.get_item(Key=key)
+                response = response['Item'][server]
+
+                name = ''
+                embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
+                embed.set_thumbnail(url=user.avatar_url)
+                embed.set_author(name=self.bot.guilds[0])
+                for key, value in response.items():
+                    if key == 'totalTimeAlive':
+                        value = datetime.timedelta(seconds=int(value))
+                    for k, v in statNames.items():
+                        if k == key:
+                            name = v
+                            embed.add_field(name=str(name), value=str(value), inline=True)
+                await ctx.send(embed=embed)
+            except KeyError:
+                # Called if the SteamID isn't linked in the Players table
+                await ctx.send(
+                    'Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
         else:
             await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
         logging.info(
