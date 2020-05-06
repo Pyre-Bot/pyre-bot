@@ -14,7 +14,6 @@ import a2s
 import psutil
 from discord.ext import commands
 
-import cogs.player_stats as stats
 from libs.pygtail import Pygtail
 
 config_object = ConfigParser()
@@ -227,7 +226,6 @@ async def chat(self):
     if os.path.exists(logfile):
         if os.path.exists(BepInEx / "LogOutput.log.offset"):
             for line in Pygtail(str(logfile), read_from_end=True):
-                updatestats = False  # Required to limit the updates to once per line
                 # Player chat
                 if "issued: say" in line:
                     line = line.replace('[Info   : Unity Log] ', '**')
@@ -240,13 +238,11 @@ async def chat(self):
                     line = str(line.replace('[Info   : Unity Log] Run time is ', ''))
                     run_timer = float(line)
                     run_timer = int(run_timer)
-                    updatestats = True
                 # Stages cleared
                 elif ('[Info   : Unity Log] Stages cleared: ' in line):
                     line = str(line.replace(
                         '[Info   : Unity Log] Stages cleared: ', ''))
                     stagenum = int(line)
-                    updatestats = True
                 # Stage change
                 elif "Active scene changed from" in line:
                     devstage = '???'
@@ -262,10 +258,8 @@ async def chat(self):
                     elif devstage in ('lobby', 'title'):
                         if devstage == 'lobby':
                             await channel.send('**Entering ' + stage + '**')
-                            await stats.update_stats(run_timer, stagenum, 1)
                             run_timer = 0
                             stagenum = 0
-                            updatestats = False
                     else:
                         if stagenum == 0:
                             await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
@@ -279,9 +273,6 @@ async def chat(self):
                             await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
-                    # Still required for now
-                    await stats.add_player(line, run_timer, stagenum)
-                    updatestats = False
                     line = line.replace(
                         '[Info   :     R2DSE] New player : ', '**Player Joined - ')
                     line = line.replace(' connected. ', '')
@@ -293,8 +284,6 @@ async def chat(self):
                         '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
                     line = re.sub(r" ?\([^)]+\)", "", line)
                     await channel.send(line + '**')
-                if updatestats:
-                    await stats.update_stats(run_timer, stagenum)
         else:
             for line in Pygtail(str(logfile), read_from_end=True):
                 pass
