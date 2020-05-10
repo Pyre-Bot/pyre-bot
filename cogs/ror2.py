@@ -1,41 +1,20 @@
 #!/usr/bin/env python3
 
 """Pyre Bot Risk of Rain 2 user functions."""
-
-import ast
 import asyncio
 import logging
 import os
-from configparser import ConfigParser
-from pathlib import Path
 
 import a2s
 import discord
 import psutil
 from discord.ext import commands
 
-config_object = ConfigParser()
-config_file = Path.cwd().joinpath('config', 'config.ini')
-config_object.read(config_file)
-ror2 = config_object["RoR2"]
-general = config_object["General"]
+from config.config import *
 
-# Config variables
-server_address = config_object.get(
-    'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
-steamcmd = Path(ror2["steamcmd"])
-ror2ds = Path(ror2["ror2ds"])
-BepInEx = Path(ror2["BepInEx"])
-role = general["role"]
-c_autostart = ror2['auto-start-chat']
-s_restart = ror2['auto-server-restart']
-hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
-botcmd = Path.joinpath(BepInEx, 'plugins', 'BotCommands')
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
-
-logfile = (BepInEx / "LogOutput.log")
 
 # These get assigned / updated every time server() is called
 # Only using string type as a placeholder to avoid exceptions if the server is not online when the bot initializes
@@ -108,7 +87,7 @@ async def find_dll():
     Returns:
         Boolean: If true it is, otherwise it is not
     """
-    plugin_dir = (BepInEx / 'plugins')
+    plugin_dir = (bepinex / 'plugins')
     files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
     if 'BotCommands.dll' in files:
         return True
@@ -165,9 +144,9 @@ class RoR2(commands.Cog):
                 await asyncio.sleep(5)
 
                 # Path of log file, removes before starting
-                if os.path.exists(BepInEx / "LogOutput.log"):
+                if os.path.exists(bepinex / "LogOutput.log"):
                     try:
-                        os.remove(BepInEx / "LogOutput.log")
+                        os.remove(bepinex / "LogOutput.log")
                     except Exception:
                         print('Unable to remove log file')
 
@@ -178,7 +157,7 @@ class RoR2(commands.Cog):
 
                 # After 15 seconds checks logs to see if server started
                 while started == 1:
-                    with open(BepInEx / "LogOutput.log") as f:
+                    with open(bepinex / "LogOutput.log") as f:
                         for line in f:
                             if "Loaded scene lobby" in line:
                                 await ctx.send('Server started successfully...')
@@ -358,7 +337,7 @@ class RoR2(commands.Cog):
     async def mods(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         mods = []
-        with open(BepInEx / "LogOutput.log") as f:
+        with open(bepinex / "LogOutput.log") as f:
             for line in f:
                 if "[Info   :   BepInEx] Loading" in line:
                     line = line[30:]

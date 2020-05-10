@@ -15,25 +15,8 @@ import psutil
 from discord.ext import commands
 
 from libs.pygtail import Pygtail
+from config.config import *
 
-config_object = ConfigParser()
-config_file = Path.cwd().joinpath('config', 'config.ini')
-config_object.read(config_file)
-ror2 = config_object["RoR2"]
-general = config_object["General"]
-
-# Config variables
-server_address = config_object.get(
-    'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
-steamcmd = Path(ror2["steamcmd"])
-ror2ds = Path(ror2["ror2ds"])
-BepInEx = Path(ror2["BepInEx"])
-role = general["role"]
-c_autostart = ror2['auto-start-chat']
-s_restart = ror2['auto-server-restart']
-hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
-botcmd = Path.joinpath(BepInEx, 'plugins', 'BotCommands')
-logfile = (BepInEx / "LogOutput.log")
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
@@ -224,7 +207,7 @@ async def chat(self):
     global run_timer
     global yes, no
     if os.path.exists(logfile):
-        if os.path.exists(BepInEx / "LogOutput.log.offset"):
+        if os.path.exists(bepinex / "LogOutput.log.offset"):
             for line in Pygtail(str(logfile), read_from_end=True):
                 # Player chat
                 if "issued: say" in line:
@@ -305,25 +288,25 @@ async def server():
         return False
 
 
-async def server_restart():
+async def server_restart_func():
     """Checks every 120 minutes if no players are active then restarts the server."""
-    server_restart = s_restart
-    if server_restart == "true":
+    do_restart = server_restart
+    if do_restart == "true":
         print('Auto server restarting enabled')
-        while server_restart == "true":
+        while do_restart == "true":
             await asyncio.sleep(7200)
             await server()
             if server_info.player_count == 0:
                 await server_stop()
                 await asyncio.sleep(10)
-                if os.path.exists(BepInEx / "LogOutput.log"):
+                if os.path.exists(bepinex / "LogOutput.log"):
                     try:
-                        os.remove(BepInEx / "LogOutput.log")
+                        os.remove(bepinex / "LogOutput.log")
                     except Exception:
                         print('Unable to remove log file')
-                if os.path.exists(BepInEx / "LogOutput.log.offset"):
+                if os.path.exists(bepinex / "LogOutput.log.offset"):
                     try:
-                        os.remove(BepInEx / "LogOutput.log.offset")
+                        os.remove(bepinex / "LogOutput.log.offset")
                     except Exception:
                         print('Unable to remove offset! Chat may not work!')
                 await asyncio.sleep(5)
@@ -335,16 +318,16 @@ async def server_restart():
         print('Not restarting server')
 
 
-async def chat_autostart(self):
+async def chat_autostart_func(self):
     """Autostarts live chat output if it is enabled."""
-    chat_autostart = c_autostart
-    if chat_autostart:
+    do_autostart = chat_autostart
+    if do_autostart:
         print('Auto chat output enabled')
         global repeat
         repeat = 1
-        if os.path.exists(BepInEx / "LogOutput.log.offset"):
+        if os.path.exists(bepinex / "LogOutput.log.offset"):
             try:
-                os.remove(BepInEx / "LogOutput.log.offset")
+                os.remove(bepinex / "LogOutput.log.offset")
             except Exception:
                 print('Unable to remove offset! Chat may not work!')
         while repeat == 1:
@@ -379,7 +362,7 @@ async def find_dll():
     Returns:
         Boolean: If true it is, otherwise it is not
     """
-    plugin_dir = (BepInEx / 'plugins')
+    plugin_dir = (bepinex / 'plugins')
     files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
     if 'BotCommands.dll' in files:
         return True
@@ -390,7 +373,7 @@ async def find_dll():
 class Ror2_Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        asyncio.gather(chat_autostart(self), server_restart())
+        asyncio.gather(chat_autostart_func(self), server_restart_func())
 
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
@@ -403,15 +386,15 @@ class Ror2_Admin(commands.Cog):
         else:
             started = False
             # Path of log file, removes before starting
-            if os.path.exists(BepInEx / "LogOutput.log"):
+            if os.path.exists(bepinex / "LogOutput.log"):
                 try:
-                    os.remove(BepInEx / "LogOutput.log")
+                    os.remove(bepinex / "LogOutput.log")
                 except Exception:
                     print('Unable to remove log file')
             # Path of log offset file, removes before starting
-            if os.path.exists(BepInEx / "LogOutput.log.offset"):
+            if os.path.exists(bepinex / "LogOutput.log.offset"):
                 try:
-                    os.remove(BepInEx / "LogOutput.log.offset")
+                    os.remove(bepinex / "LogOutput.log.offset")
                 except Exception:
                     print('Unable to remove log offset file')
 
@@ -427,7 +410,7 @@ class Ror2_Admin(commands.Cog):
 
             # After 15 seconds checks logs to see if server started
             while started is True:
-                with open(BepInEx / "LogOutput.log") as f:
+                with open(bepinex / "LogOutput.log") as f:
                     for line in f:
                         if "Loaded scene lobby" in line:
                             await ctx.send('Server started successfully...')
@@ -703,9 +686,9 @@ class Ror2_Admin(commands.Cog):
         await ctx.send('Displaying chat messages from the server!')
         global repeat
         repeat = 1
-        if os.path.exists(BepInEx / "LogOutput.log.offset"):
+        if os.path.exists(bepinex / "LogOutput.log.offset"):
             try:
-                os.remove(BepInEx / "LogOutput.log.offset")
+                os.remove(bepinex / "LogOutput.log.offset")
             except Exception:
                 print('Unable to remove offset! Old messages may be displayed.')
         while repeat == 1:

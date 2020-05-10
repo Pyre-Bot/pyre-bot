@@ -11,11 +11,11 @@ import logging
 import os
 import subprocess
 import sys
-from configparser import ConfigParser
-from pathlib import Path
 
 import discord
 from discord.ext import commands
+
+from config.config import *
 
 # Log settings
 logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
@@ -26,9 +26,6 @@ logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
 logging.getLogger('discord').setLevel(logging.WARNING)
 logging.info('Bot started')
 
-# Configuration settings
-config_file = Path("config/config.ini")
-config_path = Path.cwd().joinpath('config')
 
 # Checks if the config file exists, otherwise runs setup
 if config_file.exists():
@@ -40,15 +37,6 @@ else:
     os.startfile(__file__)
     sys.exit()
 
-# Loads the configuartion file
-config_object = ConfigParser()
-config_object.read("config/config.ini")
-api = config_object["API"]
-general = config_object["General"]
-token = api["discord_token"]
-role = general['role']
-admin_channel = config_object.getint('General', 'admin-channel')
-commands_channel = config_object.getint('General', 'commands-channel')
 
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 cogs = [
@@ -73,7 +61,7 @@ async def on_command_error(ctx, error):
                 f'Command not found on command {ctx.message.content}')
     elif isinstance(error, commands.TooManyArguments):
         if check_channel(ctx) is True:
-            await ctx.send('Too many arguments, plase try again.')
+            await ctx.send('Too many arguments, please try again.')
             logging.warning(f'Argument error detected on command: {ctx.command.name}')
     elif isinstance(error, commands.MissingAnyRole):
         if check_channel(ctx) is True:
@@ -146,6 +134,7 @@ async def load(ctx, extension):
     """
     Loads the specified cog.
     Args:
+        ctx: Required argument to be passed by discord.py
         extension (str): The file name, with .py, to load
     """
     bot.load_extension(f'cogs.{extension}')
@@ -158,6 +147,7 @@ async def unload(ctx, extension):
     """
     Unloads the specified cog.
     Args:
+        ctx: Required argument to be passed by discord.py
         extension (str): The file name, with .py, to unload
     """
     bot.unload_extension(f'cogs.{extension}')
@@ -170,6 +160,7 @@ async def reload(ctx, cog='all'):
     """
     Reloads the specified cog.
     Args:
+        ctx: Required argument to be passed by discord.py
         cog (str): The file name, with .py, to reload
     """
     if cog == 'all':
@@ -183,10 +174,11 @@ async def reload(ctx, cog='all'):
         logging.info(f'Reloaded {cog}')
 
 
+# Pyre Bot uses a custom help command so we must remove the built-in one
 bot.remove_command('help')
 
-# Discord bot token
+# Tells discord.py to run the bot
 try:
-    bot.run(token)
+    bot.run(discord_token)
 except discord.errors.LoginFailure:
     print("Login unsuccessful.")

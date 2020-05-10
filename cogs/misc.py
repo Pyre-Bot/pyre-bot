@@ -5,21 +5,15 @@
 import datetime
 import logging
 import random
-from configparser import ConfigParser
-from pathlib import Path
 
 import boto3
 import discord
 import requests
 from discord.ext import commands
 
-config_object = ConfigParser()
-config_file = Path.cwd().joinpath('config', 'config.ini')
-config_object.read(config_file)
-ror2 = config_object["RoR2"]
-general = config_object["General"]
-role = general["role"]
-linked_id = int(general["linked-id"])
+from config.config import *
+
+# URL used to lookup SteamIDs when members use the link command
 request_url = 'https://steamid.io/lookup/'
 
 colors = {
@@ -241,6 +235,7 @@ class Misc(commands.Cog):
                       help='Links a user to their Steam ID',
                       usage='steamid')
     async def link(self, ctx, steamid):
+        global keyword_line
         linked = False
         user = ctx.message.author  # Sender is a Member class object
         linkedrole = ctx.guild.get_role(linked_id)
