@@ -1,6 +1,6 @@
 # Pyre Bot
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DeepSource](https://static.deepsource.io/deepsource-badge-light-mini.svg)](https://deepsource.io/gh/InfernalPlacebo/pyre-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/660914305515913227?label=Discord)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)[![Documentation Status](https://readthedocs.org/projects/pyre-bot/badge/?version=latest)](https://pyre-bot.readthedocs.io/en/latest/?badge=latest)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DepShield Badge](https://depshield.sonatype.org/badges/InfernalPlacebo/pyre-bot/depshield.svg)](https://depshield.github.io)(https://deepsource.io/gh/InfernalPlacebo/pyre-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/660914305515913227?label=Discord)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)[![Documentation Status](https://readthedocs.org/projects/pyre-bot/badge/?version=latest)](https://pyre-bot.readthedocs.io/en/latest/?badge=latest)
 
 Please find complete documentation on [ReadTheDocs](https://docs.pyre-bot.com)
 
