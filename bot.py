@@ -26,7 +26,6 @@ logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
 logging.getLogger('discord').setLevel(logging.WARNING)
 logging.info('Bot started')
 
-
 # Checks if the config file exists, otherwise runs setup
 if config_file.exists():
     logging.info('Configuration file exists')
@@ -36,7 +35,6 @@ else:
     setup.wait()
     os.startfile(__file__)
     sys.exit()
-
 
 bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
 cogs = [

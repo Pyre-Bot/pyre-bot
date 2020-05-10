@@ -12,7 +12,6 @@ from discord.ext import commands
 
 from config.config import *
 
-
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 
@@ -165,7 +164,7 @@ class RoR2(commands.Cog):
                                 break
                 # All other options
             else:
-                logging.info('There were not enoough votes to restart the server')
+                logging.info('There were not enough votes to restart the server')
                 await ctx.send('Restart vote failed!')
         else:
             await ctx.send('Server is not running, unable to restart...')

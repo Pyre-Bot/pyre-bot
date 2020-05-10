@@ -6,15 +6,11 @@ import datetime
 import logging
 import random
 
-import boto3
 import discord
 import requests
 from discord.ext import commands
 
 from config.config import *
-
-# URL used to lookup SteamIDs when members use the link command
-request_url = 'https://steamid.io/lookup/'
 
 colors = {
     'DEFAULT': 0x000000,
@@ -63,13 +59,13 @@ channels = {
                 'chat': 672939927507435533}
 }
 
-# Connects to Amazon DynamoDB and access the tables
-dynamodb = boto3.resource('dynamodb', region_name='us-east-2',
-                          endpoint_url="https://dynamodb.us-east-2.amazonaws.com")
-players = dynamodb.Table('Players')
-stats = dynamodb.Table('Stats')
-server_stats = dynamodb.Table('BotCommands_Stats')
-discord_stats = dynamodb.Table('Discord_Stats')
+
+# Checks if stats are being tracked
+async def stat_tracking(ctx):
+    if track_stats == "yes":
+        return True
+    else:
+        return False
 
 
 class Misc(commands.Cog):
@@ -79,47 +75,47 @@ class Misc(commands.Cog):
     # Update DB when a member joins the server
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        try:
-            await discord_stats.put_item(
-                Item={
-                    'DiscordID': str(member.id),
-                    'DiscordName': str(member.name),
-                    'JoinDate': str(datetime.datetime.utcnow())
-                }
-            )
-        except:
-            # For some reason the above is always throwing an Error
-            # Temporary just pass so that it proceeds (everything works)
-            # TODO: Figure out why it throws an error
-            pass
+        if stat_tracking():
+            try:
+                await discord_table.put_item(
+                    Item={
+                        'DiscordID': str(member.id),
+                        'DiscordName': str(member.name),
+                        'JoinDate': str(datetime.datetime.utcnow())
+                    }
+                )
+            except TypeError:
+                # put_item doesn't like async so we pass the error because we know it happens.
+                pass
 
     # Update DB when a member leaves the server
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        try:
-            r_key = {'DiscordID': str(member.id)}
+        if stat_tracking():
             try:
-                response = discord_stats.get_item(Key=r_key)
-            except:
+                r_key = {'DiscordID': str(member.id)}
+                try:
+                    response = discord_table.get_item(Key=r_key)
+                except TypeError:
+                    # get_item doesn't like async so we pass the error because we know it happens.
+                    pass
+                response = response['Item']
+                response['LeaveDate'] = str(datetime.datetime.utcnow())
+                try:
+                    discord_table.put_item(
+                        Item={
+                            'DiscordID': str(response['DiscordID']),
+                            'DiscordName': str(response['DiscordName']),
+                            'JoinDate': str(response['JoinDate']),
+                            'LeaveDate': str(response['LeaveDate'])
+                        }
+                    )
+                except TypeError:
+                    # put_item doesn't like async so we pass the error because we know it happens.
+                    pass
+            except TypeError:
+                # boto3 doesn't like async so we pass teh error because we know it happens.
                 pass
-            response = response['Item']
-            response['LeaveDate'] = str(datetime.datetime.utcnow())
-            try:
-                discord_stats.put_item(
-                    Item={
-                        'DiscordID': str(response['DiscordID']),
-                        'DiscordName': str(response['DiscordName']),
-                        'JoinDate': str(response['JoinDate']),
-                        'LeaveDate': str(response['LeaveDate'])
-                    }
-                )
-            except:
-                pass
-        except:
-            # For some reason the above is always throwing an Error
-            # Temporary just pass so that it proceeds (everything works)
-            # TODO: Figure out why it throws an error
-            pass
 
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):
@@ -157,7 +153,7 @@ class Misc(commands.Cog):
                 help_text = ''
                 for command in commands_list:
                     help_text += f'```{command.name}```\n' \
-                        f'**{command.help}**\n\n'
+                                 f'**{command.help}**\n\n'
                     if command.usage is not None:
                         help_text += f'Format: `{command.name} {command.usage}`\n\n'
                 help_embed.description = help_text
@@ -201,7 +197,7 @@ class Misc(commands.Cog):
                 help_text = ''
                 for command in commands_list:
                     help_text += f'```{command.name}```\n' \
-                        f'**{command.help}**\n\n'
+                                 f'**{command.help}**\n\n'
                     if command.usage is not None:
                         help_text += f'Format: `{command.name} {command.usage}`\n\n'
                 help_embed.description = help_text
@@ -234,6 +230,7 @@ class Misc(commands.Cog):
     @commands.command(name='link',
                       help='Links a user to their Steam ID',
                       usage='steamid')
+    @commands.check(stat_tracking)
     async def link(self, ctx, steamid):
         global keyword_line
         linked = False
@@ -258,7 +255,7 @@ class Misc(commands.Cog):
                 break
         try:
             # Adds the items to the database or overwrites the current values
-            await players.put_item(
+            await stats_players.put_item(
                 Item={
                     'DiscordID': str(user.id),
                     'DiscordName': str(user.name),
@@ -268,10 +265,8 @@ class Misc(commands.Cog):
                     'Steam CustomURL': str(keyword_line[3])
                 }
             )
-        except:
-            # For some reason the above is always throwing an Error
-            # Temporary just pass so that it proceeds (everything works)
-            # TODO: Figure out why it throws an error
+        except TypeError:
+            # boto3 doesn't like async so we pass the error because we are expecting it
             pass
 
         if linked is False:
@@ -282,106 +277,61 @@ class Misc(commands.Cog):
         logging.info(
             f'{user.name} has linked to their Steam ID ({steamid}) using the {ctx.command.name} command.')
 
-    @commands.command(name='stats',
-                      help='Retrieves player stats for the Risk of Rain 2 server')
+    @commands.command(name='stats', help='Retrieves player stats for the Risk of Rain 2 server')
+    @commands.check(stat_tracking)
     async def stats(self, ctx):
-        proceed = False
-        user = ctx.message.author
-        linkedrole = ctx.guild.get_role(linked_id)
-        for role in user.roles:
-            if role == linkedrole:
-                proceed = True
-                break
-        if proceed:
-            for key, value in channels.items():
-                for k, v in channels[key].items():
-                    if ctx.channel.id == v:
-                        server = key
-            try:
-                # The key variable is used to find the entry in the table
-                key = {'DiscordID': str(user.id)}
-                steamid = players.get_item(Key=key)
-                steamid = steamid['Item']['steamid64']
-                key = {'SteamID64': str(steamid)}
-                response = stats.get_item(Key=key)
-                # If you don't do the below you also get the metadata
-                response = response['Item'][server]
+        try:
+            stat_names = {
+                'totalStagesCompleted': 'Stages Completed',
+                'totalKills': 'Kills',
+                'totalTimeAlive': 'Time Alive',
+                'totalPurchases': 'Purchases',
+                'totalDeaths': 'Deaths',
+                'totalItemsCollected': 'Items Collected',
+                'totalGoldCollected': 'Gold Collected',
+                'highestLevel': 'Highest Level'
+            }
+            proceed = False
+            user = ctx.message.author
+            linkedrole = ctx.guild.get_role(linked_id)
+            for role in user.roles:
+                if role == linkedrole:
+                    proceed = True
+                    break
+            if proceed:
+                for key, value in channels.items():
+                    for k, v in channels[key].items():
+                        if ctx.channel.id == v:
+                            server = key
+                try:
+                    key = {'DiscordID': str(user.id)}
+                    steamid = stats_players.get_item(Key=key)
+                    steamid = steamid['Item']['steamid64']
+                    key = {'SteamID64': int(steamid)}
+                    response = stats_table.get_item(Key=key)
+                    response = response['Item'][server]
 
-                # Create embed
-                embed = discord.Embed(
-                    title=f'Stats for {user.name}',
-                    colour=discord.Colour.orange()
-                )
-                embed.set_thumbnail(url=user.avatar_url)
-                embed.set_author(name=self.bot.guilds[0])
-                for key, value in response.items():
-                    if key == 'Time Played':
-                        value = datetime.timedelta(seconds=int(value))
-                    embed.add_field(
-                        name=str(key), value=str(value), inline=False)
-                await ctx.send(embed=embed)
-
-            except KeyError:
-                # Called if the SteamID isn't linked in the Players table
-                await ctx.send('Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
-
-        else:
-            await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
-        logging.info(
-            f'{user.name} used {ctx.command.name}')
-
-    # TODO: Rename to 'stats', remove the role check
-    @commands.command(name='stats_new', help='Retrieves player stats for the Risk of Rain 2 server')
-    @commands.has_role(role)
-    async def stats_new(self, ctx):
-        statNames = {
-            'totalStagesCompleted': 'Stages Completed',
-            'totalDistanceTraveled': 'Distance Traveled',
-            'totalKills': 'Kills',
-            'totalTimeAlive': 'Time Alive',
-            'totalPurchases': 'Purchases',
-            'totalDeaths': 'Deaths',
-            'totalItemsCollected': 'Items Collected',
-            'totalGoldCollected': 'Gold Collected'
-        }
-        proceed = False
-        user = ctx.message.author
-        linkedrole = ctx.guild.get_role(linked_id)
-        for role in user.roles:
-            if role == linkedrole:
-                proceed = True
-                break
-        if proceed:
-            for key, value in channels.items():
-                for k, v in channels[key].items():
-                    if ctx.channel.id == v:
-                        server = key
-            try:
-                key = {'DiscordID': str(user.id)}
-                steamid = players.get_item(Key=key)
-                steamid = steamid['Item']['steamid64']
-                key = {'SteamID64': int(steamid)}
-                response = server_stats.get_item(Key=key)
-                response = response['Item'][server]
-
-                name = ''
-                embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
-                embed.set_thumbnail(url=user.avatar_url)
-                embed.set_author(name=self.bot.guilds[0])
-                for key, value in response.items():
-                    if key == 'totalTimeAlive':
-                        value = datetime.timedelta(seconds=int(value))
-                    for k, v in statNames.items():
-                        if k == key:
-                            name = v
-                            embed.add_field(name=str(name), value=str(value), inline=True)
-                await ctx.send(embed=embed)
-            except KeyError:
-                # Called if the SteamID isn't linked in the Players table
-                await ctx.send(
-                    'Your Steam ID does not have any stats associated with it. Play on the server at least once to create a stats profile')
-        else:
-            await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
+                    embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
+                    embed.set_thumbnail(url=user.avatar_url)
+                    embed.set_author(name=self.bot.guilds[0])
+                    for key, value in response.items():
+                        if key == 'totalTimeAlive':
+                            value = datetime.timedelta(seconds=int(float(value)))
+                        for k, v in stat_names.items():
+                            if k == key:
+                                name = v
+                                embed.add_field(name=str(name), value=str(value), inline=True)
+                    await ctx.send(embed=embed)
+                except KeyError:
+                    # Called if the SteamID isn't linked in the Players table
+                    await ctx.send(
+                        'Your Steam ID does not have any stats associated with it. Play on the server at least once to '
+                        'create a stats profile')
+            else:
+                await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
+        except Exception as e:
+            print(e)
+            print(type(e))
         logging.info(
             f'{user.name} used {ctx.command.name}')
 

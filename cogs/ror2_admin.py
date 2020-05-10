@@ -2,21 +2,17 @@
 
 """Pyre Bot Risk of Rain 2 admin functions."""
 
-import ast
 import asyncio
 import logging
 import os
 import re
-from configparser import ConfigParser
-from pathlib import Path
 
 import a2s
 import psutil
 from discord.ext import commands
 
-from libs.pygtail import Pygtail
 from config.config import *
-
+from libs.pygtail import Pygtail
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
@@ -26,7 +22,6 @@ run_timer = 0
 # These get assigned / updated every time server() is called
 server_info = ''
 server_players = ''
-
 
 # Dictionaries used for functions
 equip = {
@@ -253,7 +248,8 @@ async def chat(self):
                             else:
                                 formattedtime = str(
                                     int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                            await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
+                            await channel.send('**Entering Stage ' + str(
+                                stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
                 # Player joins
                 elif "[Info   :     R2DSE] New player : " in line:
                     line = line.replace(
@@ -370,7 +366,7 @@ async def find_dll():
     return False
 
 
-class Ror2_Admin(commands.Cog):
+class Ror2_admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         asyncio.gather(chat_autostart_func(self), server_restart_func())
@@ -405,7 +401,7 @@ class Ror2_Admin(commands.Cog):
                 await ctx.send('Starting Risk of Rain 2 Server, please wait...')
                 await asyncio.sleep(15)
             except Exception:
-                logging.warning('Error starting the server!')
+                logging.error('Error starting the server!' + Exception)
                 await ctx.send('Unable to start the server, please check the logs')
 
             # After 15 seconds checks logs to see if server started
@@ -428,10 +424,12 @@ class Ror2_Admin(commands.Cog):
                 await ctx.send('Risk of Rain 2 server shut down...')
             else:
                 await ctx.send('Unable to stop server!')
+                logging.error("Failed to stop the server")
         else:
             await ctx.send('Server is not running!')
 
     # Runs the update bat file, updates server via SteamCMD
+    # TODO: Figure out why this command doesn't work
     @commands.command(
         name='update',
         help='Updates the server, must be off before running this'
@@ -725,7 +723,7 @@ class Ror2_Admin(commands.Cog):
 
 def setup(bot):
     """Loads the cog into bot.py."""
-    bot.add_cog(Ror2_Admin(bot))
+    bot.add_cog(Ror2_admin(bot))
     print('Loaded cog: ror2_admin.py')
 
 

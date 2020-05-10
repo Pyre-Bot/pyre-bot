@@ -11,9 +11,9 @@ import requests
 config_object = ConfigParser()
 config_file = Path("config/config.ini")
 
-print('----------------------')
-print('Pyre Bot Setup Program')
-print('----------------------')
+print('--------------------------')
+print('| Pyre Bot Setup Program |')
+print('--------------------------')
 print('Enter the values to configure the bot')
 
 api = str(input('Discord API token: '))
@@ -38,7 +38,8 @@ while stats is True:
         stats_endpoint = str(input('AWS Endpoint URL: '))
         print(' -- DynamoDB Table information --')
         stats_server = str(input('Server stats table name: '))
-        stats_discord = str(input('Discord stats table name: '))
+        stats_players = str(input('Linked member table name: '))
+        stats_discord = str(input('Member join/leave table name: '))
 
         config_object["API"] = {
             "discord_token": api
@@ -47,13 +48,15 @@ while stats is True:
             "stats_region": stats_region,
             "stats_endpoint": stats_endpoint,
             "stats_table": stats_server,
+            "stats_players": stats_players,
             "discord_table": stats_discord
         }
         config_object["General"] = {
             "role": role,
             "linked-id": linked_id,
             "admin-channel": admin_channel,
-            "commands-channel": commands_channel
+            "commands-channel": commands_channel,
+            "track_stats": "yes"
         }
         config_object["RoR2"] = {
             "server_address": svraddr,
@@ -73,14 +76,14 @@ while stats is True:
     else:
         print('Invalid input')
 
-
 config_object["API"] = {
     "discord_token": api
 }
 config_object["General"] = {
     "role": role,
     "admin-channel": admin_channel,
-    "commands-channel": commands_channel
+    "commands-channel": commands_channel,
+    "track_stats": "no"
 }
 config_object["RoR2"] = {
     "server_address": svraddr,

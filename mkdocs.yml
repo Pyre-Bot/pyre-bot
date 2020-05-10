@@ -1,10 +1,10 @@
 site_name: Pyre-Bot
 nav:
-    - Home: index.md
-    - About:
+  - Home: index.md
+  - About:
       - 'License': 'LICENSE.md'
       - 'Changelog': 'CHANGELOG.md'
-    - BotCommands:
+  - BotCommands:
       - 'BotCommands': 'BotCommands/botcommands.md'
       - 'Changelog': 'BotCommands/CHANGELOG.md'
 theme: readthedocs
