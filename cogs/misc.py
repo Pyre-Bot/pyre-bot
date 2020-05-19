@@ -61,7 +61,7 @@ channels = {
 
 
 # Checks if stats are being tracked
-async def stat_tracking(ctx):
+async def stat_tracking():
     if track_stats == "yes":
         return True
     else:
