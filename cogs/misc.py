@@ -15,7 +15,7 @@ from config.config import *
 
 
 # Checks if stats are being tracked
-async def stat_tracking():
+async def stat_tracking(ctx):
     if track_stats == "yes":
         return True
     else:
