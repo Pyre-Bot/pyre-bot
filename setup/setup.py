@@ -68,7 +68,7 @@ while stats is True:
             "auto-start-chat": "true",
             "auto-server-restart": "true",
             "server_restart_time": "7200",
-            "hidden_mods": "['R2API', 'Configuration', 'DeployableOwnerInformation', 'FluffyLabsConfigManagerTools', 'MiniRpcLib', 'HjUpdaterAPI']"
+            "hidden_mods": "[] "
         }
         stats = False
     elif track == "no":
@@ -95,7 +95,7 @@ config_object["RoR2"] = {
     "auto-start-chat": "true",
     "auto-server-restart": "true",
     "server_restart_time": "7200",
-    "hidden_mods": "['R2API', 'Configuration', 'DeployableOwnerInformation', 'FluffyLabsConfigManagerTools', 'MiniRpcLib', 'HjUpdaterAPI']"
+    "hidden_mods": "[]"
 }
 
 try:

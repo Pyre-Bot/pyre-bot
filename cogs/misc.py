@@ -10,54 +10,8 @@ import discord
 import requests
 from discord.ext import commands
 
+import libs.shared as shared
 from config.config import *
-
-colors = {
-    'DEFAULT': 0x000000,
-    'WHITE': 0xFFFFFF,
-    'AQUA': 0x1ABC9C,
-    'GREEN': 0x2ECC71,
-    'BLUE': 0x3498DB,
-    'PURPLE': 0x9B59B6,
-    'LUMINOUS_VIVID_PINK': 0xE91E63,
-    'GOLD': 0xF1C40F,
-    'ORANGE': 0xE67E22,
-    'RED': 0xE74C3C,
-    'GREY': 0x95A5A6,
-    'NAVY': 0x34495E,
-    'DARK_AQUA': 0x11806A,
-    'DARK_GREEN': 0x1F8B4C,
-    'DARK_BLUE': 0x206694,
-    'DARK_PURPLE': 0x71368A,
-    'DARK_VIVID_PINK': 0xAD1457,
-    'DARK_GOLD': 0xC27C0E,
-    'DARK_ORANGE': 0xA84300,
-    'DARK_RED': 0x992D22,
-    'DARK_GREY': 0x979C9F,
-    'DARKER_GREY': 0x7F8C8D,
-    'LIGHT_GREY': 0xBCC0C0,
-    'DARK_NAVY': 0x2C3E50,
-    'BLURPLE': 0x7289DA,
-    'GREYPLE': 0x99AAB5,
-    'DARK_BUT_NOT_BLACK': 0x2C2F33,
-    'NOT_QUITE_BLACK': 0x23272A
-}
-
-# Used to determine which server stats need updating
-channels = {
-    'Server1': {'admin': 670373469845979136,
-                'commands': 665998238171660320,
-                'chat': 667473663343198220},
-    'Server2': {'admin': 671917010422333460,
-                'commands': 671921930873602099,
-                'chat': 671918498531770378},
-    'Server3': {'admin': 672682539390992384,
-                'commands': 672682345089859654,
-                'chat': 672682313003565057},
-    'Server4': {'admin': 672940159091867648,
-                'commands': 672939900600975362,
-                'chat': 672939927507435533}
-}
 
 
 # Checks if stats are being tracked
@@ -75,7 +29,7 @@ class Misc(commands.Cog):
     # Update DB when a member joins the server
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        if stat_tracking():
+        if await stat_tracking():
             try:
                 await discord_table.put_item(
                     Item={
@@ -91,7 +45,7 @@ class Misc(commands.Cog):
     # Update DB when a member leaves the server
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        if stat_tracking():
+        if await stat_tracking():
             try:
                 r_key = {'DiscordID': str(member.id)}
                 try:
@@ -120,7 +74,7 @@ class Misc(commands.Cog):
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        color_list = [c for c in colors.values()]
+        color_list = [c for c in shared.colors.values()]
         help_embed = discord.Embed(
             title='Help',
             color=random.choice(color_list)
@@ -167,7 +121,7 @@ class Misc(commands.Cog):
     @commands.has_role(role)
     async def help_admin(self, ctx, cog='all'):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        color_list = [c for c in colors.values()]
+        color_list = [c for c in shared.colors.values()]
         help_embed = discord.Embed(
             title='Help',
             color=random.choice(color_list)
@@ -299,8 +253,8 @@ class Misc(commands.Cog):
                     proceed = True
                     break
             if proceed:
-                for key, value in channels.items():
-                    for k, v in channels[key].items():
+                for key, value in shared.channels.items():
+                    for k, v in shared.channels[key].items():
                         if ctx.channel.id == v:
                             server = key
                 try:

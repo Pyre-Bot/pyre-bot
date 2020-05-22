@@ -7,10 +7,9 @@ import logging
 import os
 import re
 
-import a2s
-import psutil
 from discord.ext import commands
 
+import libs.shared as shared
 from config.config import *
 from libs.pygtail import Pygtail
 
@@ -19,179 +18,6 @@ yes, no = 0, 0
 repeat = 0
 stagenum = 0
 run_timer = 0
-# These get assigned / updated every time server() is called
-server_info = ''
-server_players = ''
-
-# Dictionaries used for functions
-equip = {
-    'CommandMissile': 'Disposable Missile Launcher',
-    'Saw': 'Saw',
-    'Fruit': 'Foreign Fruit',
-    'Meteor': 'Glowing Meteorite',
-    'SoulJar': 'Jar of Souls',
-    'AffixRed': "Ifrit's Distinction",
-    'AffixBlue': 'Silence Between Two Strikes',
-    'AffixYellow': '',
-    'AffixGold': 'Coven of Gold',
-    'AffixWhite': 'Her Biting Embrace',
-    'AffixPoison': "N'kuhana's Retort",
-    'Blackhole': 'Primordial Cube',
-    'GhostGun': "Reaper's Remorse",
-    'CritOnUse': 'Ocular HUD',
-    'DroneBackup': 'The Back-up',
-    'OrbitalLaser': 'EQUIPMENT_ORBITALLASER_NAME',
-    'BFG': 'Preon Accumulator',
-    'Enigma': 'EQUIPMENT_ENIGMA_NAME',
-    'Jetpack': 'Milky Chrysalis',
-    'Lightning': 'Royal Capacitor',
-    'GoldGat': 'The CrowdFunder',
-    'Passive Healing': 'Gnarled Woodsprite',
-    'LunarPotion': 'EQUIPMENT_LUNARPOTION_NAME',
-    'BurnNearby': 'Hellfire Tincture',
-    'SoulCorruptor': 'EQUIPMENT_SOULCORRUPTOR_NAME',
-    'Scanner': 'Radar Scanner',
-    'CrippleWard': 'Effigy of Grief',
-    'Gateway': 'Eccentric Vase',
-    'Tonic': 'Spinel Tonic',
-    'QuestVolatileBattery': 'Fuel Array',
-    'Cleanse': 'Blast Shower',
-    'FireBallDash': 'Volcanic Egg',
-    'AffixHaunted': 'Spectral Circlet',
-    'GainArmor': 'Jade Elephant',
-    'Sawmerang': 'Sawmerang',
-    'Recycler': 'Recycler'
-}
-
-item = {
-    'Syringe': "Soldier's Syringe",
-    'Bear': 'Tougher Times',
-    'Behemoth': 'Brilliant Behemoth',
-    'Missile': 'ATG Missile Mk. 1',
-    'ExplodeOnDeath': "Will-o'-the-wisp",
-    'Dagger': 'Ceremonial Dagger',
-    'Tooth': 'Monster Tooth',
-    'CritGlasses': "Lens-Maker's Glasses",
-    'Hoof': "Paul's Goat Hoof",
-    'Feather': 'Hopoo Feather',
-    'AACannon': 'AA Cannon',
-    'ChainLightning': 'Ukulele',
-    'PlasmaCore': 'Plasma Core',
-    'Seed': 'Leeching Seed',
-    'Icicle': 'Frost Relic',
-    'GhostOnKill': 'Happiest Mask',
-    'Mushroom': 'Bustling Fungus',
-    'Crowbar': 'Crowbar',
-    'LevelBonus': 'ITEM_LEVELBONUS_NAME',
-    'AttackSpeedOnCrit': 'Predatory Instincts',
-    'BleedOnHit': 'Tri - Tip Dagger',
-    'SprintOutOfCombat': 'Red Whip',
-    'FallBoots': 'H3AD - 5T v2',
-    'CooldownOnCrit': 'Wicked Ring',
-    'WardOnLevel': 'Warbanner',
-    'Phasing': 'Old War Stealthkit',
-    'HealOnCrit': "Harvester's Scythe",
-    'HealWhileSafe': 'Cautious Slug',
-    'TempestOnKill': 'ITEM_TEMPESTONKILL_NAME',
-    'PersonalShield': 'Personal Shield Generator',
-    'EquipmentMagazine': 'Fuel Cell',
-    'NovaOnHeal': "N'kuhana's Opinion",
-    'ShockNearby': 'Unstable Tesla Coil',
-    'Infusion': 'Infusion',
-    'WarCryOnCombat': '',
-    'Clover': '57 Leaf Clover',
-    'Medkit': 'Medkit',
-    'Bandolier': 'Bandolier',
-    'BounceNearby': 'Sentient Meat Hook',
-    'IgniteOnKill': 'Gasoline',
-    'PlantOnHit': 'ITEM_PLANTONHIT_NAME',
-    'StunChanceOnHit': 'Stun Grenade',
-    'Firework': 'Bundle of Fireworks',
-    'LunarDagger': 'Shaped Glass',
-    'GoldOnHit': 'Brittle Crown',
-    'MageAttunement': 'ITEM_MAGEATTUNEMENT_NAME',
-    'WarCryOnMultiKill': "Berzerker's Pauldron",
-    'BoostHp': 'ITEM_BOOSTHP_NAME',
-    'BoostDamage': 'ITEM_BOOSTDAMAGE_NAME',
-    'ShieldOnly': 'Transcendence',
-    'AlienHead': 'Alien Head',
-    'Talisman': 'Soulbound Catalyst',
-    'Knurl': 'Titanic Knurl',
-    'BeetleGland': "Queen's Gland",
-    'BurnNearby': 'ITEM_BURNNEARBY_NAME',
-    'CritHeal': 'ITEM_CRITHEAL_NAME',
-    'CrippleWardOnLevel': 'ITEM_CRIPPLEWARDONLEVEL_NAME',
-    'SprintBonus': 'Energy Drink',
-    'SecondarySkillMagazine': 'Backup Magazine',
-    'StickyBomb': 'Sticky Bomb',
-    'TreasureCache': 'Rusted Key',
-    'BossDamageBonus': 'Armor - Piercing Rounds',
-    'SprintArmor': 'Rose Buckler',
-    'IceRing': "Runald's Band",
-    'FireRing': "Kjaro's Band",
-    'SlowOnHit': 'Chronobauble',
-    'ExtraLife': "Dio's Best Friend",
-    'ExtraLifeConsumed': "Dio's Best Friend(Consumed)",
-    'UtilitySkillMagazine': 'Hardlight Afterburner',
-    'HeadHunter': 'Wake of Vultures',
-    'KillEliteFrenzy': 'Brainstalks',
-    'RepeatHeal': 'Corpsebloom',
-    'Ghost': 'ITEM_GHOST_NAME',
-    'HealthDecay': 'ITEM_HEALTHDECAY_NAME',
-    'AutoCastEquipment': 'Gesture of the Drowned',
-    'IncreaseHealing': 'Rejuvenation Rack',
-    'JumpBoost': 'Wax Quail',
-    'DrizzlePlayerHelper': 'ITEM_DRIZZLEPLAYERHELPER_NAME',
-    'ExecuteLowHealthElite': 'Old Guillotine',
-    'EnergizedOnEquipmentUse': 'War Horn',
-    'BarrierOnOverHeal': 'Aegis',
-    'TonicAffliction': 'Tonic Affliction',
-    'TitanGoldDuringTP': 'Halcyon Seed',
-    'SprintWisp': 'Little Disciple',
-    'BarrierOnKill': 'Topaz Brooch',
-    'ArmorReductionOnHit': 'Shattering Justice',
-    'TPHealingNova': 'Lepton Daisy',
-    'NearbyDamageBonus': 'Focus Crystal',
-    'LunarUtilityReplacement': 'Strides of Heresy',
-    'MonsoonPlayerHelper': 'ITEM_MONSOONPLAYERHELPER_NAME',
-    'Thorns': 'Razorwire',
-    'RegenOnKill': 'Fresh Meat',
-    'Pearl': 'Pearl',
-    'ShinyPearl': 'Irradiant Pearl',
-    'BonusGoldPackOnKill': "Ghor's Tome",
-    'LaserTurbine': 'Resonance Disc',
-    'LunarPrimaryReplacement': 'Visions of Heresy',
-    'NovaOnLowHealth': 'Genesis Loop',
-    'LunarTrinket': 'Beads of Fealty',
-    'FocusedConvergence': 'Focused Convergence',
-    'RepulsionArmorPlate': 'Repulsion Armor Plate',
-    'SquidTurret': 'Squid Polyp',
-    'DeathMark': 'Death Mark',
-    'InterstellarDeskPlant': 'Interstellar Desk Plant',
-    'AncestralIncubator': 'Ancestral Incubator'
-}
-
-stages = {
-    'title': 'Title',
-    'lobby': 'Game Lobby',
-    'blackbeach': 'Distant Roost',
-    'blackbeach2': 'Distant Roost',
-    'golemplains': 'Titanic Plains',
-    'golemplains2': 'Titanic Plains',
-    'foggyswamp': 'Wetland Aspect',
-    'goolake': 'Abandoned Aqueduct',
-    'frozenwall': 'Rallypoint Delta',
-    'wispgraveyard': 'Scorched Acres',
-    'dampcave': 'Abyssal Depths',
-    'shipgraveyard': "Siren's Call",
-    'arena': 'Hidden Realm: Void Fields',
-    'bazaar': 'Hidden Realm: Bazaar Between Time',
-    'goldshores': 'Hidden Realm: Glided Coast',
-    'mysteryspace': 'Hidden Realm: A Moment, Fractured',
-    'limbo': 'Hidden Realm: A Moment, Whole',
-    'artifactworld': 'Hidden Realm: Artifact World',
-    'skymeadow': 'Sky Meadow'
-}
 
 
 async def chat(self):
@@ -212,12 +38,12 @@ async def chat(self):
                     line = line.replace(' say ', '')
                     await channel.send(line)
                 # Run time
-                elif ('[Info   : Unity Log] Run time is ' in line):
+                elif '[Info   : Unity Log] Run time is ' in line:
                     line = str(line.replace('[Info   : Unity Log] Run time is ', ''))
                     run_timer = float(line)
                     run_timer = int(run_timer)
                 # Stages cleared
-                elif ('[Info   : Unity Log] Stages cleared: ' in line):
+                elif '[Info   : Unity Log] Stages cleared: ' in line:
                     line = str(line.replace(
                         '[Info   : Unity Log] Stages cleared: ', ''))
                     stagenum = int(line)
@@ -225,7 +51,7 @@ async def chat(self):
                 elif "Active scene changed from" in line:
                     devstage = '???'
                     stage = '???'
-                    for key, value in stages.items():
+                    for key, value in shared.stages.items():
                         if key in line:
                             devstage = key
                             stage = value
@@ -268,22 +94,6 @@ async def chat(self):
                 pass
 
 
-async def server():
-    """
-    Checks if the server is running or not.
-    Returns:
-        Boolean: Used by functions calling this to check if running
-    """
-    global server_info
-    global server_players
-    try:
-        server_info = a2s.info(server_address, 1.0)
-        server_players = a2s.players(server_address)
-        return True
-    except:
-        return False
-
-
 async def server_restart_func():
     """Checks every 120 minutes if no players are active then restarts the server."""
     do_restart = server_restart
@@ -291,24 +101,13 @@ async def server_restart_func():
         print('Auto server restarting enabled')
         while do_restart == "true":
             await asyncio.sleep(7200)
-            await server()
-            if server_info.player_count == 0:
-                await server_stop()
-                await asyncio.sleep(10)
-                if os.path.exists(bepinex / "LogOutput.log"):
-                    try:
-                        os.remove(bepinex / "LogOutput.log")
-                    except Exception:
-                        print('Unable to remove log file')
-                if os.path.exists(bepinex / "LogOutput.log.offset"):
-                    try:
-                        os.remove(bepinex / "LogOutput.log.offset")
-                    except Exception:
-                        print('Unable to remove offset! Chat may not work!')
-                await asyncio.sleep(5)
-                os.startfile(ror2ds / "Risk of Rain 2.exe")
-                print('Server restarted')
-            elif server_info.player_count > 0:
+            await shared.server()
+            if shared.server_info.player_count == 0:
+                if await shared.restart():
+                    print('Server restarted')
+                else:
+                    print('Failed to restart server')
+            elif shared.server_info.player_count > 0:
                 print('Players currently in server')
     else:
         print('Not restarting server')
@@ -333,39 +132,6 @@ async def chat_autostart_func(self):
         print('Not outputting chat')
 
 
-async def server_stop():
-    """
-    Stops the server.
-    Returns:
-        Boolean: Indicates whether server stopped or not
-    """
-    for proc in psutil.process_iter():
-        exe = Path.cwd().joinpath(ror2ds, 'Risk of Rain 2.exe')
-        try:
-            processExe = proc.exe()
-            if str(exe) == processExe:
-                proc.kill()
-                logging.info('Server stopped')
-                return True
-        except:
-            pass
-    return False
-
-
-async def find_dll():
-    """
-    Checks to see if the BotCommands plugin is installed on server.
-    Returns:
-        Boolean: If true it is, otherwise it is not
-    """
-    plugin_dir = (bepinex / 'plugins')
-    files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
-    if 'BotCommands.dll' in files:
-        return True
-    logging.warning('Unable to find BotCommands.dll!')
-    return False
-
-
 class Ror2_admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -377,49 +143,23 @@ class Ror2_admin(commands.Cog):
     async def start(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
-        if await server():
-            await ctx.send('Server is already running!')
+        if await shared.server() is False:
+            await ctx.send('Starting Risk of Rain 2 server, please wait')
+            started = await shared.start()
+            if started is True:
+                await ctx.send('Risk of Rain 2 server started!')
+            if started is False:
+                await ctx.send('Unable to start server! Please check logs for error.')
         else:
-            started = False
-            # Path of log file, removes before starting
-            if os.path.exists(bepinex / "LogOutput.log"):
-                try:
-                    os.remove(bepinex / "LogOutput.log")
-                except Exception:
-                    print('Unable to remove log file')
-            # Path of log offset file, removes before starting
-            if os.path.exists(bepinex / "LogOutput.log.offset"):
-                try:
-                    os.remove(bepinex / "LogOutput.log.offset")
-                except Exception:
-                    print('Unable to remove log offset file')
-
-            # Starts the server
-            try:
-                os.startfile(ror2ds / "Risk of Rain 2.exe")
-                started = True
-                await ctx.send('Starting Risk of Rain 2 Server, please wait...')
-                await asyncio.sleep(15)
-            except Exception:
-                logging.error('Error starting the server!' + Exception)
-                await ctx.send('Unable to start the server, please check the logs')
-
-            # After 15 seconds checks logs to see if server started
-            while started is True:
-                with open(bepinex / "LogOutput.log") as f:
-                    for line in f:
-                        if "Loaded scene lobby" in line:
-                            await ctx.send('Server started successfully...')
-                            started = False
-                            break
+            await ctx.send('Server is already running!')
 
     # Exits the server
     @commands.command(name='stop', help='Stops the server if currently running')
     @commands.has_role(role)
     async def stop(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server():
-            stopped = await server_stop()
+        if await shared.server():
+            stopped = await shared.server_stop()
             if stopped is True:
                 await ctx.send('Risk of Rain 2 server shut down...')
             else:
@@ -427,40 +167,6 @@ class Ror2_admin(commands.Cog):
                 logging.error("Failed to stop the server")
         else:
             await ctx.send('Server is not running!')
-
-    # Runs the update bat file, updates server via SteamCMD
-    # TODO: Figure out why this command doesn't work
-    @commands.command(
-        name='update',
-        help='Updates the server, must be off before running this'
-    )
-    @commands.has_role(role)
-    async def update(self, ctx):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        # Checks to make sure the server is not running before updating it
-        if await server() is False:
-            await ctx.send('Updating server, please wait...')
-            updated = 1
-            # Path of log file, removes before starting
-            if os.path.exists(steamcmd / "logs/content_log.txt"):
-                try:
-                    os.remove(steamcmd / "logs/content_log.txt")
-                except Exception:
-                    print('Unable to remove log file')
-                await asyncio.sleep(2)
-            os.startfile(steamcmd / "RoR2DSUpdate.bat")
-            await asyncio.sleep(15)
-
-            # After 15 seconds checks logs to see if server updated
-            while updated == 1:
-                with open(steamcmd / "logs/content_log.txt") as f:
-                    for line in f:
-                        if "AppID 1180760 scheduler finished" in line:
-                            await ctx.send('Server updated...')
-                            updated = 2
-                            break
-        else:
-            await ctx.send('You must stop the server prior to updating!')
 
     # Executes say on the server
     @commands.command(
@@ -471,13 +177,13 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def serversay(self, ctx, *, message):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server() and await find_dll() is True:
+        if await shared.server() and await shared.find_dll() is True:
             append = open(botcmd / "botcmd.txt", 'a')
             append.write('say "' + message + '"\n')
             append.close()
-        elif await server() is False:
+        elif await shared.server() is False:
             await ctx.send('Server is not running...')
-        elif await find_dll() is False:
+        elif await shared.find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
     # EXPERIMENTAL - Use with caution
@@ -491,9 +197,8 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def customcmd(self, ctx, *, cmd_with_args):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server() and await find_dll() is True:
-            global server_info
-            if server_info.map_name in ('lobby', 'title'):
+        if await shared.server() and await shared.find_dll() is True:
+            if shared.server_info.map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress. Use >say if you want to send a message to the lobby.')
             else:
                 append = open(botcmd / "botcmd.txt", 'a')
@@ -504,35 +209,32 @@ class Ror2_admin(commands.Cog):
                 tempreader = Pygtail(str(logfile), read_from_end=True)
                 while findline:
                     for line in tempreader:
-                        #                    print('line -' + str(line))  # DEBUG
-                        if ('Server(0) issued' in line):
+                        if 'Server(0) issued' in line:
                             continue
-                        elif ('is not a recognized ConCommand or ConVar.' in line):
+                        elif 'is not a recognized ConCommand or ConVar.' in line:
                             await ctx.send(cmd_with_args + ' is not a valid command')
                             findline = False
                             break
-                        elif ('[Info   : Unity Log]' in line):  # There's an \n in every line
+                        elif '[Info   : Unity Log]' in line:  # There's an \n in every line
                             consoleout = str(line.replace('[Info   : Unity Log] ', ''))
                             findline = False
                             continue
-                        elif ('[Error  : Unity Log]' in line):  # There's an \n in every line
+                        elif '[Error  : Unity Log]' in line:  # There's an \n in every line
                             consoleout = str(line.replace(
                                 '[Error  : Unity Log] ', 'Error - '))
                             findline = False
                             continue
                         elif str(line) != '\n':
-                            #                        print('not newline')  # Debug
                             consoleout += str(line)
-                            findline = False  # This was the trick, keep going through the lines until there are none left, and then the encompassing while loop will break
+                            findline = False
                             continue
                         else:
-                            #                        print('newline')  # Debug
                             findline = False
                             continue
                 await ctx.send('**Server: **' + consoleout)
-        elif await server() is False:
+        elif await shared.server() is False:
             await ctx.send('Server is not running...')
-        elif await find_dll() is False:
+        elif await shared.find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
     # Executes give_item on the server
@@ -544,13 +246,13 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server() and await find_dll() is True:
-            global server_info
-            if server_info.map_name in ('lobby', 'title'):
+        if await shared.server() and await shared.find_dll() is True:
+             
+            if shared.server_info.map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress')
             else:
                 containsplayer = False
-                for player in server_players:
+                for player in shared.server_players:
                     if playername.upper() in player.name.upper():
                         playername = player.name
                         containsplayer = True
@@ -573,7 +275,7 @@ class Ror2_admin(commands.Cog):
                                 if "None" in line:
                                     pass
                                 else:
-                                    for key, value in item.items():
+                                    for key, value in shared.item.items():
                                         if key in line:
                                             itemname = value
                                             break
@@ -583,9 +285,9 @@ class Ror2_admin(commands.Cog):
                                     break
                 elif containsplayer is False:
                     await ctx.send(playername + ' is not playing on the server')
-        elif await server() is False:
+        elif await shared.server() is False:
             await ctx.send('Server is not running...')
-        elif await find_dll() is False:
+        elif await shared.find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @giveitem.error
@@ -613,13 +315,13 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def giveequip(self, ctx, playername, equipname):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server() and await find_dll() is True:
-            global server_info
-            if server_info.map_name in ('lobby', 'title'):
+        if await shared.server() and await shared.find_dll() is True:
+             
+            if shared.server_info.map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress')
             else:
                 containsplayer = False
-                for player in server_players:
+                for player in shared.server_players:
                     if playername.upper() in player.name.upper():
                         playername = player.name
                         containsplayer = True
@@ -642,7 +344,7 @@ class Ror2_admin(commands.Cog):
                                 if "None" in line:
                                     pass
                                 else:
-                                    for key, value in equip.items():
+                                    for key, value in shared.equip.items():
                                         if key in line:
                                             equipname = value
                                             break
@@ -652,9 +354,9 @@ class Ror2_admin(commands.Cog):
                                     break
                 elif containsplayer is False:
                     await ctx.send(playername + ' is not playing on the server')
-        elif await server() is False:
+        elif await shared.server() is False:
             await ctx.send('Server is not running...')
-        elif await find_dll() is False:
+        elif await shared.find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @giveequip.error
