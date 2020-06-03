@@ -36,7 +36,7 @@ else:
     os.startfile(__file__)
     sys.exit()
 
-bot = commands.Bot(command_prefix=('r!', 'ig!', '>'), case_insensitive=True)
+bot = commands.Bot(command_prefix='>', case_insensitive=True)
 cogs = [
     'cogs.ror2',
     'cogs.ror2_admin',
