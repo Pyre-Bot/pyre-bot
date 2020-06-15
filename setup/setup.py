@@ -105,20 +105,26 @@ try:
 except Exception:
     print('Unable to save config.ini!')
 
-# TODO: Update to new BotCommands version
-# TODO: Add BotCommands_Dynamo download and install
 install_plugin = str(input('Would you like to install BotCommands? Enter "Yes" or "No": ')).lower()
 if install_plugin == 'yes':
     try:
         if bepinex:
             directory = Path(bepinex, 'plugins', 'BotCommands')
-            file = Path.joinpath(directory, 'BotCommands.dll')
+            file_dll = Path.joinpath(directory, 'BotCommands.dll')
+            file_exe = Path.joinpath(directory, 'BotCommands_Dynamo.exe')
             botcmd = Path.joinpath(directory, 'botcmd.txt')
-            os.makedirs(os.path.dirname(file), exist_ok=True)
-            install = requests.get(
-                'https://github.com/SuperRayss/BotCommands/releases/download/v0.1.2/BotCommands.dll')
-            with open(file, 'wb') as f:
-                f.write(install.content)
+            os.makedirs(os.path.dirname(file_dll), exist_ok=True)
+            os.makedirs(os.path.dirname(file_exe), exist_ok=True)
+            print('Downloading files...')
+            install_dll = requests.get(
+                'https://github.com/SuperRayss/BotCommands/releases/latest/download/BotCommands.dll')
+            install_exe = requests.get(
+                'https://github.com/SuperRayss/BotCommands/releases/latest/download/BotCommands_Dynamo.exe')
+            print('Copying files...')
+            with open(file_dll, 'wb') as f:
+                f.write(install_dll.content)
+            with open(file_exe, 'wb') as f:
+                f.write(install_exe.content)
             with open(botcmd, 'w'):
                 pass
             print('BotCommands installed')
