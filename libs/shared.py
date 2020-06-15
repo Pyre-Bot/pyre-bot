@@ -233,10 +233,15 @@ server_players = ''
 
 
 async def server():
-    """
-    Checks if the server is running or not.
+    """Checks if the server is running or not.
+
+    This check is used by many of the commands and functions within the bot. It checks the steam server list to
+    determine if the server is running.
+
     Returns:
-        Boolean: Used by functions calling this to check if running
+        Boolean: True if the server is running, otherwise false.
+
+
     """
     global server_info
     global server_players
@@ -249,10 +254,12 @@ async def server():
 
 
 async def server_stop():
-    """
-    Stops the server.
+    """Stops the server.
+
     Returns:
-        Boolean: Indicates whether server stopped or not
+        Boolean: True if the server was stopped, otherwise false.
+
+
     """
     for proc in psutil.process_iter():
         exe = Path.cwd().joinpath(ror2ds, 'Risk of Rain 2.exe')
@@ -268,10 +275,14 @@ async def server_stop():
 
 
 async def find_dll():
-    """
-    Checks to see if the BotCommands plugin is installed on server.
+    """Checks to see if the BotCommands plugin is installed on server.
+
+    Uses the configuration file to search for the BotCommands plugin in the server plugin folder.
+
     Returns:
-        Boolean: If true it is, otherwise it is not
+        Boolean: True if the plugin is found, otherwise false.
+
+
     """
     plugin_dir = (bepinex / 'plugins')
     files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
@@ -282,6 +293,18 @@ async def find_dll():
 
 
 async def restart(ctx):
+    """Used to restart the server.
+
+    Calls the server_stop() function and then calls the start() function.
+
+    Args:
+        ctx: Context passed via Discord.py
+
+    Returns:
+        Boolean: True if started successfully, otherwise false.
+
+
+    """
     if await server_stop():
         await asyncio.sleep(5)
         if await start(ctx):
@@ -291,6 +314,19 @@ async def restart(ctx):
 
 
 async def start(ctx):
+    """Starts the server
+
+    Checks for the existence of log files and removes them prior to server restart. Once the files are removed
+    it starts the server.
+
+    Args:
+        ctx: Context passed via Discord.py
+
+    Returns:
+        Boolean: True if started successfully, otherwise false.
+
+
+    """
     # Path of log file, removes before starting
     if os.path.exists(bepinex / "LogOutput.log"):
         try:
