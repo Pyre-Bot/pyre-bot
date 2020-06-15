@@ -281,17 +281,16 @@ async def find_dll():
     return False
 
 
-async def restart():
+async def restart(ctx):
     if await server_stop():
         await asyncio.sleep(5)
-        if await start():
+        if await start(ctx):
             return True
     else:
         return False
 
 
-
-async def start():
+async def start(ctx):
     # Path of log file, removes before starting
     if os.path.exists(bepinex / "LogOutput.log"):
         try:
@@ -321,5 +320,4 @@ async def start():
         with open(bepinex / "LogOutput.log") as f:
             for line in f:
                 if "Loaded scene lobby" in line:
-                    await ctx.send('Server started successfully...')
                     return True

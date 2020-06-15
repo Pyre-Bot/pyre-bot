@@ -49,13 +49,13 @@ class RoR2(commands.Cog):
             await asyncio.sleep(time)
             # Counts vote, if tie does nothing
             if yes == no:
-                logging.info('There were not enoough votes to restart the server')
+                logging.info('There were not enough votes to restart the server')
                 await ctx.send('It was a tie! There must be a majority to restart the '
                                + 'server!')
             # If 75% of player count wants to restart it will
             elif (yes - 1) >= (shared.server_info.player_count * 0.75):
                 await ctx.send('Vote passed! Restarting the server, please wait...')
-                if await shared.restart():
+                if await shared.restart(ctx):
                     await ctx.send('Server restarted!')
                 else:
                     await ctx.send('Unable to restart the server, please contact server admins. @Admin')
