@@ -292,13 +292,10 @@ async def find_dll():
     return False
 
 
-async def restart(ctx):
+async def restart():
     """Used to restart the server.
 
     Calls the server_stop() function and then calls the start() function.
-
-    Args:
-        ctx: Context passed via Discord.py
 
     Returns:
         Boolean: True if started successfully, otherwise false.
@@ -307,7 +304,7 @@ async def restart(ctx):
     """
     if await server_stop():
         await asyncio.sleep(5)
-        if await start(ctx):
+        if await start():
             return True
     else:
         return False
@@ -318,9 +315,6 @@ async def start():
 
     Checks for the existence of log files and removes them prior to server restart. Once the files are removed
     it starts the server.
-
-    Args:
-        ctx: Context passed via Discord.py
 
     Returns:
         Boolean: True if started successfully, otherwise false.
@@ -348,7 +342,7 @@ async def start():
         started = True
         await asyncio.sleep(15)
     except Exception:
-        logging.error('Error starting the server!' + Exception)
+        logging.error('Error starting the server!' + str(Exception))
         return False
 
     # After 15 seconds checks logs to see if server started

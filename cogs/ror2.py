@@ -68,7 +68,7 @@ class RoR2(commands.Cog):
             # If 75% of player count wants to restart it will
             elif (yes - 1) >= (shared.server_info.player_count * 0.75):
                 await ctx.send('Vote passed! Restarting the server, please wait...')
-                if await shared.restart(ctx):
+                if await shared.restart():
                     await ctx.send('Server restarted!')
                 else:
                     await ctx.send('Unable to restart the server, please contact server admins. @Admin')
