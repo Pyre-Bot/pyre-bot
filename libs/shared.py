@@ -313,7 +313,7 @@ async def restart(ctx):
         return False
 
 
-async def start(ctx):
+async def start():
     """Starts the server
 
     Checks for the existence of log files and removes them prior to server restart. Once the files are removed
