@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-"""
-The main Python program to run and control Pyre Bot.
+"""The main Python program to run and control Pyre Bot.
 Pyre Bot lets you manage game servers from a Discord server and is continually improving.
+
 Usage:
     bot.py
 """

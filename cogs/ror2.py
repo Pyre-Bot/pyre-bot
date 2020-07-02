@@ -15,12 +15,20 @@ yes, no = 0, 0
 
 
 class RoR2(commands.Cog):
+    """Handles all of the functions for the RoR2 cog.
+
+    This cog handles user functions and features. Anything in here can be used without requiring special roles.
+    """
     def __init__(self, bot):
         self.bot = bot
 
-    # Counts reactions of commands with votes
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        """Counts the number of votes added to messages. Used solely for vote kick.
+
+        Args:
+            payload: The object containing the message reaction information.
+        """
         global yes, no
         if payload.emoji.name == "✅":
             yes = yes + 1
@@ -29,13 +37,18 @@ class RoR2(commands.Cog):
         else:
             pass
 
-    # Restart the server with votes
     @commands.command(
         name='restart',
         help='Initializes a vote to restart the RoR2 server',
         usage='time'
     )
     async def restart(self, ctx, time=15):
+        """Used to start a vote to restart the game server.
+
+        Args:
+            ctx: Current Discord context.
+            time: How long to let the vote run, by default 15 seconds.
+        """
         if await shared.server():
             logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
             global yes, no
@@ -65,7 +78,6 @@ class RoR2(commands.Cog):
         else:
             await ctx.send('Server is not running, unable to restart...')
 
-    # Kick a player with a majority vote
     # TODO: Add the ability to call this command with in-game chat
     @commands.command(
         name='votekick',
@@ -73,6 +85,12 @@ class RoR2(commands.Cog):
         usage='playername'
     )
     async def votekick(self, ctx, *, kick_player):
+        """Player initiated function that creates a vote to remove a player from the game.
+
+        Args:
+            ctx: Current Discord context.
+            kick_player: Full or partial steam name of the player.
+        """
         if await shared.server() and await shared.find_dll() is True:
             global yes, no
             yes, no = 0, 0
@@ -122,11 +140,16 @@ class RoR2(commands.Cog):
 
     @votekick.error
     async def votekick_handler(self, ctx, error):
+        """Handles errors related to an incomplete player name with votekick.
+
+        Args:
+            ctx: Current Discord context.
+            error: The error raised by the votekick command.
+        """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'kick_player':
                 await ctx.send('Please insert a partial or complete player name')
 
-    # Ends the run with a majority vote
     # TODO: Add the ability to call this command with in-game chat by adding a
     # conditional to the chat command, so players can do it while in-game too.
     # Would have to add functionality for votes to count with in-game chat
@@ -136,6 +159,11 @@ class RoR2(commands.Cog):
         help='Begins a vote to end the current run',
     )
     async def endrun(self, ctx):
+        """Begins a vote to end the run if enough players agree.
+
+        Args:
+            ctx: Current Discord context.
+        """
         if await shared.server() and await shared.find_dll() is True:
             logging.info(f'{ctx.message.author.name} started an end run vote')
             if shared.server_info.map_name in ('lobby', 'title'):
@@ -167,12 +195,16 @@ class RoR2(commands.Cog):
         elif await shared.find_dll() is False:
             await ctx.send('BotCommands plugin is not loaded on the server!')
 
-    # Displays the status of the server
     @commands.command(
         name='info',
         help='Displays Risk of Rain 2 server information'
     )
     async def status(self, ctx):
+        """Gathers the current server information and returns an embed message.
+
+        Args:
+            ctx: Current Discord context.
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await shared.server():
             stage = '???'
@@ -220,12 +252,16 @@ class RoR2(commands.Cog):
         else:
             await ctx.send('Server is currently offline.')
 
-    # Send modlist to chat
     @commands.command(
         name='mods',
         help='Lists all the mods currently running on the server'
     )
     async def mods(self, ctx):
+        """Outputs the list of current server mods as an embed message.
+
+        Args:
+            ctx: Current Discord context.
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         mods = []
         with open(bepinex / "LogOutput.log") as f:
