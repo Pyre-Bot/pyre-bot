@@ -22,76 +22,75 @@ run_timer = 0
 
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
-    channel = config_object.getint('RoR2', 'channel')
-    channel = self.bot.get_channel(channel)
     global stagenum
     global run_timer
-    global yes, no
-    if os.path.exists(logfile):
-        if os.path.exists(bepinex / "LogOutput.log.offset"):
-            for line in Pygtail(str(logfile), read_from_end=True):
-                # Player chat
-                if "issued: say" in line:
-                    line = line.replace('[Info   : Unity Log] ', '**')
-                    line = re.sub(r" ?\([^)]+\)", "", line)
-                    line = line.replace(' issued:', ':** ')
-                    line = line.replace(' say ', '')
-                    await channel.send(line)
-                # Run time
-                elif '[Info   : Unity Log] Run time is ' in line:
-                    line = str(line.replace('[Info   : Unity Log] Run time is ', ''))
-                    run_timer = float(line)
-                    run_timer = int(run_timer)
-                # Stages cleared
-                elif '[Info   : Unity Log] Stages cleared: ' in line:
-                    line = str(line.replace(
-                        '[Info   : Unity Log] Stages cleared: ', ''))
-                    stagenum = int(line)
-                # Stage change
-                elif "Active scene changed from" in line:
-                    devstage = '???'
-                    stage = '???'
-                    for key, value in shared.stages.items():
-                        if key in line:
-                            devstage = key
-                            stage = value
-                            break
-                    if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld'):
-                        await channel.send('**Entering Stage - ' + stage + '**')
-                    # Won't output if the stage is title, done on purpose
-                    elif devstage in ('lobby', 'title'):
-                        if devstage == 'lobby':
-                            await channel.send('**Entering ' + stage + '**')
-                            run_timer = 0
-                            stagenum = 0
-                    else:
-                        if stagenum == 0:
-                            await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
+    for log_name in serverlogs:
+        for configchannel in chat_channels:
+            if configchannel in log_name:
+                channel = self.bot.get_channel(int(configchannel))
+                break
+        if os.path.exists(logpath / log_name):
+            if os.path.exists(logpath / (log_name + '.offset')):
+                for line in Pygtail(str(logpath / log_name), read_from_end=True):
+                    # Player chat
+                    if "issued: say" in line:
+                        line = line.replace(line[:58], '**')
+                        line = re.sub(r" ?\([^)]+\)", "", line)
+                        line = line.replace(' issued:', ':** ')
+                        line = line.replace(' say ', '')
+                        await channel.send(line)
+                    # Run time
+                    elif '[Info:Unity Log] Run time is ' in line:
+                        line = str(line.replace(line[:70], ''))
+                        run_timer = float(line)
+                        run_timer = int(run_timer)
+                    # Stages cleared
+                    elif '[Info:Unity Log] Stages cleared: ' in line:
+                        line = str(line.replace(line[:74], ''))
+                        stagenum = int(line)
+                    # Stage change
+                    elif "Active scene changed from" in line:
+                        devstage = '???'
+                        stage = '???'
+                        for key, value in shared.stages.items():
+                            if key in line:
+                                devstage = key
+                                stage = value
+                                break
+                        if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld'):
+                            await channel.send('**Entering Stage - ' + stage + '**')
+                        # Won't output if the stage is title, done on purpose
+                        elif devstage in ('lobby', 'title'):
+                            if devstage == 'lobby':
+                                await channel.send('**Entering ' + stage + '**')
+                                run_timer = 0
+                                stagenum = 0
                         else:
-                            if (run_timer - (int(run_timer / 60)) * 60) < 10:
-                                formattedtime = str(
-                                    int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
+                            if stagenum == 0:
+                                await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
                             else:
-                                formattedtime = str(
-                                    int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                            await channel.send('**Entering Stage ' + str(
-                                stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
-                # Player joins
-                elif "[Info   :     R2DSE] New player : " in line:
-                    line = line.replace(
-                        '[Info   :     R2DSE] New player : ', '**Player Joined - ')
-                    line = line.replace(' connected. ', '')
-                    line = re.sub(r" ?\([^)]+\)", "", line)
-                    await channel.send(line + '**')
-                # Player leaves
-                elif "[Info   :     R2DSE] Ending AuthSession with : " in line:
-                    line = line.replace(
-                        '[Info   :     R2DSE] Ending AuthSession with : ', '**Player Left - ')
-                    line = re.sub(r" ?\([^)]+\)", "", line)
-                    await channel.send(line + '**')
-        else:
-            for line in Pygtail(str(logfile), read_from_end=True):
-                pass
+                                if (run_timer - (int(run_timer / 60)) * 60) < 10:
+                                    formattedtime = str(
+                                        int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
+                                else:
+                                    formattedtime = str(
+                                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
+                                await channel.send('**Entering Stage ' + str(
+                                    stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
+                    # Player joins
+                    elif "[Info:R2DSE] New player :" in line:
+                        line = line.replace(line[:67], '**Player Joined - ')
+                        line = line.replace(' connected. ', '')
+                        line = re.sub(r" ?\([^)]+\)", "", line)
+                        await channel.send(line + '**')
+                    # Player leaves
+                    elif "[Info:R2DSE] Ending AuthSession with" in line:
+                        line = line.replace(line[:80], '**Player Left - ')
+                        line = re.sub(r" ?\([^)]+\)", "", line)
+                        await channel.send(line + '**')
+            else:
+                for line in Pygtail(str(logpath / log_name), read_from_end=True):
+                    pass
 
 
 async def server_restart_func():
@@ -120,11 +119,12 @@ async def chat_autostart_func(self):
         print('Auto chat output enabled')
         global repeat
         repeat = 1
-        if os.path.exists(bepinex / "LogOutput.log.offset"):
-            try:
-                os.remove(bepinex / "LogOutput.log.offset")
-            except Exception:
-                print('Unable to remove offset! Chat may not work!')
+        for log_name in serverlogs:
+            if os.path.exists(logpath / (log_name + '.offset')):
+                try:
+                    os.remove(logpath / (log_name + '.offset'))
+                except Exception:
+                    print('Unable to remove offset! Chat may not work!')
         while repeat == 1:
             await chat(self)
             await asyncio.sleep(1)
@@ -386,11 +386,12 @@ class Ror2_admin(commands.Cog):
         await ctx.send('Displaying chat messages from the server!')
         global repeat
         repeat = 1
-        if os.path.exists(bepinex / "LogOutput.log.offset"):
-            try:
-                os.remove(bepinex / "LogOutput.log.offset")
-            except Exception:
-                print('Unable to remove offset! Old messages may be displayed.')
+        for log_name in serverlogs:
+            if os.path.exists(logpath / (log_name + '.offset')):
+                try:
+                    os.remove(logpath / (log_name + '.offset'))
+                except Exception:
+                    print('Unable to remove offset! Old messages may be displayed.')
         while repeat == 1:
             # Sending a chat message in other languages, such as Russian, can result in breaking the function
             # Temporary fix until proper character mapping is done for non-english characters

@@ -25,7 +25,8 @@ svrport = str(input('Server Port: '))
 steamcmd = str(input('Path to SteamCMD folder: '))
 ror2ds = str(input('Path to Risk of Rain Server folder: '))
 bepinex = str(input('Path to BepInEx folder: '))
-channel = str(input('Discord Channel ID for game chat output: '))
+logpath = str(input('Path to Server Logs folder: '))  # NEW
+chat_channels = str(input('Discord Channel ID(s) for game chat output, separated by commas: '))  # CHANGED
 
 # Stat tracking
 stats = True
@@ -56,6 +57,7 @@ while stats is True:
             "linked-id": linked_id,
             "admin-channel": admin_channel,
             "commands-channel": commands_channel,
+            "chat-channels": chat_channels,
             "track_stats": "yes"
         }
         config_object["RoR2"] = {
@@ -64,7 +66,7 @@ while stats is True:
             "steamcmd": steamcmd,
             "ror2ds": ror2ds,
             "BepInEx": bepinex,
-            "channel": channel,
+            "server-logs-path": logpath,
             "auto-start-chat": "true",
             "auto-server-restart": "true",
             "server_restart_time": "7200",
@@ -83,6 +85,7 @@ config_object["General"] = {
     "role": role,
     "admin-channel": admin_channel,
     "commands-channel": commands_channel,
+    "chat-channels": chat_channels,
     "track_stats": "no"
 }
 config_object["RoR2"] = {
@@ -91,7 +94,7 @@ config_object["RoR2"] = {
     "steamcmd": steamcmd,
     "ror2ds": ror2ds,
     "BepInEx": bepinex,
-    "channel": channel,
+    "server-logs-path": logpath,
     "auto-start-chat": "true",
     "auto-server-restart": "true",
     "server_restart_time": "7200",

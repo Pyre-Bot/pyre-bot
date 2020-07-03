@@ -1,8 +1,10 @@
 import ast
 from configparser import ConfigParser
 from pathlib import Path
+import os
 
 import boto3
+
 
 # Base configuration variables
 config_object = ConfigParser()
@@ -20,13 +22,14 @@ try:
     role = general["role"]
     admin_channel = int(general["admin-channel"])
     commands_channel = int(general["commands-channel"])
+    chat_channels = general["chat-channels"].split(',')  # CHANGED TO LIST, MOVED TO GENERAL
     track_stats = general["track_stats"]
     server_address = config_object.get(
         'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
     steamcmd = Path(ror2["steamcmd"])
     ror2ds = Path(ror2["ror2ds"])
     bepinex = Path(ror2["bepinex"])
-    chat_channel = ror2["channel"]
+    logpath = Path(ror2["server-logs-path"])  # NEW
     chat_autostart = ror2["auto-start-chat"]
     server_restart = ror2["auto-server-restart"]
     server_restart_interval = ror2["server_restart_time"]
@@ -46,7 +49,11 @@ try:
 
     # Other configuration variables not set by setup.py
     botcmd = Path.joinpath(bepinex, 'plugins', 'BotCommands')
-    logfile = (bepinex / "LogOutput.log")
     request_url = 'https://steamid.io/lookup/'
+    serverlogs_ = os.listdir(logpath)  # NEW
+    serverlogs = []
+    for log in serverlogs_:  # Done in order to prevent .offset files from being counted
+        if log.endswith('.log'):
+            serverlogs.append(log)
 except KeyError:
     pass
