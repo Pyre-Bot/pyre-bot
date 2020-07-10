@@ -186,7 +186,7 @@ class Misc(commands.Cog):
                       usage='steamid')
     @commands.check(stat_tracking)
     async def link(self, ctx, steamid):
-        global keyword_line
+        global keyword_line  # ? Why is this a global
         linked = False
         user = ctx.message.author  # Sender is a Member class object
         linkedrole = ctx.guild.get_role(linked_id)
@@ -253,7 +253,7 @@ class Misc(commands.Cog):
                     proceed = True
                     break
             if proceed:
-                for key, value in shared.channels.items():
+                for key, value in shared.channels.items():  # TODO: Get away from this by using the new system
                     for k, v in shared.channels[key].items():
                         if ctx.channel.id == v:
                             server = key

@@ -16,15 +16,12 @@ print('| Pyre Bot Setup Program |')
 print('--------------------------')
 print('Enter the values to configure the bot')
 
-api = str(input('Discord API token: '))
+discord_api = str(input('Discord API token: '))
+seq_api = str(input('Seq API token: '))
 role = str(input('Privileged Server Role: '))
-admin_channel = str(input('Discord Channel ID for admin commands: '))
-commands_channel = str(input('Discord Channel ID for normal commands: '))
-svraddr = str(input('Server Address: '))
-svrport = str(input('Server Port: '))
-steamcmd = str(input('Path to SteamCMD folder: '))
-ror2ds = str(input('Path to Risk of Rain Server folder: '))
-bepinex = str(input('Path to BepInEx folder: '))
+admin_channels = str(input('Discord Channel ID for admin commands, separated by commas: '))  # CHANGED
+commands_channels = str(input('Discord Channel ID for normal commands, separated by commas: '))  # CHANGED
+server_addresses = str(input('Server Addresses with ports (i.e. address:port), separated by commas: '))  # CHANGED
 logpath = str(input('Path to Server Logs folder: '))  # NEW
 chat_channels = str(input('Discord Channel ID(s) for game chat output, separated by commas: '))  # CHANGED
 
@@ -43,7 +40,8 @@ while stats is True:
         stats_discord = str(input('Member join/leave table name: '))
 
         config_object["API"] = {
-            "discord_token": api
+            "discord_token": discord_api,
+            "seq-api-key": seq_api
         }
         config_object["AWS"] = {
             "stats_region": stats_region,
@@ -55,17 +53,13 @@ while stats is True:
         config_object["General"] = {
             "role": role,
             "linked-id": linked_id,
-            "admin-channel": admin_channel,
-            "commands-channel": commands_channel,
+            "admin-channels": admin_channels,
+            "commands-channels": commands_channels,
             "chat-channels": chat_channels,
             "track_stats": "yes"
         }
         config_object["RoR2"] = {
-            "server_address": svraddr,
-            "server_port": svrport,
-            "steamcmd": steamcmd,
-            "ror2ds": ror2ds,
-            "BepInEx": bepinex,
+            "server_addresses": server_addresses,
             "server-logs-path": logpath,
             "auto-start-chat": "true",
             "auto-server-restart": "true",
@@ -79,21 +73,18 @@ while stats is True:
         print('Invalid input')
 
 config_object["API"] = {
-    "discord_token": api
+    "discord_token": discord_api,
+    "seq-api-key": seq_api
 }
 config_object["General"] = {
     "role": role,
-    "admin-channel": admin_channel,
-    "commands-channel": commands_channel,
+    "admin-channels": admin_channels,
+    "commands-channels": commands_channels,
     "chat-channels": chat_channels,
     "track_stats": "no"
 }
 config_object["RoR2"] = {
-    "server_address": svraddr,
-    "server_port": svrport,
-    "steamcmd": steamcmd,
-    "ror2ds": ror2ds,
-    "BepInEx": bepinex,
+    "server_addresses": server_addresses,
     "server-logs-path": logpath,
     "auto-start-chat": "true",
     "auto-server-restart": "true",
@@ -107,29 +98,3 @@ try:
     print('Settings saved')
 except Exception:
     print('Unable to save config.ini!')
-
-install_plugin = str(input('Would you like to install BotCommands? Enter "Yes" or "No": ')).lower()
-if install_plugin == 'yes':
-    try:
-        if bepinex:
-            directory = Path(bepinex, 'plugins', 'BotCommands')
-            file_dll = Path.joinpath(directory, 'BotCommands.dll')
-            file_exe = Path.joinpath(directory, 'BotCommands_Dynamo.exe')
-            botcmd = Path.joinpath(directory, 'botcmd.txt')
-            os.makedirs(os.path.dirname(file_dll), exist_ok=True)
-            os.makedirs(os.path.dirname(file_exe), exist_ok=True)
-            print('Downloading files...')
-            install_dll = requests.get(
-                'https://github.com/SuperRayss/BotCommands/releases/latest/download/BotCommands.dll')
-            install_exe = requests.get(
-                'https://github.com/SuperRayss/BotCommands/releases/latest/download/BotCommands_Dynamo.exe')
-            print('Copying files...')
-            with open(file_dll, 'wb') as f:
-                f.write(install_dll.content)
-            with open(file_exe, 'wb') as f:
-                f.write(install_exe.content)
-            with open(botcmd, 'w'):
-                pass
-            print('BotCommands installed')
-    except Exception:
-        print('Unable to install BotCommands, please visit discord.pyre-bot.com for help.')

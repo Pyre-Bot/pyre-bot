@@ -1,11 +1,15 @@
-import asyncio
-import logging
-import os
+import asyncio  # NEEDED?
+import logging  # NEEDED?
+import os  # NEEDED?
 
 import a2s
-import psutil
+import psutil  # NEEDED?
 
 from config.config import *
+
+import json
+import requests
+import datetime
 
 # Used for help command
 colors = {
@@ -227,12 +231,22 @@ stages = {
     'skymeadow': 'Sky Meadow'
 }
 
-# These get assigned / updated every time server() is called
-server_info = ''
-server_players = ''
+
+async def execute_cmd(channel, command):
+    testdict = {
+        "@t": datetime.datetime.now().isoformat(),
+        "@mt": "{Command}",
+        "Command": command,
+        "Channel": channel
+    }
+    jsondata = json.dumps(testdict)
+    # print(jsondata)  # DEBUG
+    result = requests.post(url=f"http://seq.pyre-bot.com/api/events/raw?clef&apiKey={seq_api}",
+                           data=jsondata, headers={"ContentType": "application/vnd.serilog.clef"})
+    # print(result.text)  # DEBUG
 
 
-async def server():
+async def server(channel):
     """Checks if the server is running or not.
 
     This check is used by many of the commands and functions within the bot. It checks the steam server list to
@@ -243,17 +257,21 @@ async def server():
 
 
     """
-    global server_info
-    global server_players
+
+    for serverdict in server_list:
+        if serverdict["commands_channel"] == str(channel) or serverdict["admin_channel"] == str(channel):
+            address = serverdict["server_address"]
+            break
     try:
-        server_info = a2s.info(server_address, 1.0)
-        server_players = a2s.players(server_address)
-        return True
+        server_info = a2s.info(address, 1.0)
+        server_players = a2s.players(address)
+        return {"server_info": server_info, "server_players": server_players}
     except:
         return False
 
 
-async def server_stop():
+# TODO: Change to pass command disconnect
+async def server_stop(channel):
     """Stops the server.
 
     Returns:
@@ -261,38 +279,15 @@ async def server_stop():
 
 
     """
-    for proc in psutil.process_iter():
-        exe = Path.cwd().joinpath(ror2ds, 'Risk of Rain 2.exe')
-        try:
-            processExe = proc.exe()
-            if str(exe) == processExe:
-                proc.kill()
-                logging.info('Server stopped')
-                return True
-        except:
-            pass
-    return False
-
-
-async def find_dll():
-    """Checks to see if the BotCommands plugin is installed on server.
-
-    Uses the configuration file to search for the BotCommands plugin in the server plugin folder.
-
-    Returns:
-        Boolean: True if the plugin is found, otherwise false.
-
-
-    """
-    plugin_dir = (bepinex / 'plugins')
-    files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
-    if 'BotCommands.dll' in files:
+    # Stops the server
+    if await server(channel):
+        await execute_cmd(channel, "disconnect")
         return True
-    logging.warning('Unable to find BotCommands.dll!')
-    return False
+    else:
+        return False
 
 
-async def restart():
+async def restart(channel):
     """Used to restart the server.
 
     Calls the server_stop() function and then calls the start() function.
@@ -302,15 +297,12 @@ async def restart():
 
 
     """
-    if await server_stop():
-        await asyncio.sleep(5)
-        if await start():
-            return True
-    else:
+    if not await server_stop(channel):
         return False
+    return await start(channel)
 
 
-async def start():
+async def start(channel):
     """Starts the server
 
     Checks for the existence of log files and removes them prior to server restart. Once the files are removed
@@ -321,33 +313,9 @@ async def start():
 
 
     """
-    # Path of log file, removes before starting
-    if os.path.exists(bepinex / "LogOutput.log"):
-        try:
-            os.remove(bepinex / "LogOutput.log")
-        except Exception:
-            print('Unable to remove log file')
-            return False
-    # Path of log offset file, removes before starting
-    if os.path.exists(bepinex / "LogOutput.log.offset"):
-        try:
-            os.remove(bepinex / "LogOutput.log.offset")
-        except Exception:
-            print('Unable to remove log offset file')
-            return False
-
     # Starts the server
-    try:
-        os.startfile(ror2ds / "Risk of Rain 2.exe")
-        started = True
-        await asyncio.sleep(15)
-    except Exception:
-        logging.error('Error starting the server!' + str(Exception))
+    if await server(channel):
         return False
-
-    # After 15 seconds checks logs to see if server started
-    while started is True:
-        with open(bepinex / "LogOutput.log") as f:
-            for line in f:
-                if "Loaded scene lobby" in line:
-                    return True
+    else:
+        await execute_cmd(channel, "host 1")
+        return True

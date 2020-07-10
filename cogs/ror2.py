@@ -49,7 +49,8 @@ class RoR2(commands.Cog):
             ctx: Current Discord context.
             time: How long to let the vote run, by default 15 seconds.
         """
-        if await shared.server():
+        serverinfo = await shared.server(ctx.channel.id)
+        if serverinfo:
             logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
             global yes, no
             yes, no = 0, 0
@@ -66,12 +67,12 @@ class RoR2(commands.Cog):
                 await ctx.send('It was a tie! There must be a majority to restart the '
                                + 'server!')
             # If 75% of player count wants to restart it will
-            elif (yes - 1) >= (shared.server_info.player_count * 0.75):
+            elif (yes - 1) >= (serverinfo['server_players'].player_count * 0.75):
                 await ctx.send('Vote passed! Restarting the server, please wait...')
-                if await shared.restart():
+                if await shared.restart(ctx.channel.id):
                     await ctx.send('Server restarted!')
                 else:
-                    await ctx.send('Unable to restart the server, please contact server admins. @Admin')
+                    await ctx.send('Server could not be restarted')
             else:
                 logging.info('There were not enough votes to restart the server')
                 await ctx.send('Restart vote failed!')
@@ -91,13 +92,14 @@ class RoR2(commands.Cog):
             ctx: Current Discord context.
             kick_player: Full or partial steam name of the player.
         """
-        if await shared.server() and await shared.find_dll() is True:
+        serverinfo = await shared.server(ctx.channel.id)
+        if serverinfo:
             global yes, no
             yes, no = 0, 0
             author = ctx.author
             time = 30
             containskickplayer = 0
-            for player in shared.server_players:
+            for player in serverinfo['server_players']:
                 if kick_player.upper() in player.name.upper():
                     containskickplayer = 1
                     kick_player = player.name
@@ -119,11 +121,9 @@ class RoR2(commands.Cog):
                         + kick_player
                     )
                 # If 75% of player count wants to kick it will
-                elif (yes - 1) >= (shared.server_info.player_count * 0.75):
+                elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                     logging.info(f'{kick_player} was kicked from the game.')
-                    append = open(botcmd / "botcmd.txt", 'a')
-                    append.write('ban "' + kick_player + '"\n')
-                    append.close()
+                    await shared.execute_cmd(ctx.channel.id, 'ban "' + kick_player + '"')
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
                 else:
@@ -133,10 +133,8 @@ class RoR2(commands.Cog):
                                    )
             else:
                 await ctx.send(kick_player + ' is not playing on the server')
-        elif await shared.server() is False:
+        else:
             await ctx.send('Server is not running...')
-        elif await shared.find_dll() is False:
-            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @votekick.error
     async def votekick_handler(self, ctx, error):
@@ -164,9 +162,10 @@ class RoR2(commands.Cog):
         Args:
             ctx: Current Discord context.
         """
-        if await shared.server() and await shared.find_dll() is True:
+        serverinfo = await shared.server(ctx.channel.id)
+        if serverinfo:
             logging.info(f'{ctx.message.author.name} started an end run vote')
-            if shared.server_info.map_name in ('lobby', 'title'):
+            if serverinfo['server_info'].map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress.')
             else:
                 global yes, no
@@ -180,20 +179,16 @@ class RoR2(commands.Cog):
                     await message.add_reaction(emoji)
                 await asyncio.sleep(time)
                 # If 75% of player count wants to end the run it will
-                if (yes - 1) >= (shared.server_info.player_count * 0.75):
+                if (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                     logging.info('Vote passed to end the current run')
-                    append = open(botcmd / "botcmd.txt", 'a')
-                    append.write('run_end' + '\n')
-                    append.close()
+                    await shared.execute_cmd(ctx.channel.id, 'run_end')
                     await ctx.send('Run ended, all players have been returned to the lobby')
                 # If vote fails
                 else:
                     logging.info('End run vote failed')
                     await ctx.send('Vote failed. There must be a majority to end the run')
-        elif await shared.server() is False:
+        else:
             await ctx.send('Server is not running...')
-        elif await shared.find_dll() is False:
-            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @commands.command(
         name='info',
@@ -206,7 +201,8 @@ class RoR2(commands.Cog):
             ctx: Current Discord context.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server():
+        serverinfo = await shared.server(ctx.channel.id)
+        if serverinfo:
             stage = '???'
             # Create embed
             embed = discord.Embed(
@@ -216,13 +212,13 @@ class RoR2(commands.Cog):
 
             # Creates the string of player names used in the embed
             player_names = []
-            for player in shared.server_players:
+            for player in serverinfo['server_players']:
                 player_names.append(player.name)
             player_names = ("\n".join(map(str, player_names)))
 
             # Convert Steam map name to game name
             for key, value in shared.stages.items():
-                if key in shared.server_info.map_name:
+                if key in serverinfo['server_info']:
                     stage = value
                     break
 
@@ -234,53 +230,23 @@ class RoR2(commands.Cog):
             embed.set_thumbnail(url=self.bot.user.avatar_url)
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
-                            value=f'{shared.server_info.server_name}', inline=False)
+                            value=str(serverinfo['server_info'].server_name), inline=False)
             embed.add_field(name='Current Stage', value=f'{stage}', inline=False)
             embed.add_field(
                 name='Player Count',
-                value=f'{shared.server_info.player_count}/{shared.server_info.max_players}', inline=False)
-            if shared.server_info.player_count == 0:
+                value=serverinfo['server_info'].player_count/serverinfo['server_info'].max_players, inline=False)
+            if serverinfo['server_info'].player_count == 0:
                 pass
             else:
                 embed.add_field(
                     name='Players', value=player_names, inline=False)
             embed.add_field(name='Server Ping',
-                            value=int(shared.server_info.ping * 1000), inline=False)
+                            value=int(serverinfo['server_info'].ping * 1000), inline=False)
 
             # Send embed
             await ctx.send(embed=embed)
         else:
             await ctx.send('Server is currently offline.')
-
-    @commands.command(
-        name='mods',
-        help='Lists all the mods currently running on the server'
-    )
-    async def mods(self, ctx):
-        """Outputs the list of current server mods as an embed message.
-
-        Args:
-            ctx: Current Discord context.
-        """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        mods = []
-        with open(bepinex / "LogOutput.log") as f:
-            for line in f:
-                if "[Info   :   BepInEx] Loading" in line:
-                    line = line[30:]
-                    head, sep, tail = line.partition(' ')
-                    if head in hidden_mods:
-                        pass
-                    else:
-                        mods.append(head)
-        mods = ("\n".join(map(str, mods)))
-        mod_embed = discord.Embed(colour=discord.Colour.blue())
-        mod_embed.set_footer(
-            text=f'Requested by {ctx.message.author.name}',
-            icon_url=self.bot.user.avatar_url
-        )
-        mod_embed.add_field(name='Mods', value=mods, inline=False)
-        await ctx.send(embed=mod_embed)
 
 
 def setup(bot):

@@ -108,23 +108,6 @@ async def on_ready():
                 print(f'Unable to load {cog}')
 
 
-# Checks the channel the message was sent in
-@bot.check
-def check_channel(ctx):
-    """
-    Checks if command was issued in the admin or commands channels.
-    Returns:
-        int: channel id of the issued channel
-    """
-
-    if ctx.channel.id == admin_channel:
-        return ctx.channel.id == admin_channel
-    elif ctx.channel.id == commands_channel:
-        return ctx.channel.id == commands_channel
-    else:
-        return False
-
-
 # Load and Unload cogs stuff
 @bot.command()
 @commands.has_role(role)

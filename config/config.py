@@ -19,16 +19,15 @@ try:
     ror2 = config_object["RoR2"]
 
     discord_token = api["discord_token"]
+    seq_api = api["seq-api-key"]  # NEW
     role = general["role"]
-    admin_channel = int(general["admin-channel"])
-    commands_channel = int(general["commands-channel"])
+    # Creating ordered lists, will create dict objects for each one
+    admin_channels = general["admin-channels"].split(',')  # CHANGED TO LIST
+    commands_channels = general["commands-channels"].split(',')  # CHANGED TO LIST
     chat_channels = general["chat-channels"].split(',')  # CHANGED TO LIST, MOVED TO GENERAL
     track_stats = general["track_stats"]
-    server_address = config_object.get(
-        'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
-    steamcmd = Path(ror2["steamcmd"])
-    ror2ds = Path(ror2["ror2ds"])
-    bepinex = Path(ror2["bepinex"])
+    server_addresses = config_object.get(
+        'RoR2', 'server_addresses').split(',')  # CHANGED TO LIST
     logpath = Path(ror2["server-logs-path"])  # NEW
     chat_autostart = ror2["auto-start-chat"]
     server_restart = ror2["auto-server-restart"]
@@ -48,12 +47,21 @@ try:
         pass
 
     # Other configuration variables not set by setup.py
-    botcmd = Path.joinpath(bepinex, 'plugins', 'BotCommands')
     request_url = 'https://steamid.io/lookup/'
     serverlogs_ = os.listdir(logpath)  # NEW
     serverlogs = []
     for log in serverlogs_:  # Done in order to prevent .offset files from being counted
         if log.endswith('.log'):
             serverlogs.append(log)
+    server_list = []
+    for server_address in server_addresses:
+        server_list.append(
+            {
+                "server_address": server_address,
+                "admin_channel": admin_channels[server_addresses.index(server_address)],
+                "commands_channel": commands_channels[server_addresses.index(server_address)],
+                "chat_channel": chat_channels[server_addresses.index(server_address)]
+            }
+        )
 except KeyError:
     pass

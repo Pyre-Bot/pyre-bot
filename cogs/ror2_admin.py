@@ -4,7 +4,6 @@
 
 import asyncio
 import logging
-import os
 import re
 
 from discord.ext import commands
@@ -92,7 +91,7 @@ async def chat(self):
                 for line in Pygtail(str(logpath / log_name), read_from_end=True):
                     pass
 
-
+# TODO: Get back to this, because right now it wouldn't work
 async def server_restart_func():
     """Checks every 120 minutes if no players are active then restarts the server."""
     do_restart = server_restart
@@ -143,13 +142,13 @@ class Ror2_admin(commands.Cog):
     async def start(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
-        if await shared.server() is False:
+        if await shared.server(ctx.channel.id) is False:
             await ctx.send('Starting Risk of Rain 2 server, please wait')
-            started = await shared.start()
-            if started is True:
+            if await shared.start(ctx.channel.id):
                 await ctx.send('Risk of Rain 2 server started!')
-            if started is False:
+            else:
                 await ctx.send('Unable to start server! Please check logs for error.')
+                logging.error("Failed to start the server")
         else:
             await ctx.send('Server is already running!')
 
@@ -158,9 +157,8 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def stop(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server():
-            stopped = await shared.server_stop()
-            if stopped is True:
+        if await shared.server(ctx.channel.id):
+            if await shared.server_stop(ctx.channel.id):
                 await ctx.send('Risk of Rain 2 server shut down...')
             else:
                 await ctx.send('Unable to stop server!')
@@ -177,14 +175,10 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def serversay(self, ctx, *, message):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server() and await shared.find_dll() is True:
-            append = open(botcmd / "botcmd.txt", 'a')
-            append.write('say "' + message + '"\n')
-            append.close()
-        elif await shared.server() is False:
+        if await shared.server(ctx.channel.id):
+            await shared.execute_cmd(ctx.channel.id, 'say "' + message + '"')
+        else:
             await ctx.send('Server is not running...')
-        elif await shared.find_dll() is False:
-            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     # EXPERIMENTAL - Use with caution
     # Passes on a command to be interpreted directly by the console
@@ -197,13 +191,13 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def customcmd(self, ctx, *, cmd_with_args):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server() and await shared.find_dll() is True:
-            if shared.server_info.map_name in ('lobby', 'title'):
+        serverinfo = await shared.server(ctx.channel.id)
+        if serverinfo:
+            if serverinfo['server_info'].map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress. Use >say if you want to send a message to the lobby.')
             else:
-                append = open(botcmd / "botcmd.txt", 'a')
-                append.write(cmd_with_args + '\n')
-                append.close()
+                await shared.execute_cmd(ctx.channel.id, cmd_with_args)
+                """ Commented out for now, will get to later
                 findline = True
                 consoleout = ''
                 tempreader = Pygtail(str(logfile), read_from_end=True)
@@ -232,10 +226,9 @@ class Ror2_admin(commands.Cog):
                             findline = False
                             continue
                 await ctx.send('**Server: **' + consoleout)
-        elif await shared.server() is False:
+                """
+        else:
             await ctx.send('Server is not running...')
-        elif await shared.find_dll() is False:
-            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     # Executes give_item on the server
     @commands.command(
@@ -246,22 +239,21 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server() and await shared.find_dll() is True:
-             
-            if shared.server_info.map_name in ('lobby', 'title'):
+        serverinfo = await shared.server(ctx.channel.id)
+        if serverinfo:
+            if serverinfo['server_info'].map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress')
             else:
                 containsplayer = False
-                for player in shared.server_players:
+                for player in serverinfo['server_players']:
                     if playername.upper() in player.name.upper():
                         playername = player.name
                         containsplayer = True
                         break
                 if containsplayer is True:
-                    append = open(botcmd / "botcmd.txt", 'a')
-                    append.write('give_item "' + itemname + '" '
-                                 + qty + ' "' + playername + '"\n')
-                    append.close()
+                    await shared.execute_cmd(ctx.channel.id, 'give_item "' + itemname + '" '
+                                             + qty + ' "' + playername + '"')
+                    """ Commented out for now
                     findline = True
                     tempreader = Pygtail(str(logfile), read_from_end=True)
                     while findline:
@@ -283,12 +275,11 @@ class Ror2_admin(commands.Cog):
                                                    + playername)
                                     findline = False
                                     break
-                elif containsplayer is False:
+                    """
+                else:
                     await ctx.send(playername + ' is not playing on the server')
-        elif await shared.server() is False:
+        else:
             await ctx.send('Server is not running...')
-        elif await shared.find_dll() is False:
-            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @giveitem.error
     async def giveitem_handler(self, ctx, error):
@@ -315,22 +306,21 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def giveequip(self, ctx, playername, equipname):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server() and await shared.find_dll() is True:
-             
-            if shared.server_info.map_name in ('lobby', 'title'):
+        serverinfo = await shared.server(ctx.channel.id)
+        if serverinfo:
+            if serverinfo['server_info'].map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress')
             else:
                 containsplayer = False
-                for player in shared.server_players:
+                for player in serverinfo['server_players']:
                     if playername.upper() in player.name.upper():
                         playername = player.name
                         containsplayer = True
                         break
                 if containsplayer is True:
-                    append = open(botcmd / "botcmd.txt", 'a')
-                    append.write('give_equip "' + equipname + '" "'
-                                 + playername + '"\n')
-                    append.close()
+                    await shared.execute_cmd(ctx.channel.id, 'give_equip "' + equipname + '" "'
+                                             + playername + '"')
+                    """ Will come back to it
                     findline = True
                     tempreader = Pygtail(str(logfile), read_from_end=True)
                     while findline:
@@ -352,12 +342,11 @@ class Ror2_admin(commands.Cog):
                                                    + playername)
                                     findline = False
                                     break
-                elif containsplayer is False:
+                    """
+                else:
                     await ctx.send(playername + ' is not playing on the server')
-        elif await shared.server() is False:
+        else:
             await ctx.send('Server is not running...')
-        elif await shared.find_dll() is False:
-            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @giveequip.error
     async def giveequip_handler(self, ctx, error):
@@ -374,6 +363,9 @@ class Ror2_admin(commands.Cog):
                     + f'{ctx.command.name} | Message: {ctx.message.content} | '
                     + f'Error: {error}')
                 await ctx.send('Please enter a valid equipment name')
+
+
+""" Will come back to this
 
     # Output RoR server chat to Discord
     @commands.command(
@@ -422,6 +414,7 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def config(self, ctx):
         await ctx.send('Coming soon!')
+"""
 
 
 def setup(bot):
