@@ -32,7 +32,6 @@ try:
     chat_autostart = ror2["auto-start-chat"]
     server_restart = ror2["auto-server-restart"]
     server_restart_interval = ror2["server_restart_time"]
-    hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
 
     # Stat tracking variables. Try/Except used in case stat tracking is disabled
     try:

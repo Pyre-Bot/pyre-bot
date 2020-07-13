@@ -28,8 +28,8 @@ chat_channels = str(input('Discord Channel ID(s) for game chat output, separated
 # Stat tracking
 stats = True
 while stats is True:
-    track = str(input('Would you like to track stats? Enter "Yes" or "No": ')).lower()
-    if track == "yes":
+    track = str(input('Would you like to track stats? Enter "Y" or "N": ')).lower()
+    if track.lower() == "y":  # Added lower since this never seemed to pick up the input correctly
         linked_id = str(input('Role ID for linked members: '))
         print(' -- DynamoDB information --')
         stats_region = str(input('AWS Region: '))
@@ -63,15 +63,15 @@ while stats is True:
             "server-logs-path": logpath,
             "auto-start-chat": "true",
             "auto-server-restart": "true",
-            "server_restart_time": "7200",
-            "hidden_mods": "[] "
+            "server_restart_time": "7200"
         }
         stats = False
-    elif track == "no":
+    elif track.lower() == "n":
         stats = False
     else:
         print('Invalid input')
 
+# TODO: Change this to not re-write values for every field
 config_object["API"] = {
     "discord_token": discord_api,
     "seq-api-key": seq_api
@@ -88,8 +88,7 @@ config_object["RoR2"] = {
     "server-logs-path": logpath,
     "auto-start-chat": "true",
     "auto-server-restart": "true",
-    "server_restart_time": "7200",
-    "hidden_mods": "[]"
+    "server_restart_time": "7200"
 }
 
 try:

@@ -233,13 +233,13 @@ stages = {
 
 
 async def execute_cmd(channel, command):
-    testdict = {
+    postdict = {
         "@t": datetime.datetime.now().isoformat(),
         "@mt": "{Command}",
         "Command": command,
         "Channel": channel
     }
-    jsondata = json.dumps(testdict)
+    jsondata = json.dumps(postdict)
     # print(jsondata)  # DEBUG
     result = requests.post(url=f"http://seq.pyre-bot.com/api/events/raw?clef&apiKey={seq_api}",
                            data=jsondata, headers={"ContentType": "application/vnd.serilog.clef"})
