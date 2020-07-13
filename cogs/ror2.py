@@ -67,7 +67,7 @@ class RoR2(commands.Cog):
                 await ctx.send('It was a tie! There must be a majority to restart the '
                                + 'server!')
             # If 75% of player count wants to restart it will
-            elif (yes - 1) >= (serverinfo['server_players'].player_count * 0.75):
+            elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                 await ctx.send('Vote passed! Restarting the server, please wait...')
                 if await shared.restart(ctx.channel.id):
                     await ctx.send('Server restarted!')
@@ -218,7 +218,7 @@ class RoR2(commands.Cog):
 
             # Convert Steam map name to game name
             for key, value in shared.stages.items():
-                if key in serverinfo['server_info']:
+                if key in serverinfo['server_info'].map_name:
                     stage = value
                     break
 
