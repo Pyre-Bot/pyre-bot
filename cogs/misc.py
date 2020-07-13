@@ -255,7 +255,7 @@ class Misc(commands.Cog):
             if proceed:
                 for key, value in shared.channels.items():  # TODO: Get away from this by using the new system
                     for k, v in shared.channels[key].items():
-                        if ctx.channel.id == v:
+                        if str(ctx.message.channel.id) == v:
                             server = key
                 try:
                     key = {'DiscordID': str(user.id)}

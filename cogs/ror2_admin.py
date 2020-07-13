@@ -142,9 +142,9 @@ class Ror2_admin(commands.Cog):
     async def start(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
-        if await shared.server(ctx.channel.id) is False:
+        if await shared.server(str(ctx.message.channel.id)) is False:
             await ctx.send('Starting Risk of Rain 2 server, please wait')
-            if await shared.start(ctx.channel.id):
+            if await shared.start(str(ctx.message.channel.id)):
                 await ctx.send('Risk of Rain 2 server started!')
             else:
                 await ctx.send('Unable to start server! Please check logs for error.')
@@ -157,8 +157,8 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def stop(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server(ctx.channel.id):
-            if await shared.server_stop(ctx.channel.id):
+        if await shared.server(str(ctx.message.channel.id)):
+            if await shared.server_stop(str(ctx.message.channel.id)):
                 await ctx.send('Risk of Rain 2 server shut down...')
             else:
                 await ctx.send('Unable to stop server!')
@@ -175,8 +175,8 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def serversay(self, ctx, *, message):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server(ctx.channel.id):
-            await shared.execute_cmd(ctx.channel.id, 'say "' + message + '"')
+        if await shared.server(str(ctx.message.channel.id)):
+            await shared.execute_cmd(str(ctx.message.channel.id), "say '" + message + "'")
         else:
             await ctx.send('Server is not running...')
 
@@ -191,12 +191,12 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def customcmd(self, ctx, *, cmd_with_args):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(ctx.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress. Use >say if you want to send a message to the lobby.')
             else:
-                await shared.execute_cmd(ctx.channel.id, cmd_with_args)
+                await shared.execute_cmd(str(ctx.message.channel.id), cmd_with_args)
                 """ Commented out for now, will get to later
                 findline = True
                 consoleout = ''
@@ -239,7 +239,7 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(ctx.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress')
@@ -251,8 +251,8 @@ class Ror2_admin(commands.Cog):
                         containsplayer = True
                         break
                 if containsplayer is True:
-                    await shared.execute_cmd(ctx.channel.id, 'give_item "' + itemname + '" '
-                                             + qty + ' "' + playername + '"')
+                    await shared.execute_cmd(str(ctx.message.channel.id), "give_item '" + itemname + "' "
+                                             + qty + " '" + playername + "'")
                     """ Commented out for now
                     findline = True
                     tempreader = Pygtail(str(logfile), read_from_end=True)
@@ -306,7 +306,7 @@ class Ror2_admin(commands.Cog):
     @commands.has_role(role)
     async def giveequip(self, ctx, playername, equipname):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(ctx.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title'):
                 await ctx.send('No run in progress')
@@ -318,8 +318,8 @@ class Ror2_admin(commands.Cog):
                         containsplayer = True
                         break
                 if containsplayer is True:
-                    await shared.execute_cmd(ctx.channel.id, 'give_equip "' + equipname + '" "'
-                                             + playername + '"')
+                    await shared.execute_cmd(str(ctx.message.channel.id), "give_equip '" + equipname + "' '"
+                                             + playername + "'")
                     """ Will come back to it
                     findline = True
                     tempreader = Pygtail(str(logfile), read_from_end=True)

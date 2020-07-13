@@ -49,7 +49,7 @@ class RoR2(commands.Cog):
             ctx: Current Discord context.
             time: How long to let the vote run, by default 15 seconds.
         """
-        serverinfo = await shared.server(ctx.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
             global yes, no
@@ -69,7 +69,7 @@ class RoR2(commands.Cog):
             # If 75% of player count wants to restart it will
             elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                 await ctx.send('Vote passed! Restarting the server, please wait...')
-                if await shared.restart(ctx.channel.id):
+                if await shared.restart(str(ctx.message.channel.id)):
                     await ctx.send('Server restarted!')
                 else:
                     await ctx.send('Server could not be restarted')
@@ -92,7 +92,7 @@ class RoR2(commands.Cog):
             ctx: Current Discord context.
             kick_player: Full or partial steam name of the player.
         """
-        serverinfo = await shared.server(ctx.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             global yes, no
             yes, no = 0, 0
@@ -123,7 +123,7 @@ class RoR2(commands.Cog):
                 # If 75% of player count wants to kick it will
                 elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                     logging.info(f'{kick_player} was kicked from the game.')
-                    await shared.execute_cmd(ctx.channel.id, 'ban "' + kick_player + '"')
+                    await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + kick_player + "'")
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
                 else:
@@ -162,7 +162,7 @@ class RoR2(commands.Cog):
         Args:
             ctx: Current Discord context.
         """
-        serverinfo = await shared.server(ctx.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             logging.info(f'{ctx.message.author.name} started an end run vote')
             if serverinfo['server_info'].map_name in ('lobby', 'title'):
@@ -181,7 +181,7 @@ class RoR2(commands.Cog):
                 # If 75% of player count wants to end the run it will
                 if (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                     logging.info('Vote passed to end the current run')
-                    await shared.execute_cmd(ctx.channel.id, 'run_end')
+                    await shared.execute_cmd(str(ctx.message.channel.id), 'run_end')
                     await ctx.send('Run ended, all players have been returned to the lobby')
                 # If vote fails
                 else:
@@ -201,7 +201,7 @@ class RoR2(commands.Cog):
             ctx: Current Discord context.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(ctx.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             stage = '???'
             # Create embed
@@ -234,7 +234,7 @@ class RoR2(commands.Cog):
             embed.add_field(name='Current Stage', value=f'{stage}', inline=False)
             embed.add_field(
                 name='Player Count',
-                value=serverinfo['server_info'].player_count/serverinfo['server_info'].max_players, inline=False)
+                value=str(serverinfo['server_info'].player_count)+'/'+str(serverinfo['server_info'].max_players), inline=False)
             if serverinfo['server_info'].player_count == 0:
                 pass
             else:

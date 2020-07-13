@@ -53,13 +53,16 @@ try:
         if log.endswith('.log'):
             serverlogs.append(log)
     server_list = []
-    for server_address in server_addresses:
+    for i in range(len(server_addresses)):
+        server_address = server_addresses[i].split(':')
+        server_address[1] = int(server_address[1])
+        server_address = tuple(server_address)
         server_list.append(
             {
                 "server_address": server_address,
-                "admin_channel": admin_channels[server_addresses.index(server_address)],
-                "commands_channel": commands_channels[server_addresses.index(server_address)],
-                "chat_channel": chat_channels[server_addresses.index(server_address)]
+                "admin_channel": admin_channels[i],
+                "commands_channel": commands_channels[i],
+                "chat_channel": chat_channels[i]
             }
         )
 except KeyError:

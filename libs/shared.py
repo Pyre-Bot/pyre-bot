@@ -257,7 +257,6 @@ async def server(channel):
 
 
     """
-
     for serverdict in server_list:
         if serverdict["commands_channel"] == str(channel) or serverdict["admin_channel"] == str(channel):
             address = serverdict["server_address"]
@@ -266,7 +265,8 @@ async def server(channel):
         server_info = a2s.info(address, 1.0)
         server_players = a2s.players(address)
         return {"server_info": server_info, "server_players": server_players}
-    except:
+    except Exception as e:
+        print(str(e))  # DEBUG
         return False
 
 
