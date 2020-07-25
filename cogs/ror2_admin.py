@@ -23,6 +23,7 @@ async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     global stagenum
     global run_timer
+    serverlogs = await shared.server_logs()
     for log_name in serverlogs:
         for configchannel in chat_channels:
             if configchannel in log_name:
@@ -88,27 +89,27 @@ async def chat(self):
                         line = re.sub(r" ?\([^)]+\)", "", line)
                         await channel.send(line + '**')
             else:
-                for line in Pygtail(str(logpath / log_name), read_from_end=True):
+                for _ in Pygtail(str(logpath / log_name), read_from_end=True):
                     pass
 
 # TODO: Get back to this, because right now it wouldn't work
-async def server_restart_func():
-    """Checks every 120 minutes if no players are active then restarts the server."""
-    do_restart = server_restart
-    if do_restart == "true":
-        print('Auto server restarting enabled')
-        while do_restart == "true":
-            await asyncio.sleep(7200)
-            await shared.server()
-            if shared.server_info.player_count == 0:
-                if await shared.restart():
-                    print('Server restarted')
-                else:
-                    print('Failed to restart server')
-            elif shared.server_info.player_count > 0:
-                print('Players currently in server')
-    else:
-        print('Not restarting server')
+# async def server_restart_func():
+#     """Checks every 120 minutes if no players are active then restarts the server."""
+#     do_restart = server_restart
+#     if do_restart == "true":
+#         print('Auto server restarting enabled')
+#         while do_restart == "true":
+#             await asyncio.sleep(7200)
+#             await shared.server()
+#             if shared.server_info.player_count == 0:
+#                 if await shared.restart():
+#                     print('Server restarted')
+#                 else:
+#                     print('Failed to restart server')
+#             elif shared.server_info.player_count > 0:
+#                 print('Players currently in server')
+#     else:
+#         print('Not restarting server')
 
 
 async def chat_autostart_func(self):
@@ -118,6 +119,7 @@ async def chat_autostart_func(self):
         print('Auto chat output enabled')
         global repeat
         repeat = 1
+        serverlogs = await shared.server_logs()
         for log_name in serverlogs:
             if os.path.exists(logpath / (log_name + '.offset')):
                 try:
@@ -126,7 +128,7 @@ async def chat_autostart_func(self):
                     print('Unable to remove offset! Chat may not work!')
         while repeat == 1:
             await chat(self)
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.5)
     else:
         print('Not outputting chat')
 
@@ -134,7 +136,8 @@ async def chat_autostart_func(self):
 class Ror2_admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        asyncio.gather(chat_autostart_func(self), server_restart_func())
+        asyncio.gather(chat_autostart_func(self))
+        # asyncio.gather(chat_autostart_func(self), server_restart_func())
 
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')

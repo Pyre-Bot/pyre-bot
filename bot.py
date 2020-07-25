@@ -20,7 +20,7 @@ from config.config import *
 # Log settings
 logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
                     datefmt='%m/%d/%Y %I:%M:%S %p',
-                    filename='bot.log',
+                    filename='/data/discord/bot.log',
                     level=logging.INFO
                     )
 logging.getLogger('discord').setLevel(logging.WARNING)
@@ -44,38 +44,38 @@ cogs = [
 ]
 
 
-# Error handling
-@bot.event
-async def on_command_error(ctx, error):
-    """Used to catch discord.py errors."""
-    if isinstance(error, commands.MissingRequiredArgument):
-        if check_channel(ctx) is True:
-            await ctx.send('Please pass in all required arguments.')
-            logging.warning(f'Argument error detected on command {ctx.command.name}')
-    elif isinstance(error, commands.CommandNotFound):
-        if check_channel(ctx) is True:
-            await ctx.send("Command doesn't exist, please view help for more information.")
-            logging.warning(
-                f'Command not found on command {ctx.message.content}')
-    elif isinstance(error, commands.TooManyArguments):
-        if check_channel(ctx) is True:
-            await ctx.send('Too many arguments, please try again.')
-            logging.warning(f'Argument error detected on command: {ctx.command.name}')
-    elif isinstance(error, commands.MissingAnyRole):
-        if check_channel(ctx) is True:
-            await ctx.send("You don't have permission to do this.")
-            logging.warning(
-                f'Permission error from {ctx.message.author.name} '
-                + f'on command: {ctx.command.name}')
-    elif isinstance(error, commands.NotOwner):
-        if check_channel(ctx) is True:
-            await ctx.send("You don't have permissions to do this.")
-            logging.warning(
-                f'Permission error from {ctx.message.author.name} '
-                + f'on command: {ctx.command.name}')
-    elif isinstance(error, commands.CheckFailure):
-        # We don't need this output since we are expecting it
-        pass
+# # Error handling
+# @bot.event
+# async def on_command_error(ctx, error):
+#     """Used to catch discord.py errors."""
+#     if isinstance(error, commands.MissingRequiredArgument):
+#         if check_channel(ctx) is True:
+#             await ctx.send('Please pass in all required arguments.')
+#             logging.warning(f'Argument error detected on command {ctx.command.name}')
+#     elif isinstance(error, commands.CommandNotFound):
+#         if check_channel(ctx) is True:
+#             await ctx.send("Command doesn't exist, please view help for more information.")
+#             logging.warning(
+#                 f'Command not found on command {ctx.message.content}')
+#     elif isinstance(error, commands.TooManyArguments):
+#         if check_channel(ctx) is True:
+#             await ctx.send('Too many arguments, please try again.')
+#             logging.warning(f'Argument error detected on command: {ctx.command.name}')
+#     elif isinstance(error, commands.MissingAnyRole):
+#         if check_channel(ctx) is True:
+#             await ctx.send("You don't have permission to do this.")
+#             logging.warning(
+#                 f'Permission error from {ctx.message.author.name} '
+#                 + f'on command: {ctx.command.name}')
+#     elif isinstance(error, commands.NotOwner):
+#         if check_channel(ctx) is True:
+#             await ctx.send("You don't have permissions to do this.")
+#             logging.warning(
+#                 f'Permission error from {ctx.message.author.name} '
+#                 + f'on command: {ctx.command.name}')
+#     elif isinstance(error, commands.CheckFailure):
+#         # We don't need this output since we are expecting it
+#         pass
 
 
 # Do this when the bot is ready

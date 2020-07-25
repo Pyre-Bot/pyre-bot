@@ -231,6 +231,10 @@ stages = {
     'skymeadow': 'Sky Meadow'
 }
 
+# These get assigned / updated every time server() is called
+server_info = ''
+server_players = ''
+
 
 async def execute_cmd(channel, command):
     postdict = {
@@ -319,3 +323,14 @@ async def start(channel):
     else:
         await execute_cmd(channel, "host 1")
         return True
+
+
+async def server_logs():
+    serverlogs_ = os.listdir(logpath)
+    serverlogs = []
+    today_date = datetime.date.today().strftime("%Y%m%d")
+    for log in serverlogs_:
+        if log.endswith('-' + today_date + '.log'):
+            serverlogs.append(log)
+
+    return serverlogs

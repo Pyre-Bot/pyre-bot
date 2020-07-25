@@ -47,11 +47,6 @@ try:
 
     # Other configuration variables not set by setup.py
     request_url = 'https://steamid.io/lookup/'
-    serverlogs_ = os.listdir(logpath)  # NEW
-    serverlogs = []
-    for log in serverlogs_:  # Done in order to prevent .offset files from being counted
-        if log.endswith('.log'):
-            serverlogs.append(log)
     server_list = []
     for i in range(len(server_addresses)):
         server_address = server_addresses[i].split(':')
