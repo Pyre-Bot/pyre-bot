@@ -107,6 +107,10 @@ async def on_ready():
                 logging.warning(f'Unable to load cog: {cog}')
                 print(f'Unable to load {cog}')
 
+    # TESTING -- Posts a message to admin channel
+    admin_channel = bot.get_channel(737812925414244442)
+    await admin_channel.send('👀 Bot is online.')
+
 
 # Load and Unload cogs stuff
 @bot.command()
