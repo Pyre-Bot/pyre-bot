@@ -234,6 +234,7 @@ class Misc(commands.Cog):
     @commands.command(name='stats', help='Retrieves player stats for the Risk of Rain 2 server')
     @commands.check(stat_tracking)
     async def stats(self, ctx):
+        server = None
         try:
             stat_names = {
                 'totalStagesCompleted': 'Stages Completed',
@@ -255,7 +256,7 @@ class Misc(commands.Cog):
             if proceed:
                 for key, value in shared.channels.items():  # TODO: Get away from this by using the new system
                     for k, v in shared.channels[key].items():
-                        if str(ctx.message.channel.id) == v:
+                        if str(ctx.message.channel.id) == str(v):
                             server = key
                 try:
                     key = {'DiscordID': str(user.id)}
@@ -284,8 +285,7 @@ class Misc(commands.Cog):
             else:
                 await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
         except Exception as e:
-            print(e)
-            print(type(e))
+            logging.warning(e)
         logging.info(
             f'{user.name} used {ctx.command.name}')
 
