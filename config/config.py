@@ -1,47 +1,34 @@
-import ast
-from configparser import ConfigParser
 from pathlib import Path
 import os
 
 import boto3
 
 
-# Base configuration variables
-config_object = ConfigParser()
-config_file = Path.cwd().joinpath('config', 'config.ini')
-config_object.read(config_file)
-
-# Assigns the variables. Try/Except is used in case the config.ini file doesn't exist
+# Assigns the variables
 try:
-    api = config_object["API"]
-    aws = config_object["AWS"]
-    general = config_object["General"]
-    ror2 = config_object["RoR2"]
-
-    discord_token = api["discord_token"]
-    seq_api = api["seq-api-key"]  # NEW
-    role = general["role"]
+    discord_token = os.environ.get('DISCORD_TOKEN')
+    seq_api = os.environ.get('SEQ_API')
+    role = os.environ.get('ADMIN_ROLE')
     # Creating ordered lists, will create dict objects for each one
-    admin_channels = general["admin-channels"].split(',')  # CHANGED TO LIST
-    commands_channels = general["commands-channels"].split(',')  # CHANGED TO LIST
-    chat_channels = general["chat-channels"].split(',')  # CHANGED TO LIST, MOVED TO GENERAL
-    track_stats = general["track_stats"]
-    server_addresses = config_object.get(
-        'RoR2', 'server_addresses').split(',')  # CHANGED TO LIST
-    logpath = Path(ror2["server-logs-path"])  # NEW
-    chat_autostart = ror2["auto-start-chat"]
-    server_restart = ror2["auto-server-restart"]
-    server_restart_interval = ror2["server_restart_time"]
+    admin_channels = os.environ.get('ADMIN_CHANNELS').split(',')  # CHANGED TO LIST
+    commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')  # CHANGED TO LIST
+    chat_channels = os.environ.get('CHAT_CHANNELS').split(',')  # CHANGED TO LIST, MOVED TO GENERAL
+    track_stats = os.environ.get('TRACK_STATS')
+    server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')  # CHANGED TO LIST
+    logpath = Path(os.environ.get('LOG_PATH'))  # NEW
+    chat_autostart = os.environ.get('CHAT_AUTOSTART')
+    server_restart = os.environ.get('SERVER_RESTART')
+    server_restart_interval = os.environ.get('SERVER_RESTART_TIME')
 
     # Stat tracking variables. Try/Except used in case stat tracking is disabled
     try:
-        linked_id = int(general["linked-id"])
-        stats_region = aws["stats_region"]
-        stats_endpoint = aws["stats_endpoint"]
+        linked_id = int(os.environ.get('LINKED_ID'))
+        stats_region = os.environ.get('STATS_REGION')
+        stats_endpoint = os.environ.get('STATS_ENDPOINT')
         dynamodb = boto3.resource('dynamodb', region_name=stats_region, endpoint_url=stats_endpoint)
-        stats_table = dynamodb.Table(aws["stats_table"])
-        stats_players = dynamodb.Table(aws["stats_players"])
-        discord_table = dynamodb.Table(aws["discord_table"])
+        stats_table = dynamodb.Table(os.environ.get('STATS_TABLE'))
+        stats_players = dynamodb.Table(os.environ.get('PLAYERS_TABLE'))
+        discord_table = dynamodb.Table(os.environ.get('DISCORD_TABLE'))
     except KeyError:
         pass
 

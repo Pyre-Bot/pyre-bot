@@ -26,16 +26,6 @@ logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
 logging.getLogger('discord').setLevel(logging.WARNING)
 logging.info('Bot started')
 
-# Checks if the config file exists, otherwise runs setup
-if config_file.exists():
-    logging.info('Configuration file exists')
-else:
-    logging.info("Configuration file doesn't exist, running setup")
-    setup = subprocess.Popen(['python', (Path.cwd() / 'setup' / 'setup.py')])
-    setup.wait()
-    os.startfile(__file__)
-    sys.exit()
-
 bot = commands.Bot(command_prefix='>', case_insensitive=True)
 cogs = [
     'cogs.ror2',
@@ -89,7 +79,6 @@ async def on_ready():
     print(
         f'Connected to Discord as: \n'
         f'{bot.user.name}(id: {bot.user.id})\n'
-        f'Using {config_file}\n'
         f'----------'
     )
     logging.info(f'Bot connected as {bot.user.name}(id: {bot.user.id})')
