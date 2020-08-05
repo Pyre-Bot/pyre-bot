@@ -1,4 +1,4 @@
 boto3~=1.14.14
-psutil==5.6.7
+psutil==5.7.2
 requests==2.24.0
 discord==1.0.1
