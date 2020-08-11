@@ -186,7 +186,6 @@ class Misc(commands.Cog):
                       usage='steamid')
     @commands.check(stat_tracking)
     async def link(self, ctx, steamid):
-        global keyword_line  # ? Why is this a global
         linked = False
         user = ctx.message.author  # Sender is a Member class object
         linkedrole = ctx.guild.get_role(linked_id)
@@ -249,8 +248,8 @@ class Misc(commands.Cog):
             proceed = False
             user = ctx.message.author
             linkedrole = ctx.guild.get_role(linked_id)
-            for role in user.roles:
-                if role == linkedrole:
+            for this_role in user.roles:
+                if this_role == linkedrole:
                     proceed = True
                     break
             if proceed:

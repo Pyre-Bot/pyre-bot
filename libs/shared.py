@@ -261,9 +261,9 @@ async def server(channel):
             address = serverdict["server_address"]
             break
     try:
-        server_info = a2s.info(address, 1.0)
-        server_players = a2s.players(address)
-        return {"server_info": server_info, "server_players": server_players}
+        svr_info = a2s.info(address, 1.0)
+        svr_players = a2s.players(address)
+        return {"server_info": svr_info, "server_players": svr_players}
     except Exception as e:
         print(str(e))  # DEBUG
         return False
@@ -327,5 +327,14 @@ async def server_logs():
     for log in serverlogs_:
         if log.endswith('-' + today_date + '.log'):
             serverlogs.append(log)
-
+        if len(serverlogs) >= len(server_addresses):  # Stop counting logs after they are all accounted for, save time
+            break
     return serverlogs
+
+
+# async def server_logs_comprehension_test():
+#     serverlogs = []
+#     serverlogs = [f for f in os.listdir(logpath)
+#                   if f.endswith('-' + datetime.date.today().strftime("%Y%m%d") + '.log')
+#                   and len(serverlogs) < len(server_addresses)]
+#     return serverlogs
