@@ -327,8 +327,8 @@ async def server_logs():
     for log in serverlogs_:
         if log.endswith('-' + today_date + '.log'):
             serverlogs.append(log)
-        if len(serverlogs) >= len(server_addresses):  # Stop counting logs after they are all accounted for, save time
-            break
+        #if len(serverlogs) >= len(server_addresses):  # Stop counting logs after they are all accounted for, save time
+        #    break
     return serverlogs
 
 
