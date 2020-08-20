@@ -170,7 +170,7 @@ class RoR2(commands.Cog):
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             logging.info(f'{ctx.message.author.name} started an end run vote')
-            if serverinfo['server_info'].map_name in ('lobby', 'title'):
+            if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress.')
             else:
                 global yes, no

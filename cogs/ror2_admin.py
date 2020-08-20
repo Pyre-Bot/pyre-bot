@@ -57,10 +57,10 @@ async def chat(self):
                                 devstage = key
                                 stage = value
                                 break
-                        if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld'):
+                        if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
                             await channel.send('**Entering Stage - ' + stage + '**')
-                        # Won't output if the stage is title, done on purpose
-                        elif devstage in ('lobby', 'title'):
+                        # Won't output if the stage is title or splash, done on purpose
+                        elif devstage in ('lobby', 'title', 'splash'):
                             if devstage == 'lobby':
                                 await channel.send('**Entering ' + stage + '**')
                                 run_timer = 0
@@ -196,7 +196,7 @@ class Ror2_admin(commands.Cog):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
-            if serverinfo['server_info'].map_name in ('lobby', 'title'):
+            if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress. Use >say if you want to send a message to the lobby.')
             else:
                 await shared.execute_cmd(str(ctx.message.channel.id), cmd_with_args)
@@ -244,7 +244,7 @@ class Ror2_admin(commands.Cog):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
-            if serverinfo['server_info'].map_name in ('lobby', 'title'):
+            if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress')
             else:
                 containsplayer = False
@@ -311,7 +311,7 @@ class Ror2_admin(commands.Cog):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
-            if serverinfo['server_info'].map_name in ('lobby', 'title'):
+            if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress')
             else:
                 containsplayer = False

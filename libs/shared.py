@@ -63,7 +63,7 @@ equip = {
     'SoulJar': 'Jar of Souls',
     'AffixRed': "Ifrit's Distinction",
     'AffixBlue': 'Silence Between Two Strikes',
-    'AffixYellow': '',
+    'AffixYellow': 'AffixYellow',
     'AffixGold': 'Coven of Gold',
     'AffixWhite': 'Her Biting Embrace',
     'AffixPoison': "N'kuhana's Retort",
@@ -71,16 +71,16 @@ equip = {
     'GhostGun': "Reaper's Remorse",
     'CritOnUse': 'Ocular HUD',
     'DroneBackup': 'The Back-up',
-    'OrbitalLaser': 'EQUIPMENT_ORBITALLASER_NAME',
+    'OrbitalLaser': 'OrbitalLaser',
     'BFG': 'Preon Accumulator',
-    'Enigma': 'EQUIPMENT_ENIGMA_NAME',
+    'Enigma': 'Enigma',
     'Jetpack': 'Milky Chrysalis',
     'Lightning': 'Royal Capacitor',
     'GoldGat': 'The CrowdFunder',
     'Passive Healing': 'Gnarled Woodsprite',
-    'LunarPotion': 'EQUIPMENT_LUNARPOTION_NAME',
+    'LunarPotion': 'LunarPotion',
     'BurnNearby': 'Hellfire Tincture',
-    'SoulCorruptor': 'EQUIPMENT_SOULCORRUPTOR_NAME',
+    'SoulCorruptor': 'SoulCorruptor',
     'Scanner': 'Radar Scanner',
     'CrippleWard': 'Effigy of Grief',
     'Gateway': 'Eccentric Vase',
@@ -91,7 +91,10 @@ equip = {
     'AffixHaunted': 'Spectral Circlet',
     'GainArmor': 'Jade Elephant',
     'Sawmerang': 'Sawmerang',
-    'Recycler': 'Recycler'
+    'Recycle': 'Recycler',
+    'LifestealOnHit': 'Super Massive Leech',
+    'TeamWarCry': "Gorag's Opus",
+    'DeathProjectile': 'Forgive Me Please'
 }
 
 # Available items to give players
@@ -196,11 +199,24 @@ item = {
     'NovaOnLowHealth': 'Genesis Loop',
     'LunarTrinket': 'Beads of Fealty',
     'FocusedConvergence': 'Focused Convergence',
+    'ArtifactKey': 'Artifact Key',
     'RepulsionArmorPlate': 'Repulsion Armor Plate',
     'SquidTurret': 'Squid Polyp',
     'DeathMark': 'Death Mark',
     'InterstellarDeskPlant': 'Interstellar Desk Plant',
-    'AncestralIncubator': 'Ancestral Incubator'
+    'Incubator': 'Ancestral Incubator',
+    'FocusConvergence': 'Focused Convergence',
+    'CaptainDefenseMatrix': 'Defensive Microbots',
+    'FireballsOnHit': 'Molten Perforator',
+    'BleedOnHitAndExplode': 'Shatterspleen',
+    'SiphonOnLowHealth': 'Mired Urn',
+    'MonstersOnShrineUse': 'Defiant Gouge',
+    'RandomDamageZone': 'Mercurial Rachis',
+    'ScrapWhite': 'Item Scrap, White',
+    'ScrapGreen': 'Item Scrap, Green',
+    'ScrapRed': 'Item Scrap, Red',
+    'ScrapYellow': 'Item Scrap, Yellow',
+    'LunarBadLuck': 'Purity'
 }
 
 # Possible stage names
@@ -215,7 +231,7 @@ stages = {
     'goolake': 'Abandoned Aqueduct',
     'frozenwall': 'Rallypoint Delta',
     'wispgraveyard': 'Scorched Acres',
-    'dampcave': 'Abyssal Depths',
+    'dampcave': 'Abyssal Depths',  # May be unused now, changed to dampcavesimple.. but just in case
     'shipgraveyard': "Siren's Call",
     'arena': 'Hidden Realm: Void Fields',
     'bazaar': 'Hidden Realm: Bazaar Between Time',
@@ -223,7 +239,11 @@ stages = {
     'mysteryspace': 'Hidden Realm: A Moment, Fractured',
     'limbo': 'Hidden Realm: A Moment, Whole',
     'artifactworld': 'Hidden Realm: Artifact World',
-    'skymeadow': 'Sky Meadow'
+    'skymeadow': 'Sky Meadow',
+    'splash': 'Splash Screen',
+    'moon': 'Moon',
+    'outro': 'Outro',
+    'dampcavesimple': 'Abyssal Depths'
 }
 
 # These get assigned / updated every time server() is called
