@@ -38,22 +38,6 @@ colors = {
     'NOT_QUITE_BLACK': 0x23272A
 }
 
-# Used to determine which server stats need updating
-channels = {
-    'Server1': {'admin': 670373469845979136,
-                'commands': 665998238171660320,
-                'chat': 667473663343198220},
-    'Server2': {'admin': 671917010422333460,
-                'commands': 671921930873602099,
-                'chat': 671918498531770378},
-    'Server3': {'admin': 672682539390992384,
-                'commands': 672682345089859654,
-                'chat': 672682313003565057},
-    'Server4': {'admin': 672940159091867648,
-                'commands': 672939900600975362,
-                'chat': 672939927507435533}
-}
-
 # Available equipment to give players
 equip = {
     'CommandMissile': 'Disposable Missile Launcher',
@@ -347,8 +331,8 @@ async def server_logs():
     for log in serverlogs_:
         if log.endswith('-' + today_date + '.log'):
             serverlogs.append(log)
-        #if len(serverlogs) >= len(server_addresses):  # Stop counting logs after they are all accounted for, save time
-        #    break
+        if len(serverlogs) >= len(server_addresses):  # Stop counting logs after they are all accounted for, save time
+            break
     return serverlogs
 
 

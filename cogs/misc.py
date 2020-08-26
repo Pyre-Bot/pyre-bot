@@ -202,8 +202,8 @@ class Misc(commands.Cog):
                 if len(keyword_line) == 3:
                     keyword_line.append('None')
 
-        for role in user.roles:
-            if role == linkedrole:
+        for user_role in user.roles:
+            if user_role == linkedrole:
                 linked = True
                 break
         try:
@@ -253,10 +253,10 @@ class Misc(commands.Cog):
                     proceed = True
                     break
             if proceed:
-                for key, value in shared.channels.items():  # TODO: Get away from this by using the new system
-                    for k, v in shared.channels[key].items():
-                        if str(ctx.message.channel.id) == str(v):
-                            server = key
+                for serverdict in server_list:
+                    if serverdict["commands_channel"] == str(ctx.message.channel.id) or serverdict["admin_channel"] == str(ctx.message.channel.id):
+                        server = serverdict["server_name"]
+                        break
                 try:
                     key = {'DiscordID': str(user.id)}
                     steamid = stats_players.get_item(Key=key)

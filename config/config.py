@@ -41,6 +41,7 @@ try:
         server_address = tuple(server_address)
         server_list.append(
             {
+                "server_name": "Server" + str(i + 1),
                 "server_address": server_address,
                 "admin_channel": admin_channels[i],
                 "commands_channel": commands_channels[i],
