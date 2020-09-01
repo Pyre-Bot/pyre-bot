@@ -16,6 +16,11 @@ from config.config import *
 
 # Checks if stats are being tracked
 async def stat_tracking(ctx):
+    """Determines if the bot is set up to work with stats.
+
+    :param ctx: Discord context
+    :return: Boolean
+    """
     if track_stats == "yes":
         return True
     else:
@@ -23,13 +28,22 @@ async def stat_tracking(ctx):
 
 
 class Misc(commands.Cog):
+    """Class holder for commands that don't fit in the ror2.py file."""
     def __init__(self, bot):
         self.bot = bot
 
     # Update DB when a member joins the server
     @commands.Cog.listener()
-    async def on_member_join(self, member):
-        if await stat_tracking():
+    async def on_member_join(self, member, ctx):
+        """Adds Discord member to database when they join the server.
+
+        This is used to track member retention in the server.
+
+        :param ctx: Discord context
+        :param member: Discord member class
+        """
+        logging.info(f'{member.name} joined the server! Discord ID: {member.id}')
+        if await stat_tracking(ctx):
             try:
                 await discord_table.put_item(
                     Item={
@@ -44,8 +58,13 @@ class Misc(commands.Cog):
 
     # Update DB when a member leaves the server
     @commands.Cog.listener()
-    async def on_member_remove(self, member):
-        if await stat_tracking():
+    async def on_member_remove(self, member, ctx):
+        """Updates the database with the user leave date.
+
+        :param member: Discord member class
+        :param ctx: Discord context
+        """
+        if await stat_tracking(ctx):
             try:
                 r_key = {'DiscordID': str(member.id)}
                 try:
@@ -71,8 +90,15 @@ class Misc(commands.Cog):
                 # boto3 doesn't like async so we pass teh error because we know it happens.
                 pass
 
+    # noinspection DuplicatedCode
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):
+        """Custom help command displayed when using >help.
+
+        :param ctx: Discord context
+        :param cog: List of cogs loaded in the bot.
+        :return: Returns when invalid cog is specified.
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in shared.colors.values()]
         help_embed = discord.Embed(
@@ -122,6 +148,11 @@ class Misc(commands.Cog):
                       usage='number')
     @commands.has_role(role)
     async def delete(self, ctx, number=5):
+        """Deletes messages/embeds/images from the channel.
+
+        :param ctx: Discord context
+        :param number: Amount of messages to delete
+        """
         logging.info(
             f'{ctx.message.author.name} used {ctx.command.name} on {number} messages.')
         number = number + 1
@@ -129,6 +160,11 @@ class Misc(commands.Cog):
 
     @delete.error
     async def delete_handler(self, ctx, error):
+        """Handles error caused by the delete command.
+
+        :param ctx: Discord context
+        :param error: Error raised by the command
+        """
         if isinstance(error, commands.MissingRequiredArgument):
             logging.warning(
                 f'{ctx.message.author.name} caused an error with '
@@ -142,6 +178,11 @@ class Misc(commands.Cog):
                       usage='steamid')
     @commands.check(stat_tracking)
     async def link(self, ctx, steamid):
+        """Link command used to tie Discord names and IDs to SteamIDs.
+
+        :param ctx: Discord context
+        :param steamid: SteamID of the player to be linked
+        """
         linked = False
         user = ctx.message.author  # Sender is a Member class object
         linkedrole = ctx.guild.get_role(linked_id)
@@ -181,14 +222,21 @@ class Misc(commands.Cog):
         if linked is False:
             await user.add_roles(linkedrole)
             await ctx.send(f'Steam ID linked for {user.name}')
+            logging.info(
+                f'{user.name} has linked to their Steam ID ({steamid}) using the {ctx.command.name} command.')
         else:
             await ctx.send(f'Steam ID updated for {user.name}')
-        logging.info(
-            f'{user.name} has linked to their Steam ID ({steamid}) using the {ctx.command.name} command.')
+            logging.info(
+                f'{user.name} has updated their Steam ID ({steamid}) using the {ctx.command.name} command.')
 
+    # TODO: Change to using single server
     @commands.command(name='stats', help='Retrieves player stats for the Risk of Rain 2 server')
     @commands.check(stat_tracking)
     async def stats(self, ctx):
+        """Retrieves stats from the database and posts an embed.
+
+        :param ctx: Discord context
+        """
         server = None
         try:
             stat_names = {
