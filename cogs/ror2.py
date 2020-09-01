@@ -37,11 +37,6 @@ class RoR2(commands.Cog):
         else:
             pass
 
-    # TESTING
-    @commands.command(name='test')
-    async def test(self, ctx):
-        await ctx.send('👀')
-
     @commands.command(
         name='restart',
         help='Initializes a vote to restart the RoR2 server',
