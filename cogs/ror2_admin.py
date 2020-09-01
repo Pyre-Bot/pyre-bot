@@ -5,7 +5,9 @@
 import asyncio
 import logging
 import re
+import random
 
+import discord
 from discord.ext import commands
 
 import libs.shared as shared
@@ -366,6 +368,50 @@ class Ror2_admin(commands.Cog):
                     + f'{ctx.command.name} | Message: {ctx.message.content} | '
                     + f'Error: {error}')
                 await ctx.send('Please enter a valid equipment name')
+
+    @commands.command(name='help_admin', help='Displays this message', usage='cog')
+    @commands.has_role(role)
+    async def help_admin(self, ctx, cog='all'):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        color_list = [c for c in shared.colors.values()]
+        help_embed = discord.Embed(
+            title='Help',
+            color=random.choice(color_list)
+        )
+        help_embed.set_thumbnail(url=self.bot.user.avatar_url)
+        help_embed.set_footer(
+            text=f'Requested by {ctx.message.author.name}',
+            icon_url=self.bot.user.avatar_url
+        )
+        cogs = [c for c in self.bot.cogs.keys()]
+        if cog == 'all':
+            for cog in cogs:
+                cog_commands = self.bot.get_cog(cog).get_commands()
+                commands_list = ''
+                for comm in cog_commands:
+                    commands_list += f'**{comm.name}** - *{comm.help}*\n'
+                help_embed.add_field(
+                    name=cog,
+                    value=commands_list,
+                    inline=False
+                )
+        else:
+            lower_cogs = [c.lower() for c in cogs]
+            if cog.lower() in lower_cogs:
+                commands_list = self.bot.get_cog(
+                    cogs[lower_cogs.index(cog.lower())]).get_commands()
+                help_text = ''
+                for command in commands_list:
+                    help_text += f'```{command.name}```\n' \
+                                 f'**{command.help}**\n\n'
+                    if command.usage is not None:
+                        help_text += f'Format: `{command.name} {command.usage}`\n\n'
+                help_embed.description = help_text
+            else:
+                await ctx.send('Invalid cog specified.\n'
+                               + 'Use `help` command to list all cogs.')
+                return
+        await ctx.send(embed=help_embed)
 
 
 """ Will come back to this
