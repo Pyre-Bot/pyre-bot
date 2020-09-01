@@ -8,9 +8,6 @@ Usage:
 """
 
 import logging
-import os
-import subprocess
-import sys
 
 import discord
 from discord.ext import commands
