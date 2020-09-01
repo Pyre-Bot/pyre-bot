@@ -369,6 +369,7 @@ class Ror2_admin(commands.Cog):
                     + f'Error: {error}')
                 await ctx.send('Please enter a valid equipment name')
 
+    # noinspection DuplicatedCode
     @commands.command(name='help_admin', help='Displays this message', usage='cog')
     @commands.has_role(role)
     async def help_admin(self, ctx, cog='all'):
