@@ -21,6 +21,15 @@ stagenum = 0
 run_timer = 0
 
 
+async def is_host(ctx):
+    """Makes sure the command is ran in an admin Discord channel
+
+    :param ctx: Discord context
+    :return: List of admin channels
+    """
+    return ctx.message.channel.id in admin_channels
+
+
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     global stagenum
@@ -143,7 +152,7 @@ class Ror2_admin(commands.Cog):
 
     # Start the RoR2 server
     @commands.command(name='start', help='Starts the server if it is not running')
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def start(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
@@ -159,7 +168,7 @@ class Ror2_admin(commands.Cog):
 
     # Exits the server
     @commands.command(name='stop', help='Stops the server if currently running')
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def stop(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await shared.server(str(ctx.message.channel.id)):
@@ -177,7 +186,7 @@ class Ror2_admin(commands.Cog):
         help='Sends a message from the server',
         usage='message'
     )
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def serversay(self, ctx, *, message):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await shared.server(str(ctx.message.channel.id)):
@@ -193,7 +202,7 @@ class Ror2_admin(commands.Cog):
         help='Passes on a command to be interpreted directly by the console',
         usage='command'
     )
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def customcmd(self, ctx, *, cmd_with_args):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
@@ -241,7 +250,7 @@ class Ror2_admin(commands.Cog):
         help='Gives a player a specified quantity of an item',
         usage='playername itemname qty'
     )
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
@@ -308,7 +317,7 @@ class Ror2_admin(commands.Cog):
         help='Gives a player a specified equipment',
         usage='playername equipname'
     )
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def giveequip(self, ctx, playername, equipname):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
@@ -371,7 +380,7 @@ class Ror2_admin(commands.Cog):
 
     # noinspection DuplicatedCode
     @commands.command(name='help_admin', help='Displays this message', usage='cog')
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def help_admin(self, ctx, cog='all'):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in shared.colors.values()]
@@ -415,7 +424,7 @@ class Ror2_admin(commands.Cog):
         await ctx.send(embed=help_embed)
 
     @commands.command(name='restart_admin', help='Restarts the RoR2 server', usage='time')
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def restart_admin(self, ctx):
         """Admin server restart command.
 
@@ -433,7 +442,7 @@ class Ror2_admin(commands.Cog):
             await ctx.send('Server is not running, unable to restart...')
 
     @commands.command(name='kick', help='kick a player from the game', usage='playername')
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def kick(self, ctx, *, kick_player):
         """Admin kick/ban of a player from the server.
 
@@ -472,7 +481,7 @@ class Ror2_admin(commands.Cog):
                 await ctx.send('Please insert a partial or complete player name')
 
     @commands.command(name='endrun_admin', help='Begins a vote to end the current run')
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def endrun_admin(self, ctx):
         """Admin command to end the current run.
 
@@ -497,7 +506,7 @@ class Ror2_admin(commands.Cog):
         name='start_chat',
         help='Displays live chat from the server to the specified channel in Discord'
     )
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def start_chat(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         await ctx.send('Displaying chat messages from the server!')
@@ -524,7 +533,7 @@ class Ror2_admin(commands.Cog):
         name='stop_chat',
         help='Stops outputting live chat from the server'
     )
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def stop_chat(self, ctx):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         global repeat
@@ -536,7 +545,7 @@ class Ror2_admin(commands.Cog):
 
     # Print server configuration
     @commands.command(name='config', help='Prints the server configuration')
-    @commands.has_role(role)
+    @commands.check(is_host)
     async def config(self, ctx):
         await ctx.send('Coming soon!')
 """
