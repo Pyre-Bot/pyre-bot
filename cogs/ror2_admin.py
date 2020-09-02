@@ -414,11 +414,8 @@ class Ror2_admin(commands.Cog):
                 return
         await ctx.send(embed=help_embed)
 
-    @commands.command(
-        name='restart_admin',
-        help='Restarts the RoR2 server',
-        usage='time'
-    )
+    @commands.command(name='restart_admin', help='Restarts the RoR2 server', usage='time')
+    @commands.has_role(role)
     async def restart_admin(self, ctx):
         """Admin server restart command.
 
@@ -435,11 +432,8 @@ class Ror2_admin(commands.Cog):
         else:
             await ctx.send('Server is not running, unable to restart...')
 
-    @commands.command(
-        name='kick',
-        help='kick a player from the game',
-        usage='playername'
-    )
+    @commands.command(name='kick', help='kick a player from the game', usage='playername')
+    @commands.has_role(role)
     async def kick(self, ctx, *, kick_player):
         """Admin kick/ban of a player from the server.
 
@@ -477,10 +471,8 @@ class Ror2_admin(commands.Cog):
             if error.param.name == 'kick_player':
                 await ctx.send('Please insert a partial or complete player name')
 
-    @commands.command(
-        name='endrun_admin',
-        help='Begins a vote to end the current run',
-    )
+    @commands.command(name='endrun_admin', help='Begins a vote to end the current run')
+    @commands.has_role(role)
     async def endrun_admin(self, ctx):
         """Admin command to end the current run.
 
