@@ -273,7 +273,6 @@ async def server(channel):
         return False
 
 
-# TODO: Change to pass command disconnect
 async def server_stop(channel):
     """Stops the server.
 
