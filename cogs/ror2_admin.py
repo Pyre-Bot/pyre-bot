@@ -446,6 +446,7 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param kick_player: Full or partial steam name of a player
         """
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             author = ctx.author
@@ -475,6 +476,26 @@ class Ror2_admin(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'kick_player':
                 await ctx.send('Please insert a partial or complete player name')
+
+    @commands.command(
+        name='endrun_admin',
+        help='Begins a vote to end the current run',
+    )
+    async def endrun_admin(self, ctx):
+        """Admin command to end the current run.
+
+        :param ctx: Discord context
+        """
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        serverinfo = await shared.server(str(ctx.message.channel.id))
+        if serverinfo:
+            if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
+                await ctx.send('No run in progress.')
+            else:
+                await shared.execute_cmd(str(ctx.message.channel.id), 'run_end')
+                await ctx.send('Run ended, all players have been returned to the lobby')
+        else:
+            await ctx.send('Server is not running...')
 
 
 """ Will come back to this
