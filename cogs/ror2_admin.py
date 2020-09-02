@@ -414,6 +414,28 @@ class Ror2_admin(commands.Cog):
                 return
         await ctx.send(embed=help_embed)
 
+    @commands.command(
+        name='restart_admin',
+        help='Initializes a vote to restart the RoR2 server',
+        usage='time'
+    )
+    async def restart_admin(self, ctx):
+        """Admin restart command
+
+        Args:
+            ctx: Current Discord context.
+        """
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        serverinfo = await shared.server(str(ctx.message.channel.id))
+        if serverinfo:
+            await ctx.send('Restarting server... please wait....')
+            if await shared.restart(str(ctx.message.channel.id)):
+                await ctx.send('Server restarted!')
+            else:
+                await ctx.send('Server could not be restarted')
+        else:
+            await ctx.send('Server is not running, unable to restart...')
+
 
 """ Will come back to this
 
