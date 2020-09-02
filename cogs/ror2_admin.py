@@ -416,14 +416,13 @@ class Ror2_admin(commands.Cog):
 
     @commands.command(
         name='restart_admin',
-        help='Initializes a vote to restart the RoR2 server',
+        help='Restarts the RoR2 server',
         usage='time'
     )
     async def restart_admin(self, ctx):
-        """Admin restart command
+        """Admin server restart command.
 
-        Args:
-            ctx: Current Discord context.
+        :param ctx: Discord context
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
