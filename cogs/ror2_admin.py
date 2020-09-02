@@ -435,6 +435,47 @@ class Ror2_admin(commands.Cog):
         else:
             await ctx.send('Server is not running, unable to restart...')
 
+    @commands.command(
+        name='kick',
+        help='kick a player from the game',
+        usage='playername'
+    )
+    async def kick(self, ctx, *, kick_player):
+        """Admin kick/ban of a player from the server.
+
+        :param ctx: Discord context
+        :param kick_player: Full or partial steam name of a player
+        """
+        serverinfo = await shared.server(str(ctx.message.channel.id))
+        if serverinfo:
+            author = ctx.author
+            containskickplayer = False
+            for player in serverinfo['server_players']:
+                if kick_player.upper() in player.name.upper():
+                    containskickplayer = True
+                    kick_player = player.name
+                    break
+            if containskickplayer:
+                logging.info(
+                    f'{ctx.message.author.name} kicked {kick_player}')
+                await ctx.send(f'{kick_player} has been kicked by {author.mention})')
+                await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + kick_player + "'")
+            else:
+                await ctx.send(kick_player + ' is not playing on the server')
+        else:
+            await ctx.send('Server is not running...')
+
+    @kick.error
+    async def kick_handler(self, ctx, error):
+        """Handles errors related to an incomplete player name with kick.
+
+        :param ctx: Discord context
+        :param error: The error created by the command.
+        """
+        if isinstance(error, commands.MissingRequiredArgument):
+            if error.param.name == 'kick_player':
+                await ctx.send('Please insert a partial or complete player name')
+
 
 """ Will come back to this
 
