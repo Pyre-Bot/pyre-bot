@@ -165,10 +165,13 @@ class Ror2_admin(commands.Cog):
         else:
             await ctx.send('Server is already running!')
 
-    # Exits the server
     @commands.command(name='stop', help='Stops the server if currently running')
     @commands.check(is_host)
     async def stop(self, ctx):
+        """Issues a disconnect command to the server.
+
+        :param ctx: Discord context
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await shared.server(str(ctx.message.channel.id)):
             if await shared.server_stop(str(ctx.message.channel.id)):
@@ -179,7 +182,6 @@ class Ror2_admin(commands.Cog):
         else:
             await ctx.send('Server is not running!')
 
-    # Executes say on the server
     @commands.command(
         name='say',
         help='Sends a message from the server',
@@ -187,6 +189,11 @@ class Ror2_admin(commands.Cog):
     )
     @commands.check(is_host)
     async def serversay(self, ctx, *, message):
+        """Sends a chat message to the server
+
+        :param ctx: Discord context
+        :param message: Message to send to the server
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         if await shared.server(str(ctx.message.channel.id)):
             await shared.execute_cmd(str(ctx.message.channel.id), "say '" + message + "'")
@@ -203,6 +210,11 @@ class Ror2_admin(commands.Cog):
     )
     @commands.check(is_host)
     async def customcmd(self, ctx, *, cmd_with_args):
+        """Issues a custom command to the server.
+
+        :param ctx: Discord context
+        :param cmd_with_args: Command to be sent to the server
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
@@ -243,7 +255,6 @@ class Ror2_admin(commands.Cog):
         else:
             await ctx.send('Server is not running...')
 
-    # Executes give_item on the server
     @commands.command(
         name='giveitem',
         help='Gives a player a specified quantity of an item',
@@ -251,6 +262,12 @@ class Ror2_admin(commands.Cog):
     )
     @commands.check(is_host)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
+        """Issues a command on the server to get the player specified equipment.
+
+        :param ctx: Discord context
+        :param playername: Full or partial player name
+        :param itemname: Full or partial item name
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
@@ -296,6 +313,11 @@ class Ror2_admin(commands.Cog):
 
     @giveitem.error
     async def giveitem_handler(self, ctx, error):
+        """Handles errors related to the giveitem command.
+
+        :param ctx: Discord context
+        :param error: Error raised by the command
+        """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
                 logging.warning(
@@ -310,7 +332,6 @@ class Ror2_admin(commands.Cog):
                     + f'Error: {error}')
                 await ctx.send('Please enter a valid item name')
 
-    # Executes give_equip on the server
     @commands.command(
         name='giveequip',
         help='Gives a player a specified equipment',
@@ -318,6 +339,12 @@ class Ror2_admin(commands.Cog):
     )
     @commands.check(is_host)
     async def giveequip(self, ctx, playername, equipname):
+        """Issues a command on the server to get the player specified equipment.
+
+        :param ctx: Discord context
+        :param playername: Full or partial player name
+        :param equipname: Full or partial equipment name
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
@@ -363,6 +390,11 @@ class Ror2_admin(commands.Cog):
 
     @giveequip.error
     async def giveequip_handler(self, ctx, error):
+        """Handles errors related to the giveequip command.
+
+        :param ctx: Discord context
+        :param error: Error raised by the command
+        """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
                 logging.warning(
@@ -381,6 +413,12 @@ class Ror2_admin(commands.Cog):
     @commands.command(name='help_admin', help='Displays this message', usage='cog')
     @commands.check(is_host)
     async def help_admin(self, ctx, cog='all'):
+        """Displays the help options including admin commands.
+
+        :param ctx: Discord context
+        :param cog: (Optional) Cog name for more in depth information.
+        :return: Returns if invalid cog name is specified
+        """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in shared.colors.values()]
         help_embed = discord.Embed(
@@ -528,66 +566,14 @@ class Ror2_admin(commands.Cog):
                            + 'Example: ```delete 5```')
 
 
-""" Will come back to this
-
-    # Output RoR server chat to Discord
-    @commands.command(
-        name='start_chat',
-        help='Displays live chat from the server to the specified channel in Discord'
-    )
-    @commands.check(is_host)
-    async def start_chat(self, ctx):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        await ctx.send('Displaying chat messages from the server!')
-        global repeat
-        repeat = 1
-        for log_name in serverlogs:
-            if os.path.exists(logpath / (log_name + '.offset')):
-                try:
-                    os.remove(logpath / (log_name + '.offset'))
-                except Exception:
-                    print('Unable to remove offset! Old messages may be displayed.')
-        while repeat == 1:
-            # Sending a chat message in other languages, such as Russian, can result in breaking the function
-            # Temporary fix until proper character mapping is done for non-english characters
-            try:
-                await chat(self)
-            except UnicodeDecodeError:
-                print('UnicodeDecodeError happened in start_chat')
-            finally:
-                await asyncio.sleep(1)
-
-    # Stop outputting live server chat to Discord
-    @commands.command(
-        name='stop_chat',
-        help='Stops outputting live chat from the server'
-    )
-    @commands.check(is_host)
-    async def stop_chat(self, ctx):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        global repeat
-        if repeat == 0:
-            await ctx.send('Not outputting chat to Discord!')
-        else:
-            repeat = 0
-            await ctx.send('Stopping outputting live chat to the server...')
-
-    # Print server configuration
-    @commands.command(name='config', help='Prints the server configuration')
-    @commands.check(is_host)
-    async def config(self, ctx):
-        await ctx.send('Coming soon!')
-"""
-
-
 def setup(bot):
     """Loads the cog into bot.py."""
     bot.add_cog(Ror2_admin(bot))
-    print('Loaded cog: ror2_admin.py')
+    logging.info('Loaded cog: ror2_admin.py')
 
 
 def teardown(bot):
     """Prints to terminal when cog is unloaded."""
     global repeat
-    print('Unloaded cog: ror2_admin.py')
-    repeat = 0
+    repeat = False
+    logging.info('Unloaded cog: ror2_admin.py')

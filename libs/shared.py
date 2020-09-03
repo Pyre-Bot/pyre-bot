@@ -5,11 +5,13 @@
 import a2s
 import logging
 
-from config.config import *
-
+import asyncio
 import json
 import requests
 import datetime
+
+from config.config import *
+
 
 # Used for help command
 colors = {
@@ -290,7 +292,6 @@ async def server_stop(channel):
     :param channel: Channel the command is executed in, used to determine which server.
     :return: True if the server was stopped, otherwise false.
     """
-    # Stops the server
     if await server(channel):
         await execute_cmd(channel, "disconnect")
         return True
