@@ -251,9 +251,9 @@ class RoR2(commands.Cog):
 def setup(bot):
     """Loads the cog into bot.py."""
     bot.add_cog(RoR2(bot))
-    print('Loaded cog: ror2.py')
+    logging.info('Loaded cog: ror2.py')
 
 
 def teardown(bot):
     """Prints to terminal when cog is unloaded."""
-    print('Unloaded cog: ror2.py')
+    logging.info('Unloaded cog: ror2.py')

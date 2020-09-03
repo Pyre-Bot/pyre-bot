@@ -280,7 +280,7 @@ async def server(channel):
         svr_players = a2s.players(address)
         return {"server_info": svr_info, "server_players": svr_players}
     except Exception as e:
-        print(str(e))  # DEBUG
+        logging.warning(f'Error checking server status: {e}')
         return False
 
 

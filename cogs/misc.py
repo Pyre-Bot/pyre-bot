@@ -259,16 +259,15 @@ class Misc(commands.Cog):
                 await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
         except Exception as e:
             logging.warning(e)
-        logging.info(
-            f'{user.name} used {ctx.command.name}')
+        logging.info(f'{user.name} used {ctx.command.name}')
 
 
 def setup(bot):
     """Loads the cog into bot.py."""
     bot.add_cog(Misc(bot))
-    print('Loaded cog: misc.py')
+    logging.info('Loaded cog: misc.py')
 
 
 def teardown(bot):
     """Prints to terminal when cog is unloaded."""
-    print('Unloaded cog: misc.py')
+    logging.info('Unloaded cog: misc.py')
