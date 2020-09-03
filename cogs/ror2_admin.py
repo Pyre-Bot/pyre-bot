@@ -27,7 +27,7 @@ async def is_host(ctx):
     :param ctx: Discord context
     :return: List of admin channels
     """
-    return ctx.message.channel.id in admin_channels
+    return str(ctx.message.channel.id) in admin_channels
 
 
 async def chat(self):
