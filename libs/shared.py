@@ -308,6 +308,7 @@ async def restart(channel):
     """
     if not await server_stop(channel):
         return False
+    await asyncio.sleep(5)
     return await start(channel)
 
 
