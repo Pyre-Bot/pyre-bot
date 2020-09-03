@@ -498,6 +498,36 @@ class Ror2_admin(commands.Cog):
         else:
             await ctx.send('Server is not running...')
 
+    @commands.command(name='delete',
+                      help='Deletes the given amount of messages in the channel',
+                      usage='number')
+    @commands.check(is_host)
+    async def delete(self, ctx, number=5):
+        """Deletes messages/embeds/images from the channel.
+
+        :param ctx: Discord context
+        :param number: Amount of messages to delete
+        """
+        logging.info(
+            f'{ctx.message.author.name} used {ctx.command.name} on {number} messages.')
+        number = number + 1
+        await ctx.message.channel.purge(limit=number)
+
+    @delete.error
+    async def delete_handler(self, ctx, error):
+        """Handles error caused by the delete command.
+
+        :param ctx: Discord context
+        :param error: Error raised by the command
+        """
+        if isinstance(error, commands.MissingRequiredArgument):
+            logging.warning(
+                f'{ctx.message.author.name} caused an error with '
+                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                + f'Error: {error}')
+            await ctx.send('Please enter the number of messages to delete. '
+                           + 'Example: ```delete 5```')
+
 
 """ Will come back to this
 
