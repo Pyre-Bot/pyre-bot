@@ -335,20 +335,19 @@ async def server_logs():
     serverlogs_ = os.listdir(logpath)
     serverlogs = []
     today_date = datetime.date.today().strftime("%Y%m%d")
-    yesterday = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d")
+    yesterday_date = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y%m%d")
     for log in serverlogs_:
-        if log.endswith('-' + today_date + '.log'):
+        if len(serverlogs) >= len(server_addresses):  # Stop counting logs after they are all accounted for, save time
+            break
+        elif log.endswith('-' + today_date + '.log'):
             serverlogs.append(log)
-        if not log.endswith('-' + today_date + '.log')\
-                and not log.endswith('-' + yesterday + '.log')\
-                and not log.endswith('-' + today_date + '.log.offset')\
-                and not log.endswith('-' + yesterday + '.log.offset'):
+        elif not log.endswith('-' + today_date + '.log.offset')\
+                and not log.endswith('-' + yesterday_date + '.log')\
+                and not log.endswith('-' + yesterday_date + '.log.offset'):
             try:
                 os.remove(log)
             except OSError as e:
                 logging.error(f'Failed removing {e.filename}: {e.strerror}')
-        if len(serverlogs) >= len(server_addresses):  # Stop counting logs after they are all accounted for, save time
-            break
     return serverlogs
 
 # async def server_logs_comprehension_test():

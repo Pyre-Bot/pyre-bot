@@ -21,7 +21,7 @@ async def stat_tracking(ctx):
     :param ctx: Discord context
     :return: Boolean
     """
-    if track_stats == "yes":
+    if track_stats == "yes":  # TODO: Change this to be nicer
         return True
     else:
         return False
