@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+
+"""Shared functions used throughout multiple cogs within Pyre Bot."""
+
 import a2s
+import logging
 
 from config.config import *
 
@@ -236,6 +241,14 @@ server_players = ''
 
 
 async def execute_cmd(channel, command):
+    """Sends a custom command to be executed on the server.
+
+    A custom command can be sent to the server that will be executed as if typed into the console. Be careful,
+    this command can cause weird side effects and break your entire server!
+
+    :param channel: Channel the command is executed in, used to determine which server.
+    :param command: The command to be executed.
+    """
     postdict = {
         "@t": datetime.datetime.now().isoformat(),
         "@mt": "{Command}",
@@ -255,10 +268,8 @@ async def server(channel):
     This check is used by many of the commands and functions within the bot. It checks the steam server list to
     determine if the server is running.
 
-    Returns:
-        Boolean: True if the server is running, otherwise false.
-
-
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: True if running, otherwise false.
     """
     for serverdict in server_list:
         if serverdict["commands_channel"] == str(channel) or serverdict["admin_channel"] == str(channel):
@@ -274,12 +285,10 @@ async def server(channel):
 
 
 async def server_stop(channel):
-    """Stops the server.
+    """Issues the disconnect command to stop the server.
 
-    Returns:
-        Boolean: True if the server was stopped, otherwise false.
-
-
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: True if the server was stopped, otherwise false.
     """
     # Stops the server
     if await server(channel):
@@ -290,14 +299,12 @@ async def server_stop(channel):
 
 
 async def restart(channel):
-    """Used to restart the server.
+    """Issues the commands to restart the server.
 
     Calls the server_stop() function and then calls the start() function.
 
-    Returns:
-        Boolean: True if started successfully, otherwise false.
-
-
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: Returns false if unable to restart the server.
     """
     if not await server_stop(channel):
         return False
@@ -305,15 +312,10 @@ async def restart(channel):
 
 
 async def start(channel):
-    """Starts the server
+    """Issues the host command to start the server.
 
-    Checks for the existence of log files and removes them prior to server restart. Once the files are removed
-    it starts the server.
-
-    Returns:
-        Boolean: True if started successfully, otherwise false.
-
-
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: Returns false if the server is already running, otherwise true.
     """
     # Starts the server
     if await server(channel):
