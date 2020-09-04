@@ -102,11 +102,10 @@ async def on_ready():
 @bot.command()
 @commands.has_role(role)
 async def load(ctx, extension):
-    """
-    Loads the specified cog.
-    Args:
-        ctx: Required argument to be passed by discord.py
-        extension (str): The file name, with .py, to load
+    """Loads the specified cog into the bot.
+
+    :param ctx: Discord context
+    :param extension: Name of the cog to load
     """
     bot.load_extension(f'cogs.{extension}')
     logging.info(f'Loaded {extension}')
@@ -115,11 +114,10 @@ async def load(ctx, extension):
 @bot.command()
 @commands.has_role(role)
 async def unload(ctx, extension):
-    """
-    Unloads the specified cog.
-    Args:
-        ctx: Required argument to be passed by discord.py
-        extension (str): The file name, with .py, to unload
+    """Unloads the specified cog from the bot.
+
+    :param ctx: Discord context
+    :param extension: Name of the cog to unload
     """
     bot.unload_extension(f'cogs.{extension}')
     logging.info(f'Unloaded {extension}')
@@ -128,11 +126,10 @@ async def unload(ctx, extension):
 @bot.command()
 @commands.has_role(role)
 async def reload(ctx, cog='all'):
-    """
-    Reloads the specified cog.
-    Args:
-        ctx: Required argument to be passed by discord.py
-        cog (str): The file name, with .py, to reload
+    """Reloads the specified cog, if there is no cog specified reloads all of them.
+
+    :param ctx: Discord context
+    :param cog: Name of the cog to reload
     """
     if cog == 'all':
         for item in cogs:
@@ -152,4 +149,4 @@ bot.remove_command('help')
 try:
     bot.run(discord_token)
 except discord.errors.LoginFailure:
-    print("Login unsuccessful.")
+    logging.warning("Login unsuccessful.")
