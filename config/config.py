@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+"""Reads environment variables and creates variables to be used by the bot."""
+
 from pathlib import Path
 import os
 

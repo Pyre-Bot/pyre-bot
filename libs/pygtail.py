@@ -1,3 +1,5 @@
+"""Custom port of the pygtail library that has been modified to use the UTF-8 encoding."""
+
 # pygtail - a python "port" of logtail2
 # Copyright (C) 2011 Brad Greenlee <brad@footle.org>
 #
@@ -44,8 +46,7 @@ def force_text(s, encoding='utf-8', errors='strict'):
 
 
 class Pygtail(object):
-    """
-    Creates an iterable object that returns only unread lines.
+    """Creates an iterable object that returns only unread lines.
 
     Keyword arguments:
     offset_file   File to which offset data is written (default: <logfile>.offset).

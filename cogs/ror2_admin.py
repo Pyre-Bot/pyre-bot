@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Pyre Bot Risk of Rain 2 admin functions."""
+"""Administrative functions used by privileged members."""
 
 import asyncio
 import logging
@@ -21,17 +21,30 @@ stagenum = 0
 run_timer = 0
 
 
-async def is_host(ctx):
-    """Makes sure the command is ran in an admin Discord channel
+async def is_host_channel(ctx):
+    """Checks if the command is being called in an admin channel.
 
-    :param ctx: Discord context
-    :return: List of admin channels
+    Parameters
+    ----------
+    ctx : Any
+        Current Discord context
+
+    Returns
+    -------
+    bool
+        True if the channel is listed in the admin_channels list.
     """
     return str(ctx.message.channel.id) in admin_channels
 
 
 async def chat(self):
-    """Reads the BepInEx output log to send chat to Discord."""
+    """Reads from the server logs to output to in-game channels.
+
+    Parameters
+    ----------
+    self : Any
+        Discord bot instance
+    """
     global stagenum
     global run_timer
     serverlogs = await shared.server_logs()
@@ -105,11 +118,11 @@ async def chat(self):
 
 
 async def server_restart_func():
-    """Checks every 120 minutes if no players are active then restarts the server."""
+    """Checks server status and restarts them if needed."""
     do_restart = server_restart
     if do_restart == "true":
         while do_restart == "true":
-            await asyncio.sleep(7200)
+            await asyncio.sleep(600)
             for server in admin_channels:
                 serverinfo = await shared.server(server)
                 if serverinfo.player_count == 0:
@@ -117,12 +130,16 @@ async def server_restart_func():
                         logging.info(f'{server} has been automatically restarted')
                     else:
                         logging.error(f'Failed restarting {server}! Please check and manually restart if needed.')
-    else:
-        print('Not restarting server')
 
 
 async def chat_autostart_func(self):
-    """Autostarts live chat output if it is enabled."""
+    """If chat autostart is enabled in the configuration, performs the action.
+
+    Parameters
+    ----------
+    self : Any
+        Discord bot object
+    """
     do_autostart = chat_autostart
     if do_autostart:
         print('Auto chat output enabled')
@@ -141,23 +158,58 @@ async def chat_autostart_func(self):
 
 
 class Ror2_admin(commands.Cog):
+    """Administrative Discord commands and functions.
+
+    Parameters
+    ----------
+    commands.Cog : Cog
+        The base cog class used for all discord.py cogs.
+
+    Methods
+    -------
+    start(ctx)
+        Starts the server if it is available.
+    stop(ctx)
+        Stops the server if it is running.
+    serversay(ctx, message)
+        Sends a chat message to the server.
+    customcmd(ctx, cmd_with_args)
+        Issues a custom command on the server.
+    giveitem(ctx, playername, itemname, qty="1")
+        Gives a player the item specified.
+    giveequip(ctx, playername, equipname)
+        Gives the player equipment.
+    help_admin(ctx, cog="ror2_admin")
+        Displays admin help options for the cog listed.
+    restart_admin(ctx)
+        Restarts the server.
+    kick(ctx, kick_player)
+        Kicks the player from the server and prevents them from rejoining until server restart.
+    endrun_admin(ctx)
+        Ends the current run on the server.
+    delete(ctx, number=5)
+        Deletes the given number of messages from the channel
+
+    """
     def __init__(self, bot):
         self.bot = bot
-        # asyncio.gather(chat_autostart_func(self))
         asyncio.gather(chat_autostart_func(self), server_restart_func())
 
     @commands.command(name='start', help='Starts the server if it is not running')
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def start(self, ctx):
-        """Issues a host command to the server.
+        """Sends the ```host 1``` command to start the server.
 
-        :param ctx: Discord context
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
-        if await shared.server(str(ctx.message.channel.id)) is False:
+        if await shared.server(ctx.message.channel.id) is False:
             await ctx.send('Starting Risk of Rain 2 server, please wait')
-            if await shared.start(str(ctx.message.channel.id)):
+            if await shared.start(ctx.message.channel.id):
                 await ctx.send('Risk of Rain 2 server started!')
             else:
                 await ctx.send('Unable to start server! Please check logs for error.')
@@ -166,15 +218,18 @@ class Ror2_admin(commands.Cog):
             await ctx.send('Server is already running!')
 
     @commands.command(name='stop', help='Stops the server if currently running')
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def stop(self, ctx):
-        """Issues a disconnect command to the server.
+        """Sends the ```disconnect``` command to the server.
 
-        :param ctx: Discord context
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server(str(ctx.message.channel.id)):
-            if await shared.server_stop(str(ctx.message.channel.id)):
+        if await shared.server(ctx.message.channel.id):
+            if await shared.server_stop(ctx.message.channel.id):
                 await ctx.send('Risk of Rain 2 server shut down...')
             else:
                 await ctx.send('Unable to stop server!')
@@ -187,41 +242,55 @@ class Ror2_admin(commands.Cog):
         help='Sends a message from the server',
         usage='message'
     )
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def serversay(self, ctx, *, message):
-        """Sends a chat message to the server
+        """Sends a chat message to the server.
 
-        :param ctx: Discord context
-        :param message: Message to send to the server
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        message : str
+            Message to be sent to the server.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await shared.server(str(ctx.message.channel.id)):
-            await shared.execute_cmd(str(ctx.message.channel.id), "say '" + message + "'")
+        if await shared.server(ctx.message.channel.id):
+            await shared.execute_cmd(ctx.message.channel.id, "say '" + message + "'")
         else:
             await ctx.send('Server is not running...')
 
     # EXPERIMENTAL - Use with caution
     # Passes on a command to be interpreted directly by the console
-    # TODO: Test this when there's a lot of output, i.e. many players at once
     @commands.command(
         name='cmd',
         help='Passes on a command to be interpreted directly by the console',
         usage='command'
     )
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def customcmd(self, ctx, *, cmd_with_args):
-        """Issues a custom command to the server.
+        """Sends the custom command specified to the server.
 
-        :param ctx: Discord context
-        :param cmd_with_args: Command to be sent to the server
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        cmd_with_args : str
+            Command to be sent.
+
+        Warnings
+        --------
+        This command is still experimental and should be used with caution! The results of issuing custom commands
+        on the server can cause crashes and other strange errors. Only send commands that you know will work and
+        have tested before.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(str(ctx.message.channel.id))
+        serverinfo = await shared.server(ctx.message.channel.id)
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress. Use >say if you want to send a message to the lobby.')
             else:
-                await shared.execute_cmd(str(ctx.message.channel.id), cmd_with_args)
+                await shared.execute_cmd(ctx.message.channel.id, cmd_with_args)
+                await ctx.send(f'The command `{cmd_with_args}` has been sent to the server.')
                 """ Commented out for now, will get to later
                 findline = True
                 consoleout = ''
@@ -260,16 +329,27 @@ class Ror2_admin(commands.Cog):
         help='Gives a player a specified quantity of an item',
         usage='playername itemname qty'
     )
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
-        """Issues a command on the server to get the player specified equipment.
+        """Gives the player the specified number of items.
 
-        :param ctx: Discord context
-        :param playername: Full or partial player name
-        :param itemname: Full or partial item name
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        playername : str
+            Full or partial name of the player
+        itemname : str
+            Full or partial name of the item
+        qty : str, optional
+            Amount of items to be given to the player
+
+        See Also
+        --------
+        giveitem_handler : Error handling for this method
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(str(ctx.message.channel.id))
+        serverinfo = await shared.server(ctx.message.channel.id)
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress')
@@ -281,8 +361,9 @@ class Ror2_admin(commands.Cog):
                         containsplayer = True
                         break
                 if containsplayer is True:
-                    await shared.execute_cmd(str(ctx.message.channel.id), "give_item '" + itemname + "' "
+                    await shared.execute_cmd(ctx.message.channel.id, "give_item '" + itemname + "' "
                                              + qty + " '" + playername + "'")
+                    await ctx.send(f'Gave {playername} {qty} of {itemname}')
                     """ Commented out for now
                     findline = True
                     tempreader = Pygtail(str(logfile), read_from_end=True)
@@ -313,10 +394,14 @@ class Ror2_admin(commands.Cog):
 
     @giveitem.error
     async def giveitem_handler(self, ctx, error):
-        """Handles errors related to the giveitem command.
+        """Handles errors related to `giveitem`.
 
-        :param ctx: Discord context
-        :param error: Error raised by the command
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        error : Any
+            Error object raised by `votekick`
         """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
@@ -337,16 +422,25 @@ class Ror2_admin(commands.Cog):
         help='Gives a player a specified equipment',
         usage='playername equipname'
     )
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def giveequip(self, ctx, playername, equipname):
-        """Issues a command on the server to get the player specified equipment.
+        """Gives the player the specified equipment.
 
-        :param ctx: Discord context
-        :param playername: Full or partial player name
-        :param equipname: Full or partial equipment name
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        playername : str
+            Full or partial name of the player
+        equipname : str
+            Full or partial name of the item
+
+        See Also
+        --------
+        giveequip_handler : Error handling for this method
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(str(ctx.message.channel.id))
+        serverinfo = await shared.server(ctx.message.channel.id)
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress')
@@ -358,8 +452,9 @@ class Ror2_admin(commands.Cog):
                         containsplayer = True
                         break
                 if containsplayer is True:
-                    await shared.execute_cmd(str(ctx.message.channel.id), "give_equip '" + equipname + "' '"
+                    await shared.execute_cmd(ctx.message.channel.id, "give_equip '" + equipname + "' '"
                                              + playername + "'")
+                    await ctx.send(f'Gave {playername} the {equipname}')
                     """ Will come back to it
                     findline = True
                     tempreader = Pygtail(str(logfile), read_from_end=True)
@@ -390,10 +485,14 @@ class Ror2_admin(commands.Cog):
 
     @giveequip.error
     async def giveequip_handler(self, ctx, error):
-        """Handles errors related to the giveequip command.
+        """Handles errors related to `giveequip`.
 
-        :param ctx: Discord context
-        :param error: Error raised by the command
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        error : Any
+            Error object raised by `giveequip`
         """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
@@ -411,13 +510,16 @@ class Ror2_admin(commands.Cog):
 
     # noinspection DuplicatedCode
     @commands.command(name='help_admin', help='Displays this message', usage='cog')
-    @commands.check(is_host)
-    async def help_admin(self, ctx, cog='all'):
-        """Displays the help options including admin commands.
+    @commands.check(is_host_channel)
+    async def help_admin(self, ctx, cog='ror2_admin'):
+        """Displays the admin help options for the cog listed.
 
-        :param ctx: Discord context
-        :param cog: (Optional) Cog name for more in depth information.
-        :return: Returns if invalid cog name is specified
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        cog : str, optional
+            Name of the cog to send information on.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in shared.colors.values()]
@@ -461,17 +563,20 @@ class Ror2_admin(commands.Cog):
         await ctx.send(embed=help_embed)
 
     @commands.command(name='restart_admin', help='Restarts the RoR2 server', usage='time')
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def restart_admin(self, ctx):
-        """Admin server restart command.
+        """Restarts the server.
 
-        :param ctx: Discord context
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(str(ctx.message.channel.id))
+        serverinfo = await shared.server(ctx.message.channel.id)
         if serverinfo:
             await ctx.send('Restarting server... please wait....')
-            if await shared.restart(str(ctx.message.channel.id)):
+            if await shared.restart(ctx.message.channel.id):
                 await ctx.send('Server restarted!')
             else:
                 await ctx.send('Server could not be restarted')
@@ -479,15 +584,28 @@ class Ror2_admin(commands.Cog):
             await ctx.send('Server is not running, unable to restart...')
 
     @commands.command(name='kick', help='kick a player from the game', usage='playername')
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def kick(self, ctx, *, kick_player):
-        """Admin kick/ban of a player from the server.
+        """Kicks the player from the server.
 
-        :param ctx: Discord context
-        :param kick_player: Full or partial steam name of a player
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        kick_player : str
+            Full or partial name of the player
+
+        See Also
+        --------
+        kick_handler : Error handling for this method
+
+        Notes
+        -----
+        Sends the ```ban``` command to the server instead of ```kick``` to prevent the player from rejoining until
+        the server has been restarted.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(str(ctx.message.channel.id))
+        serverinfo = await shared.server(ctx.message.channel.id)
         if serverinfo:
             author = ctx.author
             containskickplayer = False
@@ -500,7 +618,7 @@ class Ror2_admin(commands.Cog):
                 logging.info(
                     f'{ctx.message.author.name} kicked {kick_player}')
                 await ctx.send(f'{kick_player} has been kicked by {author.mention})')
-                await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + kick_player + "'")
+                await shared.execute_cmd(ctx.message.channel.id, "ban '" + kick_player + "'")
             else:
                 await ctx.send(kick_player + ' is not playing on the server')
         else:
@@ -508,29 +626,36 @@ class Ror2_admin(commands.Cog):
 
     @kick.error
     async def kick_handler(self, ctx, error):
-        """Handles errors related to an incomplete player name with kick.
+        """Error handling for the `kick` method.
 
-        :param ctx: Discord context
-        :param error: The error created by the command.
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        error : Any
+            Error object created by the `kick` command
         """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'kick_player':
                 await ctx.send('Please insert a partial or complete player name')
 
     @commands.command(name='endrun_admin', help='Begins a vote to end the current run')
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def endrun_admin(self, ctx):
-        """Admin command to end the current run.
+        """Ends the current run on the server.
 
-        :param ctx: Discord context
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(str(ctx.message.channel.id))
+        serverinfo = await shared.server(ctx.message.channel.id)
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress.')
             else:
-                await shared.execute_cmd(str(ctx.message.channel.id), 'run_end')
+                await shared.execute_cmd(ctx.message.channel.id, 'run_end')
                 await ctx.send('Run ended, all players have been returned to the lobby')
         else:
             await ctx.send('Server is not running...')
@@ -538,12 +663,20 @@ class Ror2_admin(commands.Cog):
     @commands.command(name='delete',
                       help='Deletes the given amount of messages in the channel',
                       usage='number')
-    @commands.check(is_host)
+    @commands.check(is_host_channel)
     async def delete(self, ctx, number=5):
-        """Deletes messages/embeds/images from the channel.
+        """Deletes the specified number of messages from the channel.
 
-        :param ctx: Discord context
-        :param number: Amount of messages to delete
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        number : int, optional
+            Number of messages to delete
+
+        See Also
+        --------
+        delete_handler : Error handling for this method
         """
         logging.info(
             f'{ctx.message.author.name} used {ctx.command.name} on {number} messages.')
@@ -552,10 +685,14 @@ class Ror2_admin(commands.Cog):
 
     @delete.error
     async def delete_handler(self, ctx, error):
-        """Handles error caused by the delete command.
+        """Error handling for the `delete` method.
 
-        :param ctx: Discord context
-        :param error: Error raised by the command
+        Parameters
+        ----------
+        ctx : Any
+            Current Discord context
+        error : Any
+            Error object created by the `delete` command
         """
         if isinstance(error, commands.MissingRequiredArgument):
             logging.warning(
@@ -567,13 +704,25 @@ class Ror2_admin(commands.Cog):
 
 
 def setup(bot):
-    """Loads the cog into bot.py."""
+    """Loads the cog into the bot.
+
+    Parameters
+    ----------
+    bot : discord.ext.commands.Bot
+        Discord bot object
+    """
     bot.add_cog(Ror2_admin(bot))
     logging.info('Loaded cog: ror2_admin.py')
 
 
 def teardown(bot):
-    """Prints to terminal when cog is unloaded."""
+    """Removes the cog from the bot.
+
+    Parameters
+    ----------
+    bot : discord.ext.commands.Bot
+        Discord bot object
+    """
     global repeat
     repeat = False
     logging.info('Unloaded cog: ror2_admin.py')

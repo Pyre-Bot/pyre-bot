@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-"""The main Python program to run and control Pyre Bot.
-Pyre Bot lets you manage game servers from a Discord server and is continually improving.
+"""The primary file used by the bot when it is running.
 
-Usage:
-    bot.py
+This file is the main file in the bot and is what will start and control the functionality. Here, cogs are imported
+and logging is setup. There are Discord-specific functions that are ran here as well that control the core of the bot
+and applied globally.
+
 """
 
 import logging
@@ -65,18 +66,12 @@ cogs = [
 #         pass
 
 
-# Do this when the bot is ready
 @bot.event
 async def on_ready():
-    """Outputs to terminal when bot is ready."""
+    """Function ran when Discord reports that it is connected."""
 
     await bot.change_presence(
         status=discord.Status.online
-    )
-    print(
-        f'Connected to Discord as: \n'
-        f'{bot.user.name}(id: {bot.user.id})\n'
-        f'----------'
     )
     logging.info(f'Bot connected as {bot.user.name}(id: {bot.user.id})')
     for cog in cogs:
@@ -89,23 +84,27 @@ async def on_ready():
                 bot.unload_extension(cog)
                 bot.load_extension(cog)
                 logging.info(f'Loaded {cog}')
-            except Exception:
+            except Exception as e:
+                print(e)
                 logging.warning(f'Unable to load cog: {cog}')
                 print(f'Unable to load {cog}')
 
-    # TESTING -- Posts a message to admin channel
-    admin_channel = bot.get_channel(737812925414244442)
-    await admin_channel.send('👀 Bot is online.')
+    # # TESTING -- Posts a message to admin channel
+    # admin_channel = bot.get_channel(737812925414244442)
+    # await admin_channel.send('👀 Bot is online.')
 
 
-# Load and Unload cogs stuff
 @bot.command()
 @commands.has_role(role)
 async def load(ctx, extension):
     """Loads the specified cog into the bot.
 
-    :param ctx: Discord context
-    :param extension: Name of the cog to load
+    Parameters
+    ----------
+    ctx : Any
+        Current Discord context
+    extension : str
+        Specific cog name to be loaded
     """
     bot.load_extension(f'cogs.{extension}')
     logging.info(f'Loaded {extension}')
@@ -116,8 +115,12 @@ async def load(ctx, extension):
 async def unload(ctx, extension):
     """Unloads the specified cog from the bot.
 
-    :param ctx: Discord context
-    :param extension: Name of the cog to unload
+    Parameters
+    ----------
+    ctx : Any
+        Current Discord context
+    extension : str
+        Specific cog name to be unloaded
     """
     bot.unload_extension(f'cogs.{extension}')
     logging.info(f'Unloaded {extension}')
@@ -128,8 +131,12 @@ async def unload(ctx, extension):
 async def reload(ctx, cog='all'):
     """Reloads the specified cog, if there is no cog specified reloads all of them.
 
-    :param ctx: Discord context
-    :param cog: Name of the cog to reload
+    Parameters
+    ----------
+    ctx : Any
+        Current Discord context
+    cog : str
+        Specific cog name to be reloaded
     """
     if cog == 'all':
         for item in cogs:
@@ -146,7 +153,7 @@ async def reload(ctx, cog='all'):
 bot.remove_command('help')
 
 # Tells discord.py to run the bot
-try:
-    bot.run(discord_token)
-except discord.errors.LoginFailure:
-    logging.warning("Login unsuccessful.")
+# try:
+#     bot.run(discord_token)
+# except discord.errors.LoginFailure:
+#     logging.warning("Login unsuccessful.")
