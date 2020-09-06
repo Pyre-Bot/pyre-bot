@@ -10,7 +10,7 @@ import json
 import requests
 import datetime
 
-from config.config import *
+from pyre.config.config import *
 
 
 # Used for help command

@@ -10,9 +10,9 @@ import random
 import discord
 from discord.ext import commands
 
-import libs.shared as shared
-from config.config import *
-from libs.pygtail import Pygtail
+import pyre.libs.shared as shared
+from pyre.config.config import *
+from pyre.libs.pygtail import Pygtail
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0

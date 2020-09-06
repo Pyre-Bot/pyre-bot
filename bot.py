@@ -12,7 +12,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from config.config import *
+from pyre.config.config import *
 
 # Log settings
 logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
