@@ -70,7 +70,6 @@ instance/
 
 # Sphinx documentation
 docs/_build/
-docs/_autosummary
 
 # PyBuilder
 target/
@@ -128,10 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-
-# Make and Makefile
-make.bat
-Makefile
 
 # Custom
 Test Files

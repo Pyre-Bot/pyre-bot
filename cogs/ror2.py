@@ -1,38 +1,22 @@
 #!/usr/bin/env python3
 
-"""Functions that are primarily used by Discord members for Risk of Rain 2."""
-
+"""Pyre Bot Risk of Rain 2 user functions."""
 import asyncio
 import logging
 
 import discord
 from discord.ext import commands
 
-import pyre.libs.shared as shared
+import libs.shared as shared
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
 
 
 class RoR2(commands.Cog):
-    """Member-specific Risk of Rain 2 Discord commands and functions.
+    """Handles all of the functions for the RoR2 cog.
 
-    Parameters
-    ----------
-    commands.Cog : Cog
-        The base cog class used for all discord.py cogs.
-
-    Methods
-    -------
-    restart(ctx, time=15)
-        Creates a restart vote for the server.
-    votekick(ctx, kick_player)
-        Creates a vote to kick a player from the server.
-    endrun(ctx)
-        Creates a vote to end the current run.
-    status(ctx)
-        Returns the current server information.
-
+    This cog handles user functions and features. Anything in here can be used without requiring special roles.
     """
     def __init__(self, bot):
         self.bot = bot
@@ -58,16 +42,13 @@ class RoR2(commands.Cog):
         usage='time'
     )
     async def restart(self, ctx, time=15):
-        """Creates a restart vote.
+        """Used to start a vote to restart the game server.
 
-        Parameters
-        ----------
-        ctx : Any
-            Current Discord context
-        time : int
-            Number of seconds to let the vote run
+        Args:
+            ctx: Current Discord context.
+            time: How long to let the vote run, by default 15 seconds.
         """
-        serverinfo = await shared.server(ctx.message.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
             global yes, no
@@ -87,7 +68,7 @@ class RoR2(commands.Cog):
             # If 75% of player count wants to restart it will
             elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                 await ctx.send('Vote passed! Restarting the server, please wait...')
-                if await shared.restart(ctx.message.channel.id):
+                if await shared.restart(str(ctx.message.channel.id)):
                     await ctx.send('Server restarted!')
                 else:
                     await ctx.send('Server could not be restarted')
@@ -104,20 +85,13 @@ class RoR2(commands.Cog):
         usage='playername'
     )
     async def votekick(self, ctx, *, kick_player):
-        """Creates a votekick.
+        """Player initiated function that creates a vote to remove a player from the game.
 
-        Parameters
-        ----------
-        ctx : Any
-            Current Discord context
-        kick_player : str
-            Full or partial name of the player
-
-        See Also
-        --------
-        votekick_handler : Error handling for this method
+        Args:
+            ctx: Current Discord context.
+            kick_player: Full or partial steam name of the player.
         """
-        serverinfo = await shared.server(ctx.message.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             global yes, no
             yes, no = 0, 0
@@ -148,7 +122,7 @@ class RoR2(commands.Cog):
                 # If 75% of player count wants to kick it will
                 elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                     logging.info(f'{kick_player} was kicked from the game.')
-                    await shared.execute_cmd(ctx.message.channel.id, "ban '" + kick_player + "'")
+                    await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + kick_player + "'")
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
                 else:
@@ -163,33 +137,31 @@ class RoR2(commands.Cog):
 
     @votekick.error
     async def votekick_handler(self, ctx, error):
-        """Handles errors related to a missing player name for `votekick`.
+        """Handles errors related to an incomplete player name with votekick.
 
-        Parameters
-        ----------
-        ctx : Any
-            Current Discord context
-        error : Any
-            Error object raised by `votekick`
+        Args:
+            ctx: Current Discord context.
+            error: The error raised by the votekick command.
         """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'kick_player':
                 await ctx.send('Please insert a partial or complete player name')
 
-    # TODO: Add the ability to call this command with in-game chat
+    # TODO: Add the ability to call this command with in-game chat by adding a
+    # conditional to the chat command, so players can do it while in-game too.
+    # Would have to add functionality for votes to count with in-game chat
+    # though. (or not, if I want to leave that to the discord).
     @commands.command(
         name='endrun',
         help='Begins a vote to end the current run',
     )
     async def endrun(self, ctx):
-        """Creates a vote to end the current run.
+        """Begins a vote to end the run if enough players agree.
 
-        Parameters
-        ----------
-        ctx : Any
-            Current Discord object
+        Args:
+            ctx: Current Discord context.
         """
-        serverinfo = await shared.server(ctx.message.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             logging.info(f'{ctx.message.author.name} started an end run vote')
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
@@ -208,7 +180,7 @@ class RoR2(commands.Cog):
                 # If 75% of player count wants to end the run it will
                 if (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
                     logging.info('Vote passed to end the current run')
-                    await shared.execute_cmd(ctx.message.channel.id, 'run_end')
+                    await shared.execute_cmd(str(ctx.message.channel.id), 'run_end')
                     await ctx.send('Run ended, all players have been returned to the lobby')
                 # If vote fails
                 else:
@@ -222,17 +194,15 @@ class RoR2(commands.Cog):
         help='Displays Risk of Rain 2 server information'
     )
     async def status(self, ctx):
-        """Queries Steam for the current information about the server.
+        """Gathers the current server information and returns an embed message.
 
-        Parameters
-        ----------
-        ctx : Any
-            Current Discord context.
+        Args:
+            ctx: Current Discord context.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(ctx.message.channel.id)
+        serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
-            stage = '???'  # Sets a standard stage name to be used if the stage name is no recognized.
+            stage = '???'
             # Create embed
             embed = discord.Embed(
                 title='Server Information',
@@ -279,23 +249,11 @@ class RoR2(commands.Cog):
 
 
 def setup(bot):
-    """Loads the cog into the bot.
-
-    Parameters
-    ----------
-    bot : discord.ext.commands.Bot
-        Discord bot object
-    """
+    """Loads the cog into bot.py."""
     bot.add_cog(RoR2(bot))
     logging.info('Loaded cog: ror2.py')
 
 
 def teardown(bot):
-    """Removes the cog from the bot.
-
-    Parameters
-    ----------
-    bot : discord.ext.commands.Bot
-        Discord bot object
-    """
+    """Prints to terminal when cog is unloaded."""
     logging.info('Unloaded cog: ror2.py')

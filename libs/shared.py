@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""A collection of shared functions, variables, and other items used throughout multiple files in the bot."""
+"""Shared functions used throughout multiple cogs within Pyre Bot."""
 
 import a2s
 import logging
@@ -10,7 +10,7 @@ import json
 import requests
 import datetime
 
-from pyre.config.config import *
+from config.config import *
 
 
 # Used for help command
@@ -243,17 +243,13 @@ server_players = ''
 
 
 async def execute_cmd(channel, command):
-    """Sends a command to be executed on the server.
+    """Sends a custom command to be executed on the server.
 
-    This function sends a custom command directly to the bot through the Seq. The command is converted into a JSON
-    string that can be sent via the ``requests`` import.
+    A custom command can be sent to the server that will be executed as if typed into the console. Be careful,
+    this command can cause weird side effects and break your entire server!
 
-    Parameters
-    ----------
-    channel : int
-        Discord channel ID the command was issued in
-    command : str
-        Command to be executed on the server
+    :param channel: Channel the command is executed in, used to determine which server.
+    :param command: The command to be executed.
     """
     postdict = {
         "@t": datetime.datetime.now().isoformat(),
@@ -271,23 +267,12 @@ async def execute_cmd(channel, command):
 async def server(channel):
     """Checks if the server is running or not.
 
-    This check is used by many of the commands and functions within the bot. It checks the Steam server list to
+    This check is used by many of the commands and functions within the bot. It checks the steam server list to
     determine if the server is running.
 
-    Parameters
-    ----------
-    channel : int
-        Discord channel ID the command was issued in
-
-    Returns
-    -------
-    dict
-        Server information and players
-    bool
-        False is server is not online or listed in Steam
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: True if running, otherwise false.
     """
-    address = None
-
     for serverdict in server_list:
         if serverdict["commands_channel"] == str(channel) or serverdict["admin_channel"] == str(channel):
             address = serverdict["server_address"]
@@ -304,15 +289,8 @@ async def server(channel):
 async def server_stop(channel):
     """Issues the disconnect command to stop the server.
 
-    Parameters
-    ----------
-    channel : int
-        Discord channel ID the command was issued in
-
-    Returns
-    -------
-    bool
-        Result of the disconnect command
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: True if the server was stopped, otherwise false.
     """
     if await server(channel):
         await execute_cmd(channel, "disconnect")
@@ -326,15 +304,8 @@ async def restart(channel):
 
     Calls the server_stop() function and then calls the start() function.
 
-    Parameters
-    ----------
-    channel : int
-        Discord channel ID the command was issued in
-
-    Returns
-    -------
-    bool
-        Result of restart commands
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: Returns false if unable to restart the server.
     """
     if not await server_stop(channel):
         return False
@@ -345,16 +316,10 @@ async def restart(channel):
 async def start(channel):
     """Issues the host command to start the server.
 
-    Parameters
-    ----------
-    channel : int
-        Discord channel ID the command was issued in
-
-    Returns
-    -------
-    bool
-        Result of the command
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: Returns false if the server is already running, otherwise true.
     """
+    # Starts the server
     if await server(channel):
         return False
     else:
@@ -365,10 +330,7 @@ async def start(channel):
 async def server_logs():
     """Parses over all logs cached and creates the list used to determine which ones to use, removes old logs.
 
-    Returns
-    -------
-    serverlogs : list
-        Collection of log names to be used
+    :return: List of logs that are to be used
     """
     serverlogs_ = os.listdir(logpath)
     serverlogs = []

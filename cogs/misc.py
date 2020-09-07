@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Collection of functions and commands that don't fit into other cogs."""
+"""Pyre Bot Risk of Rain 2 random functions."""
 
 import datetime
 import logging
@@ -10,22 +10,16 @@ import discord
 import requests
 from discord.ext import commands
 
-import pyre.libs.shared as shared
-from pyre.config.config import *
+import libs.shared as shared
+from config.config import *
 
 
+# Checks if stats are being tracked
 async def stat_tracking(ctx):
-    """Custom check to determine is stats are being checked.
+    """Determines if the bot is set up to work with stats.
 
-    Parameters
-    ----------
-    ctx : Any
-        Current Discord context
-
-    Returns
-    -------
-    bool
-        Status if stats are being tracked.
+    :param ctx: Discord context
+    :return: Boolean
     """
     if track_stats == "yes":  # TODO: Change this to be nicer
         return True
@@ -34,38 +28,19 @@ async def stat_tracking(ctx):
 
 
 class Misc(commands.Cog):
-    """Commands that are not fitting into other cogs.
-
-    Parameters
-    ----------
-    commands.Cog : Cog
-        The base cog class used for all discord.py cogs.
-
-    Methods
-    -------
-    help(ctx, cog='all')
-        Outputs the help options when called upon.
-    link(ctx, steamid)
-        Links the members SteamID to their DiscordID
-    stats(ctx)
-        Posts the member's stats
-
-    """
+    """Class holder for commands that don't fit in the ror2.py file."""
     def __init__(self, bot):
         self.bot = bot
 
+    # Update DB when a member joins the server
     @commands.Cog.listener()
     async def on_member_join(self, member, ctx):
         """Adds Discord member to database when they join the server.
 
         This is used to track member retention in the server.
 
-        Parameters
-        ----------
-        member : discord.Member
-            Discord member information
-        ctx : Any
-            Current Discord context
+        :param ctx: Discord context
+        :param member: Discord member class
         """
         logging.info(f'{member.name} joined the server! Discord ID: {member.id}')
         if await stat_tracking(ctx):
@@ -81,16 +56,13 @@ class Misc(commands.Cog):
                 # put_item doesn't like async so we pass the error because we know it happens.
                 pass
 
+    # Update DB when a member leaves the server
     @commands.Cog.listener()
     async def on_member_remove(self, member, ctx):
         """Updates the database with the user leave date.
 
-        Parameters
-        ----------
-        member : discord.Member
-            Discord member information
-        ctx : Any
-            Current Discord context
+        :param member: Discord member class
+        :param ctx: Discord context
         """
         if await stat_tracking(ctx):
             try:
@@ -121,15 +93,11 @@ class Misc(commands.Cog):
     # noinspection DuplicatedCode
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):
-        """Creates and sends a custom help output to the channel.
+        """Custom help command displayed when using >help.
 
-        Parameters
-        ----------
-        ctx : Any
-            Current Discord context
-        cog : str
-            Name of the cog to get help information about
-
+        :param ctx: Discord context
+        :param cog: List of cogs loaded in the bot.
+        :return: Returns when invalid cog is specified.
         """
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in shared.colors.values()]
@@ -182,12 +150,8 @@ class Misc(commands.Cog):
     async def link(self, ctx, steamid):
         """Link command used to tie Discord names and IDs to SteamIDs.
 
-        Parameters
-        ----------
-        ctx : Any
-            Current Discord context
-        steamid : str
-            Member's SteamID to be linked to the DiscordID
+        :param ctx: Discord context
+        :param steamid: SteamID of the player to be linked
         """
         linked = False
         user = ctx.message.author  # Sender is a Member class object
@@ -241,13 +205,9 @@ class Misc(commands.Cog):
     async def stats(self, ctx):
         """Retrieves stats from the database and posts an embed.
 
-        Parameters
-        ----------
-        ctx : Any
-            Current Discord context
+        :param ctx: Discord context
         """
         server = None
-        user = ctx.message.author
         try:
             stat_names = {
                 'totalStagesCompleted': 'Stages Completed',
@@ -291,7 +251,7 @@ class Misc(commands.Cog):
                                 embed.add_field(name=str(name), value=str(value), inline=True)
                     await ctx.send(embed=embed)
                 except KeyError:
-                    # Sent if the SteamID isn't linked in the Players table
+                    # Called if the SteamID isn't linked in the Players table
                     await ctx.send(
                         'Your Steam ID does not have any stats associated with it. Play on the server at least once to '
                         'create a stats profile')
@@ -303,23 +263,11 @@ class Misc(commands.Cog):
 
 
 def setup(bot):
-    """Loads the cog into the bot.
-
-    Parameters
-    ----------
-    bot : discord.ext.commands.Bot
-        Discord bot object
-    """
+    """Loads the cog into bot.py."""
     bot.add_cog(Misc(bot))
     logging.info('Loaded cog: misc.py')
 
 
 def teardown(bot):
-    """Removes the cog from the bot.
-
-    Parameters
-    ----------
-    bot : discord.ext.commands.Bot
-        Discord bot object
-    """
+    """Prints to terminal when cog is unloaded."""
     logging.info('Unloaded cog: misc.py')

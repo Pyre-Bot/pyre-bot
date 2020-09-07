@@ -1,7 +1,3 @@
-#!/usr/bin/env python3
-
-"""When running the bot outside of docker, reads from a .env file."""
-
 from pathlib import Path
 import os
 

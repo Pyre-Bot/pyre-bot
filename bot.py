@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-"""The primary file used by the bot when it is running.
+"""The main Python program to run and control Pyre Bot.
+Pyre Bot lets you manage game servers from a Discord server and is continually improving.
 
-This file is the main file in the bot and is what will start and control the functionality. Here, cogs are imported
-and logging is setup. There are Discord-specific functions that are ran here as well that control the core of the bot
-and applied globally.
-
+Usage:
+    bot.py
 """
 
 import logging
@@ -13,7 +12,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from pyre.config.config import *
+from config.config import *
 
 # Log settings
 logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
@@ -66,12 +65,18 @@ cogs = [
 #         pass
 
 
+# Do this when the bot is ready
 @bot.event
 async def on_ready():
-    """Function ran when Discord reports that it is connected."""
+    """Outputs to terminal when bot is ready."""
 
     await bot.change_presence(
         status=discord.Status.online
+    )
+    print(
+        f'Connected to Discord as: \n'
+        f'{bot.user.name}(id: {bot.user.id})\n'
+        f'----------'
     )
     logging.info(f'Bot connected as {bot.user.name}(id: {bot.user.id})')
     for cog in cogs:
@@ -84,27 +89,24 @@ async def on_ready():
                 bot.unload_extension(cog)
                 bot.load_extension(cog)
                 logging.info(f'Loaded {cog}')
-            except Exception as e:
-                print(e)
+            except Exception:
                 logging.warning(f'Unable to load cog: {cog}')
                 print(f'Unable to load {cog}')
 
-    # # TESTING -- Posts a message to admin channel
-    # admin_channel = bot.get_channel(737812925414244442)
-    # await admin_channel.send('👀 Bot is online.')
+    # TESTING -- Posts a message to admin channel
+    admin_channel = bot.get_channel(737812925414244442)
+    await admin_channel.send('👀 Bot is online.')
 
 
+# Load and Unload cogs stuff
 @bot.command()
 @commands.has_role(role)
 async def load(ctx, extension):
-    """Loads the specified cog into the bot.
-
-    Parameters
-    ----------
-    ctx : Any
-        Current Discord context
-    extension : str
-        Specific cog name to be loaded
+    """
+    Loads the specified cog.
+    Args:
+        ctx: Required argument to be passed by discord.py
+        extension (str): The file name, with .py, to load
     """
     bot.load_extension(f'cogs.{extension}')
     logging.info(f'Loaded {extension}')
@@ -113,14 +115,11 @@ async def load(ctx, extension):
 @bot.command()
 @commands.has_role(role)
 async def unload(ctx, extension):
-    """Unloads the specified cog from the bot.
-
-    Parameters
-    ----------
-    ctx : Any
-        Current Discord context
-    extension : str
-        Specific cog name to be unloaded
+    """
+    Unloads the specified cog.
+    Args:
+        ctx: Required argument to be passed by discord.py
+        extension (str): The file name, with .py, to unload
     """
     bot.unload_extension(f'cogs.{extension}')
     logging.info(f'Unloaded {extension}')
@@ -129,14 +128,11 @@ async def unload(ctx, extension):
 @bot.command()
 @commands.has_role(role)
 async def reload(ctx, cog='all'):
-    """Reloads the specified cog, if there is no cog specified reloads all of them.
-
-    Parameters
-    ----------
-    ctx : Any
-        Current Discord context
-    cog : str
-        Specific cog name to be reloaded
+    """
+    Reloads the specified cog.
+    Args:
+        ctx: Required argument to be passed by discord.py
+        cog (str): The file name, with .py, to reload
     """
     if cog == 'all':
         for item in cogs:
@@ -153,7 +149,7 @@ async def reload(ctx, cog='all'):
 bot.remove_command('help')
 
 # Tells discord.py to run the bot
-# try:
-#     bot.run(discord_token)
-# except discord.errors.LoginFailure:
-#     logging.warning("Login unsuccessful.")
+try:
+    bot.run(discord_token)
+except discord.errors.LoginFailure:
+    print("Login unsuccessful.")
