@@ -109,7 +109,7 @@ async def server_restart_func():
     do_restart = server_restart
     if do_restart == "true":
         while do_restart == "true":
-            await asyncio.sleep(7200)
+            await asyncio.sleep(600)
             for server in admin_channels:
                 serverinfo = await shared.server(server)
                 if serverinfo.player_count == 0:
@@ -117,15 +117,12 @@ async def server_restart_func():
                         logging.info(f'{server} has been automatically restarted')
                     else:
                         logging.error(f'Failed restarting {server}! Please check and manually restart if needed.')
-    else:
-        print('Not restarting server')
 
 
 async def chat_autostart_func(self):
     """Autostarts live chat output if it is enabled."""
     do_autostart = chat_autostart
     if do_autostart:
-        print('Auto chat output enabled')
         global repeat
         repeat = True
         serverlogs = await shared.server_logs()
@@ -143,7 +140,6 @@ async def chat_autostart_func(self):
 class Ror2_admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        # asyncio.gather(chat_autostart_func(self))
         asyncio.gather(chat_autostart_func(self), server_restart_func())
 
     @commands.command(name='start', help='Starts the server if it is not running')
@@ -200,8 +196,6 @@ class Ror2_admin(commands.Cog):
         else:
             await ctx.send('Server is not running...')
 
-    # EXPERIMENTAL - Use with caution
-    # Passes on a command to be interpreted directly by the console
     # TODO: Test this when there's a lot of output, i.e. many players at once
     @commands.command(
         name='cmd',

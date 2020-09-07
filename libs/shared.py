@@ -347,7 +347,7 @@ async def server_logs():
             try:
                 os.remove(log)
             except OSError as e:
-                logging.error(f'Failed removing {e.filename}: {e.strerror}')
+                pass
     return serverlogs
 
 # async def server_logs_comprehension_test():
