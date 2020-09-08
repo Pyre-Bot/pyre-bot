@@ -104,19 +104,19 @@ async def chat(self):
                     pass
 
 
-async def server_restart_func():
-    """Checks every 120 minutes if no players are active then restarts the server."""
-    do_restart = server_restart
-    if do_restart == "true":
-        while do_restart == "true":
-            await asyncio.sleep(600)
-            for server in admin_channels:
-                serverinfo = await shared.server(server)
-                if serverinfo.player_count == 0:
-                    if await shared.restart(server):
-                        logging.info(f'{server} has been automatically restarted')
-                    else:
-                        logging.error(f'Failed restarting {server}! Please check and manually restart if needed.')
+# async def server_restart_func():
+#     """Checks every 120 minutes if no players are active then restarts the server."""
+#     do_restart = server_restart
+#     if do_restart == "true":
+#         while do_restart == "true":
+#             await asyncio.sleep(600)
+#             for server in admin_channels:
+#                 serverinfo = await shared.server(server)
+#                 if serverinfo.player_count == 0:
+#                     if await shared.restart(server):
+#                         logging.info(f'{server} has been automatically restarted')
+#                     else:
+#                         logging.error(f'Failed restarting {server}! Please check and manually restart if needed.')
 
 
 async def chat_autostart_func(self):
@@ -140,7 +140,8 @@ async def chat_autostart_func(self):
 class Ror2_admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        asyncio.gather(chat_autostart_func(self), server_restart_func())
+        asyncio.gather(chat_autostart_func(self))
+        # asyncio.gather(chat_autostart_func(self), server_restart_func())
 
     @commands.command(name='start', help='Starts the server if it is not running')
     @commands.check(is_host)
