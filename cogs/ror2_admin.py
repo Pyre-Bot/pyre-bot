@@ -30,6 +30,7 @@ async def is_host(ctx):
     return str(ctx.message.channel.id) in admin_channels
 
 
+# TODO: Add anti-spam
 async def chat(self):
     """Reads the BepInEx output log to send chat to Discord."""
     global stagenum
@@ -49,7 +50,10 @@ async def chat(self):
                         line = re.sub(r" ?\([^)]+\)", "", line)
                         line = line.replace(' issued:', ':** ')
                         line = line.replace(' say ', '')
-                        await channel.send(line)
+                        if len(line) < 2000:
+                            await channel.send(line)
+                        else:
+                            await channel.send('Error showing message: Message too long')
                     # Run time
                     elif '[Info:Unity Log] Run time is ' in line:
                         line = str(line.replace(line[:70], ''))
