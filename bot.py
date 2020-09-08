@@ -23,7 +23,7 @@ logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
 logging.getLogger('discord').setLevel(logging.WARNING)
 logging.info('Bot started')
 
-bot = commands.Bot(command_prefix='>', case_insensitive=True)
+bot = commands.Bot(command_prefix=('>', '$'), case_insensitive=True)
 cogs = [
     'cogs.ror2',
     'cogs.ror2_admin',
