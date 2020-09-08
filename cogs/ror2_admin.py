@@ -213,40 +213,37 @@ class Ror2_admin(commands.Cog):
         logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
-            if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
-                await ctx.send('No run in progress. Use >say if you want to send a message to the lobby.')
-            else:
-                await shared.execute_cmd(str(ctx.message.channel.id), cmd_with_args)
-                """ Commented out for now, will get to later
-                findline = True
-                consoleout = ''
-                tempreader = Pygtail(str(logfile), read_from_end=True)
-                while findline:
-                    for line in tempreader:
-                        if 'Server(0) issued' in line:
-                            continue
-                        elif 'is not a recognized ConCommand or ConVar.' in line:
-                            await ctx.send(cmd_with_args + ' is not a valid command')
-                            findline = False
-                            break
-                        elif '[Info   : Unity Log]' in line:  # There's an \n in every line
-                            consoleout = str(line.replace('[Info   : Unity Log] ', ''))
-                            findline = False
-                            continue
-                        elif '[Error  : Unity Log]' in line:  # There's an \n in every line
-                            consoleout = str(line.replace(
-                                '[Error  : Unity Log] ', 'Error - '))
-                            findline = False
-                            continue
-                        elif str(line) != '\n':
-                            consoleout += str(line)
-                            findline = False
-                            continue
-                        else:
-                            findline = False
-                            continue
-                await ctx.send('**Server: **' + consoleout)
-                """
+            await shared.execute_cmd(str(ctx.message.channel.id), cmd_with_args)
+            """ Commented out for now, will get to later
+            findline = True
+            consoleout = ''
+            tempreader = Pygtail(str(logfile), read_from_end=True)
+            while findline:
+                for line in tempreader:
+                    if 'Server(0) issued' in line:
+                        continue
+                    elif 'is not a recognized ConCommand or ConVar.' in line:
+                        await ctx.send(cmd_with_args + ' is not a valid command')
+                        findline = False
+                        break
+                    elif '[Info   : Unity Log]' in line:  # There's an \n in every line
+                        consoleout = str(line.replace('[Info   : Unity Log] ', ''))
+                        findline = False
+                        continue
+                    elif '[Error  : Unity Log]' in line:  # There's an \n in every line
+                        consoleout = str(line.replace(
+                            '[Error  : Unity Log] ', 'Error - '))
+                        findline = False
+                        continue
+                    elif str(line) != '\n':
+                        consoleout += str(line)
+                        findline = False
+                        continue
+                    else:
+                        findline = False
+                        continue
+            await ctx.send('**Server: **' + consoleout)
+            """
         else:
             await ctx.send('Server is not running...')
 
