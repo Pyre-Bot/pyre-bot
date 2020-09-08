@@ -198,7 +198,6 @@ class Ror2_admin(commands.Cog):
         else:
             await ctx.send('Server is not running...')
 
-    # TODO: Test this when there's a lot of output, i.e. many players at once
     @commands.command(
         name='cmd',
         help='Passes on a command to be interpreted directly by the console',
@@ -561,8 +560,11 @@ class Ror2_admin(commands.Cog):
 
 def setup(bot):
     """Loads the cog into bot.py."""
-    bot.add_cog(Ror2_admin(bot))
-    logging.info('Loaded cog: ror2_admin.py')
+    try:
+        bot.add_cog(Ror2_admin(bot))
+        logging.info('Loaded cog: ror2_admin.py')
+    except Exception as e:
+        logging.warning(f'Unable to load ror2_admin.py. Error: {e}')
 
 
 def teardown(bot):
