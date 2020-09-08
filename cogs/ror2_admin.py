@@ -181,7 +181,8 @@ class Ror2_admin(commands.Cog):
     @commands.command(
         name='say',
         help='Sends a message from the server',
-        usage='message'
+        usage='message',
+        aliases='s'
     )
     @commands.check(is_host)
     async def serversay(self, ctx, *, message):
