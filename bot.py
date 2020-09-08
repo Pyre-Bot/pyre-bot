@@ -73,11 +73,6 @@ async def on_ready():
     await bot.change_presence(
         status=discord.Status.online
     )
-    print(
-        f'Connected to Discord as: \n'
-        f'{bot.user.name}(id: {bot.user.id})\n'
-        f'----------'
-    )
     logging.info(f'Bot connected as {bot.user.name}(id: {bot.user.id})')
     for cog in cogs:
         try:
@@ -91,9 +86,8 @@ async def on_ready():
                 logging.info(f'Loaded {cog}')
             except Exception:
                 logging.warning(f'Unable to load cog: {cog}')
-                print(f'Unable to load {cog}')
 
-    # TESTING -- Posts a message to admin channel
+    # Posts a message to admin channel
     admin_channel = bot.get_channel(737812925414244442)
     await admin_channel.send('👀 Bot is online.')
 
@@ -152,4 +146,4 @@ bot.remove_command('help')
 try:
     bot.run(discord_token)
 except discord.errors.LoginFailure:
-    print("Login unsuccessful.")
+    logging.error('Unable to log in to Discord.')
