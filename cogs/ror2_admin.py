@@ -17,6 +17,7 @@ from config.config import *
 from libs.pygtail import Pygtail
 
 pf = ProfanityFilter()
+pf.censor_char = '&'
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
