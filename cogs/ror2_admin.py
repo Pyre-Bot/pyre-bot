@@ -9,11 +9,14 @@ import random
 from datetime import datetime
 
 import discord
+from profanity_filter import ProfanityFilter
 from discord.ext import commands
 
 import libs.shared as shared
 from config.config import *
 from libs.pygtail import Pygtail
+
+pf = ProfanityFilter()
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
@@ -52,7 +55,7 @@ async def chat(self):
                         line = line.replace(' issued:', ':** ')
                         line = line.replace(' say ', '')
                         if len(line) < 2000:
-                            await channel.send(line)
+                            await channel.send(pf.censor(line))
                         else:
                             await channel.send('Error showing message: Message too long')
                     # Run time
@@ -610,7 +613,6 @@ class Ror2_admin(commands.Cog):
                     except Exception:
                         await ctx.send(f'Failed banning {player.name}')
                         logging.error(f'Failed banning {player.name}')
-
 
 
 def setup(bot):

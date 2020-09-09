@@ -228,7 +228,8 @@ class Misc(commands.Cog):
                     break
             if proceed:
                 for serverdict in server_list:
-                    if serverdict["commands_channel"] == str(ctx.message.channel.id) or serverdict["admin_channel"] == str(ctx.message.channel.id):
+                    if serverdict["commands_channel"] == str(ctx.message.channel.id) \
+                            or serverdict["admin_channel"] == str(ctx.message.channel.id):
                         server = serverdict["server_name"]
                         break
                 try:

@@ -2,11 +2,8 @@
 
 """Pyre Bot Risk of Rain 2 setup script."""
 
-import os
 from configparser import ConfigParser
 from pathlib import Path
-
-import requests
 
 config_object = ConfigParser()
 config_file = Path("config/config.ini")

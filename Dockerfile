@@ -1,21 +1,19 @@
 FROM python:slim
 
-#RUN mkdir /data
-#RUN mkdir /data/discord
-#RUN mkdir /data/game_server_logs
-
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install -y gcc
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends gcc \
+ && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt ./
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+ && python -m spacy download en
 
 COPY cogs cogs/
-COPY config config/
+COPY config/config.py config/
 COPY libs libs/
-COPY setup setup/
 COPY bot.py ./
 
 CMD [ "python", "./bot.py" ]
