@@ -29,6 +29,7 @@ try:
         stats_table = dynamodb.Table(os.environ.get('STATS_TABLE'))
         stats_players = dynamodb.Table(os.environ.get('PLAYERS_TABLE'))
         discord_table = dynamodb.Table(os.environ.get('DISCORD_TABLE'))
+        ban_table = dynamodb.Table(os.environ.get('BAN_TABLE'))
     except KeyError:
         pass
 

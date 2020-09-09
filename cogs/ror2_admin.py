@@ -6,6 +6,7 @@ import asyncio
 import logging
 import re
 import random
+from datetime import datetime
 
 import discord
 from discord.ext import commands
@@ -98,6 +99,16 @@ async def chat(self):
                         line = line.replace(' connected. ', '')
                         line = re.sub(r" ?\([^)]+\)", "", line)
                         await channel.send(line + '**')
+                        # if not check_ban:
+                        #     line = line.replace(line[:67], '**Player Joined - ')
+                        #     line = line.replace(' connected. ', '')
+                        #     line = re.sub(r" ?\([^)]+\)", "", line)
+                        #     await channel.send(line + '**')
+                        # else:
+                        #     line = line.replace(line[:67], '')
+                        #     line = line.replace(' connected. ', '')
+                        #     line = re.sub(r" ?\([^)]+\)", "", line)
+                        #     await shared.execute_cmd(str(channel), "ban '" + line + "'")
                     # Player leaves
                     elif "[Info:R2DSE] Ending AuthSession with" in line:
                         line = line.replace(line[:80], '**Player Left - ')
@@ -106,6 +117,20 @@ async def chat(self):
             else:
                 for _ in Pygtail(str(logpath / log_name), read_from_end=True):
                     pass
+
+
+async def check_ban(line):
+    line = line.replace(line[:67], '')
+    line = line.replace(' connected. ', '')
+    line = re.sub(r" ?\([^)]+\)", "", line)
+
+    try:
+        key = {'SteamName': line}
+        player = ban_table.get_item(Key=key)
+        player = player['Item']['SteamName']
+        return True
+    except KeyError:
+        return False
 
 
 # async def server_restart_func():
@@ -560,6 +585,32 @@ class Ror2_admin(commands.Cog):
                 + f'Error: {error}')
             await ctx.send('Please enter the number of messages to delete. '
                            + 'Example: ```delete 5```')
+
+    @commands.command(name='addban')
+    @commands.check(is_host)
+    async def ban(self, ctx, *, player_name):
+        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        serverinfo = await shared.server(str(ctx.message.channel.id))
+        if serverinfo:
+            for player in serverinfo['server_players']:
+                if player_name.upper() in player.name.upper():
+                    try:
+                        # Add the player to the ban database
+                        ban_table.put_item(
+                            Item={
+                                'SteamName': player.name,
+                                'BanDate': str(datetime.today().strftime('%d-%b-%Y')),
+                                'BannedBy': ctx.message.author.name
+                            }
+                        )
+                        # Issue the ban in-game command
+                        await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + player.name + "'")
+                        await ctx.send(f'{player.name} has been banned.')
+                        logging.info(f'{ctx.message.author.name} banned {player.name}')
+                    except Exception:
+                        await ctx.send(f'Failed banning {player.name}')
+                        logging.error(f'Failed banning {player.name}')
+
 
 
 def setup(bot):
