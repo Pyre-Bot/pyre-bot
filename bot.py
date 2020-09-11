@@ -10,9 +10,20 @@ Usage:
 import logging
 
 import discord
+import seqlog
 from discord.ext import commands
 
 from config.config import *
+
+# Seq configuration
+seqlog.log_to_seq(
+    server_url="http://seq.pyre-bot.com/",
+    api_key=seq_api,
+    level=logging.INFO,
+    batch_size=5,
+    auto_flush_timeout=5,  # seconds
+    override_root_logger=True
+)
 
 # Log settings
 logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
