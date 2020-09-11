@@ -36,91 +36,89 @@ async def is_host(ctx):
 
 
 # TODO: Add anti-spam
-async def chat(self):
+async def chat(self, channel):
     """Reads the BepInEx output log to send chat to Discord."""
     global stagenum
     global run_timer
     serverlogs = await shared.server_logs()
     for log_name in serverlogs:
-        for configchannel in chat_channels:
-            if configchannel in log_name:
-                channel = self.bot.get_channel(int(configchannel))
-                break
-        if os.path.exists(logpath / log_name):
-            if os.path.exists(logpath / (log_name + '.offset')):
-                for line in Pygtail(str(logpath / log_name), read_from_end=True):
-                    # Player chat
-                    if "issued: say" in line:
-                        line = line.replace(line[:58], '**')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        line = line.replace(' issued:', ':** ')
-                        line = line.replace(' say ', '')
-                        if len(line) < 2000:
-                            await channel.send(pf.censor(line))
-                        else:
-                            await channel.send('Error showing message: Message too long')
-                    # Run time
-                    elif '[Info:Unity Log] Run time is ' in line:
-                        line = str(line.replace(line[:70], ''))
-                        run_timer = float(line)
-                        run_timer = int(run_timer)
-                    # Stages cleared
-                    elif '[Info:Unity Log] Stages cleared: ' in line:
-                        line = str(line.replace(line[:74], ''))
-                        stagenum = int(line)
-                    # Stage change
-                    elif "Active scene changed from" in line:
-                        devstage = '???'
-                        stage = '???'
-                        for key, value in shared.stages.items():
-                            if key in line:
-                                devstage = key
-                                stage = value
-                                break
-                        if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
-                            await channel.send('**Entering Stage - ' + stage + '**')
-                        # Won't output if the stage is title or splash, done on purpose
-                        elif devstage in ('lobby', 'title', 'splash'):
-                            if devstage == 'lobby':
-                                await channel.send('**Entering ' + stage + '**')
-                                run_timer = 0
-                                stagenum = 0
-                        else:
-                            if stagenum == 0:
-                                await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
+        if channel in log_name:
+            channel = self.bot.get_channel(int(channel))
+            if os.path.exists(logpath / log_name):
+                if os.path.exists(logpath / (log_name + '.offset')):
+                    for line in Pygtail(str(logpath / log_name), read_from_end=True):
+                        # Player chat
+                        if "issued: say" in line:
+                            line = line.replace(line[:58], '**')
+                            line = re.sub(r" ?\([^)]+\)", "", line)
+                            line = line.replace(' issued:', ':** ')
+                            line = line.replace(' say ', '')
+                            if len(line) < 2000:
+                                await channel.send(pf.censor(line))
                             else:
-                                if (run_timer - (int(run_timer / 60)) * 60) < 10:
-                                    formattedtime = str(
-                                        int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
+                                await channel.send('Error showing message: Message too long')
+                        # Run time
+                        elif '[Info:Unity Log] Run time is ' in line:
+                            line = str(line.replace(line[:70], ''))
+                            run_timer = float(line)
+                            run_timer = int(run_timer)
+                        # Stages cleared
+                        elif '[Info:Unity Log] Stages cleared: ' in line:
+                            line = str(line.replace(line[:74], ''))
+                            stagenum = int(line)
+                        # Stage change
+                        elif "Active scene changed from" in line:
+                            devstage = '???'
+                            stage = '???'
+                            for key, value in shared.stages.items():
+                                if key in line:
+                                    devstage = key
+                                    stage = value
+                                    break
+                            if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
+                                await channel.send('**Entering Stage - ' + stage + '**')
+                            # Won't output if the stage is title or splash, done on purpose
+                            elif devstage in ('lobby', 'title', 'splash'):
+                                if devstage == 'lobby':
+                                    await channel.send('**Entering ' + stage + '**')
+                                    run_timer = 0
+                                    stagenum = 0
+                            else:
+                                if stagenum == 0:
+                                    await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
                                 else:
-                                    formattedtime = str(
-                                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                                await channel.send('**Entering Stage ' + str(
-                                    stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
-                    # Player joins
-                    elif "[Info:R2DSE] New player :" in line:
-                        line = line.replace(line[:67], '**Player Joined - ')
-                        line = line.replace(' connected. ', '')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        await channel.send(line + '**')
-                        # if not check_ban:
-                        #     line = line.replace(line[:67], '**Player Joined - ')
-                        #     line = line.replace(' connected. ', '')
-                        #     line = re.sub(r" ?\([^)]+\)", "", line)
-                        #     await channel.send(line + '**')
-                        # else:
-                        #     line = line.replace(line[:67], '')
-                        #     line = line.replace(' connected. ', '')
-                        #     line = re.sub(r" ?\([^)]+\)", "", line)
-                        #     await shared.execute_cmd(str(channel), "ban '" + line + "'")
-                    # Player leaves
-                    elif "[Info:R2DSE] Ending AuthSession with" in line:
-                        line = line.replace(line[:80], '**Player Left - ')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        await channel.send(line + '**')
-            else:
-                for _ in Pygtail(str(logpath / log_name), read_from_end=True):
-                    pass
+                                    if (run_timer - (int(run_timer / 60)) * 60) < 10:
+                                        formattedtime = str(
+                                            int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
+                                    else:
+                                        formattedtime = str(
+                                            int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
+                                    await channel.send('**Entering Stage ' + str(
+                                        stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
+                        # Player joins
+                        elif "[Info:R2DSE] New player :" in line:
+                            line = line.replace(line[:67], '**Player Joined - ')
+                            line = line.replace(' connected. ', '')
+                            line = re.sub(r" ?\([^)]+\)", "", line)
+                            await channel.send(line + '**')
+                            # if not check_ban:
+                            #     line = line.replace(line[:67], '**Player Joined - ')
+                            #     line = line.replace(' connected. ', '')
+                            #     line = re.sub(r" ?\([^)]+\)", "", line)
+                            #     await channel.send(line + '**')
+                            # else:
+                            #     line = line.replace(line[:67], '')
+                            #     line = line.replace(' connected. ', '')
+                            #     line = re.sub(r" ?\([^)]+\)", "", line)
+                            #     await shared.execute_cmd(str(channel), "ban '" + line + "'")
+                        # Player leaves
+                        elif "[Info:R2DSE] Ending AuthSession with" in line:
+                            line = line.replace(line[:80], '**Player Left - ')
+                            line = re.sub(r" ?\([^)]+\)", "", line)
+                            await channel.send(line + '**')
+                else:
+                    for _ in Pygtail(str(logpath / log_name), read_from_end=True):
+                        pass
 
 
 async def check_ban(line):
@@ -166,7 +164,8 @@ async def chat_autostart_func(self):
                 except OSError as e:
                     logging.error(f'Unable to start chat! Failed removing {e.filename}: {e.strerror}')
         while repeat:
-            await chat(self)
+            for configchannel in chat_channels:
+                await chat(self, configchannel)
             await asyncio.sleep(0.5)
 
 
