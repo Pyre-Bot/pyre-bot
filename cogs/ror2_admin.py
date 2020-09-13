@@ -42,7 +42,7 @@ async def chat(self, channel):
     global run_timer
     serverlogs = await shared.server_logs()
     for log_name in serverlogs:
-        if channel in log_name:
+        if str(channel) in log_name:
             channel = self.bot.get_channel(int(channel))
             if os.path.exists(logpath / log_name):
                 if os.path.exists(logpath / (log_name + '.offset')):
@@ -75,7 +75,8 @@ async def chat(self, channel):
                                     devstage = key
                                     stage = value
                                     break
-                            if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
+                            if devstage in (
+                                    'bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
                                 await channel.send('**Entering Stage - ' + stage + '**')
                             # Won't output if the stage is title or splash, done on purpose
                             elif devstage in ('lobby', 'title', 'splash'):
