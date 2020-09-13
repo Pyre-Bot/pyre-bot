@@ -218,7 +218,8 @@ class Misc(commands.Cog):
                 'totalDeaths': 'Deaths',
                 'totalItemsCollected': 'Items Collected',
                 'totalGoldCollected': 'Gold Collected',
-                'highestLevel': 'Highest Level'
+                'highestLevel': 'Highest Level',
+                'totalTimesCleared.moon': 'Games Beat'
             }
             proceed = False
             user = ctx.message.author
