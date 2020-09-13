@@ -182,7 +182,8 @@ class Ror2_admin(commands.Cog):
 
         :param ctx: Discord context
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
         if await shared.server(str(ctx.message.channel.id)) is False:
             await ctx.send('Starting Risk of Rain 2 server, please wait')
@@ -190,7 +191,7 @@ class Ror2_admin(commands.Cog):
                 await ctx.send('Risk of Rain 2 server started!')
             else:
                 await ctx.send('Unable to start server! Please check logs for error.')
-                logging.error("Failed to start the server")
+                logging.error(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed to start the server')
         else:
             await ctx.send('Server is already running!')
 
@@ -201,13 +202,14 @@ class Ror2_admin(commands.Cog):
 
         :param ctx: Discord context
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         if await shared.server(str(ctx.message.channel.id)):
             if await shared.server_stop(str(ctx.message.channel.id)):
                 await ctx.send('Risk of Rain 2 server shut down...')
             else:
                 await ctx.send('Unable to stop server!')
-                logging.error("Failed to stop the server")
+                logging.error("[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed to stop the server")
         else:
             await ctx.send('Server is not running!')
 
@@ -224,7 +226,8 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param message: Message to send to the server
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         if await shared.server(str(ctx.message.channel.id)):
             await shared.execute_cmd(str(ctx.message.channel.id), "say '" + message + "'")
         else:
@@ -242,7 +245,8 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param cmd_with_args: Command to be sent to the server
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             await shared.execute_cmd(str(ctx.message.channel.id), cmd_with_args)
@@ -292,7 +296,8 @@ class Ror2_admin(commands.Cog):
         :param playername: Full or partial player name
         :param itemname: Full or partial item name
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
@@ -344,16 +349,16 @@ class Ror2_admin(commands.Cog):
         """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
-                logging.warning(
-                    f'{ctx.message.author.name} caused an error with '
-                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                    + f'Error: {error}')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                                f'{ctx.message.author.name} caused an error with '
+                                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                                + f'Error: {error}')
                 await ctx.send('Please enter a partial or complete player name')
             if error.param.name == 'itemname':
-                logging.warning(
-                    f'{ctx.message.author.name} caused an error with '
-                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                    + f'Error: {error}')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                                f'{ctx.message.author.name} caused an error with '
+                                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                                + f'Error: {error}')
                 await ctx.send('Please enter a valid item name')
 
     @commands.command(
@@ -369,7 +374,8 @@ class Ror2_admin(commands.Cog):
         :param playername: Full or partial player name
         :param equipname: Full or partial equipment name
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
@@ -421,29 +427,30 @@ class Ror2_admin(commands.Cog):
         """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
-                logging.warning(
-                    f'{ctx.message.author.name} caused an error with '
-                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                    + f'Error: {error}')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                                f'{ctx.message.author.name} caused an error with '
+                                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                                + f'Error: {error}')
                 await ctx.send('Please enter a partial or complete player name')
             if error.param.name == 'equipname':
-                logging.warning(
-                    f'{ctx.message.author.name} caused an error with '
-                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                    + f'Error: {error}')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                                f'{ctx.message.author.name} caused an error with '
+                                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                                + f'Error: {error}')
                 await ctx.send('Please enter a valid equipment name')
 
     # noinspection DuplicatedCode
     @commands.command(name='help_admin', help='Displays this message', usage='cog')
     @commands.check(is_host)
-    async def help_admin(self, ctx, cog='all'):
+    async def help_admin(self, ctx, cog='ror2_admin'):
         """Displays the help options including admin commands.
 
         :param ctx: Discord context
         :param cog: (Optional) Cog name for more in depth information.
         :return: Returns if invalid cog name is specified
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in shared.colors.values()]
         help_embed = discord.Embed(
             title='Help',
@@ -491,7 +498,8 @@ class Ror2_admin(commands.Cog):
 
         :param ctx: Discord context
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             await ctx.send('Restarting server... please wait....')
@@ -510,7 +518,8 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param kick_player: Full or partial steam name of a player
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             author = ctx.author
@@ -521,9 +530,9 @@ class Ror2_admin(commands.Cog):
                     kick_player = player.name
                     break
             if containskickplayer:
-                logging.info(
-                    f'{ctx.message.author.name} kicked {kick_player}')
-                await ctx.send(f'{kick_player} has been kicked by {author.mention})')
+                logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                             f'{ctx.message.author.name} kicked {kick_player}')
+                await ctx.send(f'{kick_player} has been kicked by {author.mention}')
                 await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + kick_player + "'")
             else:
                 await ctx.send(kick_player + ' is not playing on the server')
@@ -548,7 +557,8 @@ class Ror2_admin(commands.Cog):
 
         :param ctx: Discord context
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
@@ -569,8 +579,8 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param number: Amount of messages to delete
         """
-        logging.info(
-            f'{ctx.message.author.name} used {ctx.command.name} on {number} messages.')
+        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                     f'{ctx.message.author.name} used {ctx.command.name} on {number} messages.')
         number = number + 1
         await ctx.message.channel.purge(limit=number)
 
@@ -582,17 +592,17 @@ class Ror2_admin(commands.Cog):
         :param error: Error raised by the command
         """
         if isinstance(error, commands.MissingRequiredArgument):
-            logging.warning(
-                f'{ctx.message.author.name} caused an error with '
-                + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                + f'Error: {error}')
+            logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                            f'{ctx.message.author.name} caused an error with '
+                            + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                            + f'Error: {error}')
             await ctx.send('Please enter the number of messages to delete. '
                            + 'Example: ```delete 5```')
 
     @commands.command(name='addban')
     @commands.check(is_host)
     async def ban(self, ctx, *, player_name):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             for player in serverinfo['server_players']:
@@ -609,23 +619,23 @@ class Ror2_admin(commands.Cog):
                         # Issue the ban in-game command
                         await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + player.name + "'")
                         await ctx.send(f'{player.name} has been banned.')
-                        logging.info(f'{ctx.message.author.name} banned {player.name}')
+                        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} banned {player.name}')
                     except Exception:
                         await ctx.send(f'Failed banning {player.name}')
-                        logging.error(f'Failed banning {player.name}')
+                        logging.error(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed banning {player.name}')
 
 
 def setup(bot):
     """Loads the cog into bot.py."""
     try:
         bot.add_cog(Ror2_admin(bot))
-        logging.info('Loaded cog: ror2_admin.py')
+        logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Loaded cog: ror2_admin.py')
     except Exception as e:
-        logging.warning(f'Unable to load ror2_admin.py. Error: {e}')
+        logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load ror2_admin.py. Error: {e}')
 
 
 def teardown(bot):
     """Prints to terminal when cog is unloaded."""
     global repeat
-    repeat = False
-    logging.info('Unloaded cog: ror2_admin.py')
+    repeat = False  # Stops the chat function
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unloaded cog: ror2_admin.py')

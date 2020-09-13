@@ -1,8 +1,12 @@
 from pathlib import Path
 import os
 
+from pytz import timezone
 import boto3
 
+
+tz = timezone('US/Eastern')  # Sets timezone to Eastern
+t_fmt = '%Y-%m-%d %H:%M:%S %Z%z'  # Configures time output format
 
 # Assigns the variables
 try:

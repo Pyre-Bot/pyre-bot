@@ -8,6 +8,7 @@ Usage:
 """
 
 import logging
+from datetime import datetime
 
 import discord
 import seqlog
@@ -17,7 +18,7 @@ from config.config import *
 
 # Seq configuration
 seqlog.log_to_seq(
-    server_url="http://seq.pyre-bot.com/",
+    server_url="http://seq.pyre-bot.com:80",
     api_key=seq_api,
     level=logging.INFO,
     batch_size=5,
@@ -25,14 +26,7 @@ seqlog.log_to_seq(
     override_root_logger=True
 )
 
-# Log settings
-logging.basicConfig(format='%(levelname)s: %(asctime)s %(message)s',
-                    datefmt='%m/%d/%Y %I:%M:%S %p',
-                    filename='/data/discord/bot.log',
-                    level=logging.INFO
-                    )
-logging.getLogger('discord').setLevel(logging.WARNING)
-logging.info('Bot started')
+logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Bot started')
 
 bot = commands.Bot(command_prefix=('>', '$'), case_insensitive=True)
 cogs = [
@@ -84,23 +78,21 @@ async def on_ready():
     await bot.change_presence(
         status=discord.Status.online
     )
-    logging.info(f'Bot connected as {bot.user.name}(id: {bot.user.id})')
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Bot connected as {bot.user.name}(id: {bot.user.id})')
     for cog in cogs:
         try:
             bot.load_extension(cog)
-            logging.info(f'Loaded {cog}')
         except Exception:
-            logging.warning(f'Error loading {cog}, trying second method.')
+            logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Error loading {cog}, trying second method.')
             try:
                 bot.unload_extension(cog)
                 bot.load_extension(cog)
-                logging.info(f'Loaded {cog}')
             except Exception:
-                logging.warning(f'Unable to load cog: {cog}')
+                logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load cog: {cog}')
 
     # Posts a message to admin channel
-    admin_channel = bot.get_channel(737812925414244442)
-    await admin_channel.send('👀 Bot is online.')
+    # admin_channel = bot.get_channel(737812925414244442)
+    # await admin_channel.send('👀 Bot is online.')
 
 
 # Load and Unload cogs stuff
@@ -114,7 +106,7 @@ async def load(ctx, extension):
         extension (str): The file name, with .py, to load
     """
     bot.load_extension(f'cogs.{extension}')
-    logging.info(f'Loaded {extension}')
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Loaded {extension}')
 
 
 @bot.command()
@@ -127,7 +119,7 @@ async def unload(ctx, extension):
         extension (str): The file name, with .py, to unload
     """
     bot.unload_extension(f'cogs.{extension}')
-    logging.info(f'Unloaded {extension}')
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unloaded {extension}')
 
 
 @bot.command()
@@ -143,11 +135,11 @@ async def reload(ctx, cog='all'):
         for item in cogs:
             bot.unload_extension(item)
             bot.load_extension(item)
-            logging.info(f'Reload {item}')
+            logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Reloaded {item}')
     else:
         bot.unload_extension(cog)
         bot.load_extension(cog)
-        logging.info(f'Reloaded {cog}')
+        logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Reloaded {cog}')
 
 
 # Pyre Bot uses a custom help command so we must remove the built-in one
@@ -157,4 +149,4 @@ bot.remove_command('help')
 try:
     bot.run(discord_token)
 except discord.errors.LoginFailure:
-    logging.error('Unable to log in to Discord.')
+    logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to log in to Discord.')
