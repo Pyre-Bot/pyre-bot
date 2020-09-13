@@ -209,6 +209,7 @@ class Misc(commands.Cog):
         """
         server = None
         try:
+            stats_dict = {}  # Empty dict used to store total stats
             stat_names = {
                 'totalStagesCompleted': 'Stages Completed',
                 'totalKills': 'Kills',
@@ -227,23 +228,29 @@ class Misc(commands.Cog):
                     proceed = True
                     break
             if proceed:
-                for serverdict in server_list:
-                    if serverdict["commands_channel"] == str(ctx.message.channel.id) \
-                            or serverdict["admin_channel"] == str(ctx.message.channel.id):
-                        server = serverdict["server_name"]
-                        break
                 try:
                     key = {'DiscordID': str(user.id)}
                     steamid = stats_players.get_item(Key=key)
                     steamid = steamid['Item']['steamid64']
                     key = {'SteamID64': int(steamid)}
                     response = stats_table.get_item(Key=key)
-                    response = response['Item'][server]
+                    response = response['Item']
+
+                    # Add the stats together
+                    for key, value in response.items():
+                        if 'SteamID64' == key:  # Ignore SteamID64 field
+                            pass
+                        else:
+                            for k, v in value.items():
+                                if k in stats_dict:
+                                    stats_dict[k] = int(float(stats_dict[k])) + int(float(v))
+                                else:
+                                    stats_dict[k] = int(float(v))
 
                     embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
                     embed.set_thumbnail(url=user.avatar_url)
                     embed.set_author(name=self.bot.guilds[0])
-                    for key, value in response.items():
+                    for key, value in stats_dict.items():
                         if key == 'totalTimeAlive':
                             value = datetime.timedelta(seconds=int(float(value)))
                         for k, v in stat_names.items():
