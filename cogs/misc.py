@@ -42,7 +42,7 @@ class Misc(commands.Cog):
         :param ctx: Discord context
         :param member: Discord member class
         """
-        logging.info(f'{member.name} joined the server! Discord ID: {member.id}')
+        logging.info(f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] {member.name} joined the server! Discord ID: {member.id}')
         if await stat_tracking(ctx):
             try:
                 await discord_table.put_item(
@@ -99,7 +99,7 @@ class Misc(commands.Cog):
         :param cog: List of cogs loaded in the bot.
         :return: Returns when invalid cog is specified.
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in shared.colors.values()]
         help_embed = discord.Embed(
             title='Help',
@@ -193,11 +193,11 @@ class Misc(commands.Cog):
             await user.add_roles(linkedrole)
             await ctx.send(f'Steam ID linked for {user.name}')
             logging.info(
-                f'{user.name} has linked to their Steam ID ({steamid}) using the {ctx.command.name} command.')
+                f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] {user.name} has linked to their Steam ID ({steamid}) using the {ctx.command.name} command.')
         else:
             await ctx.send(f'Steam ID updated for {user.name}')
             logging.info(
-                f'{user.name} has updated their Steam ID ({steamid}) using the {ctx.command.name} command.')
+                f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] {user.name} has updated their Steam ID ({steamid}) using the {ctx.command.name} command.')
 
     # TODO: Change to using single server
     @commands.command(name='stats', help='Retrieves player stats for the Risk of Rain 2 server')
@@ -209,6 +209,7 @@ class Misc(commands.Cog):
         """
         server = None
         try:
+            stats_dict = {}  # Empty dict used to store total stats
             stat_names = {
                 'totalStagesCompleted': 'Stages Completed',
                 'totalKills': 'Kills',
@@ -217,7 +218,8 @@ class Misc(commands.Cog):
                 'totalDeaths': 'Deaths',
                 'totalItemsCollected': 'Items Collected',
                 'totalGoldCollected': 'Gold Collected',
-                'highestLevel': 'Highest Level'
+                'highestLevel': 'Highest Level',
+                'totalTimesCleared.moon': 'Games Beat'
             }
             proceed = False
             user = ctx.message.author
@@ -227,23 +229,29 @@ class Misc(commands.Cog):
                     proceed = True
                     break
             if proceed:
-                for serverdict in server_list:
-                    if serverdict["commands_channel"] == str(ctx.message.channel.id) \
-                            or serverdict["admin_channel"] == str(ctx.message.channel.id):
-                        server = serverdict["server_name"]
-                        break
                 try:
                     key = {'DiscordID': str(user.id)}
                     steamid = stats_players.get_item(Key=key)
                     steamid = steamid['Item']['steamid64']
                     key = {'SteamID64': int(steamid)}
                     response = stats_table.get_item(Key=key)
-                    response = response['Item'][server]
+                    response = response['Item']
+
+                    # Add the stats together
+                    for key, value in response.items():
+                        if 'SteamID64' == key:  # Ignore SteamID64 field
+                            pass
+                        else:
+                            for k, v in value.items():
+                                if k in stats_dict:
+                                    stats_dict[k] = int(float(stats_dict[k])) + int(float(v))
+                                else:
+                                    stats_dict[k] = int(float(v))
 
                     embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
                     embed.set_thumbnail(url=user.avatar_url)
                     embed.set_author(name=self.bot.guilds[0])
-                    for key, value in response.items():
+                    for key, value in stats_dict.items():
                         if key == 'totalTimeAlive':
                             value = datetime.timedelta(seconds=int(float(value)))
                         for k, v in stat_names.items():
@@ -260,15 +268,15 @@ class Misc(commands.Cog):
                 await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
         except Exception as e:
             logging.warning(e)
-        logging.info(f'{user.name} used {ctx.command.name}')
+        logging.info(f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] {user.name} used {ctx.command.name}')
 
 
 def setup(bot):
     """Loads the cog into bot.py."""
     bot.add_cog(Misc(bot))
-    logging.info('Loaded cog: misc.py')
+    logging.info(f'[Pyre-Bot:Admin][{datetime.datetime.now(tz).strftime(t_fmt)}] Loaded cog: misc.py')
 
 
 def teardown(bot):
     """Prints to terminal when cog is unloaded."""
-    logging.info('Unloaded cog: misc.py')
+    logging.info(f'[Pyre-Bot:Admin][{datetime.datetime.now(tz).strftime(t_fmt)}] Unloaded cog: misc.py')

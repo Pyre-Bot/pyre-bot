@@ -282,7 +282,7 @@ async def server(channel):
         svr_players = a2s.players(address)
         return {"server_info": svr_info, "server_players": svr_players}
     except Exception as e:
-        logging.warning(f'Error checking server status: {e}')
+        logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Error checking server status: {e}')
         return False
 
 

@@ -36,91 +36,90 @@ async def is_host(ctx):
 
 
 # TODO: Add anti-spam
-async def chat(self):
+async def chat(self, channel):
     """Reads the BepInEx output log to send chat to Discord."""
     global stagenum
     global run_timer
     serverlogs = await shared.server_logs()
     for log_name in serverlogs:
-        for configchannel in chat_channels:
-            if configchannel in log_name:
-                channel = self.bot.get_channel(int(configchannel))
-                break
-        if os.path.exists(logpath / log_name):
-            if os.path.exists(logpath / (log_name + '.offset')):
-                for line in Pygtail(str(logpath / log_name), read_from_end=True):
-                    # Player chat
-                    if "issued: say" in line:
-                        line = line.replace(line[:58], '**')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        line = line.replace(' issued:', ':** ')
-                        line = line.replace(' say ', '')
-                        if len(line) < 2000:
-                            await channel.send(pf.censor(line))
-                        else:
-                            await channel.send('Error showing message: Message too long')
-                    # Run time
-                    elif '[Info:Unity Log] Run time is ' in line:
-                        line = str(line.replace(line[:70], ''))
-                        run_timer = float(line)
-                        run_timer = int(run_timer)
-                    # Stages cleared
-                    elif '[Info:Unity Log] Stages cleared: ' in line:
-                        line = str(line.replace(line[:74], ''))
-                        stagenum = int(line)
-                    # Stage change
-                    elif "Active scene changed from" in line:
-                        devstage = '???'
-                        stage = '???'
-                        for key, value in shared.stages.items():
-                            if key in line:
-                                devstage = key
-                                stage = value
-                                break
-                        if devstage in ('bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
-                            await channel.send('**Entering Stage - ' + stage + '**')
-                        # Won't output if the stage is title or splash, done on purpose
-                        elif devstage in ('lobby', 'title', 'splash'):
-                            if devstage == 'lobby':
-                                await channel.send('**Entering ' + stage + '**')
-                                run_timer = 0
-                                stagenum = 0
-                        else:
-                            if stagenum == 0:
-                                await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
+        if str(channel) in log_name:
+            channel = self.bot.get_channel(int(channel))
+            if os.path.exists(logpath / log_name):
+                if os.path.exists(logpath / (log_name + '.offset')):
+                    for line in Pygtail(str(logpath / log_name), read_from_end=True):
+                        # Player chat
+                        if "issued: say" in line:
+                            line = line.replace(line[:58], '**')
+                            line = re.sub(r" ?\([^)]+\)", "", line)
+                            line = line.replace(' issued:', ':** ')
+                            line = line.replace(' say ', '')
+                            if len(line) < 2000:
+                                await channel.send(pf.censor(line))
                             else:
-                                if (run_timer - (int(run_timer / 60)) * 60) < 10:
-                                    formattedtime = str(
-                                        int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
+                                await channel.send('Error showing message: Message too long')
+                        # Run time
+                        elif '[Info:Unity Log] Run time is ' in line:
+                            line = str(line.replace(line[:70], ''))
+                            run_timer = float(line)
+                            run_timer = int(run_timer)
+                        # Stages cleared
+                        elif '[Info:Unity Log] Stages cleared: ' in line:
+                            line = str(line.replace(line[:74], ''))
+                            stagenum = int(line)
+                        # Stage change
+                        elif "Active scene changed from" in line:
+                            devstage = '???'
+                            stage = '???'
+                            for key, value in shared.stages.items():
+                                if key in line:
+                                    devstage = key
+                                    stage = value
+                                    break
+                            if devstage in (
+                                    'bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
+                                await channel.send('**Entering Stage - ' + stage + '**')
+                            # Won't output if the stage is title or splash, done on purpose
+                            elif devstage in ('lobby', 'title', 'splash'):
+                                if devstage == 'lobby':
+                                    await channel.send('**Entering ' + stage + '**')
+                                    run_timer = 0
+                                    stagenum = 0
+                            else:
+                                if stagenum == 0:
+                                    await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
                                 else:
-                                    formattedtime = str(
-                                        int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                                await channel.send('**Entering Stage ' + str(
-                                    stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
-                    # Player joins
-                    elif "[Info:R2DSE] New player :" in line:
-                        line = line.replace(line[:67], '**Player Joined - ')
-                        line = line.replace(' connected. ', '')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        await channel.send(line + '**')
-                        # if not check_ban:
-                        #     line = line.replace(line[:67], '**Player Joined - ')
-                        #     line = line.replace(' connected. ', '')
-                        #     line = re.sub(r" ?\([^)]+\)", "", line)
-                        #     await channel.send(line + '**')
-                        # else:
-                        #     line = line.replace(line[:67], '')
-                        #     line = line.replace(' connected. ', '')
-                        #     line = re.sub(r" ?\([^)]+\)", "", line)
-                        #     await shared.execute_cmd(str(channel), "ban '" + line + "'")
-                    # Player leaves
-                    elif "[Info:R2DSE] Ending AuthSession with" in line:
-                        line = line.replace(line[:80], '**Player Left - ')
-                        line = re.sub(r" ?\([^)]+\)", "", line)
-                        await channel.send(line + '**')
-            else:
-                for _ in Pygtail(str(logpath / log_name), read_from_end=True):
-                    pass
+                                    if (run_timer - (int(run_timer / 60)) * 60) < 10:
+                                        formattedtime = str(
+                                            int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
+                                    else:
+                                        formattedtime = str(
+                                            int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
+                                    await channel.send('**Entering Stage ' + str(
+                                        stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
+                        # Player joins
+                        elif "[Info:R2DSE] New player :" in line:
+                            line = line.replace(line[:67], '**Player Joined - ')
+                            line = line.replace(' connected. ', '')
+                            line = re.sub(r" ?\([^)]+\)", "", line)
+                            await channel.send(line + '**')
+                            # if not check_ban:
+                            #     line = line.replace(line[:67], '**Player Joined - ')
+                            #     line = line.replace(' connected. ', '')
+                            #     line = re.sub(r" ?\([^)]+\)", "", line)
+                            #     await channel.send(line + '**')
+                            # else:
+                            #     line = line.replace(line[:67], '')
+                            #     line = line.replace(' connected. ', '')
+                            #     line = re.sub(r" ?\([^)]+\)", "", line)
+                            #     await shared.execute_cmd(str(channel), "ban '" + line + "'")
+                        # Player leaves
+                        elif "[Info:R2DSE] Ending AuthSession with" in line:
+                            line = line.replace(line[:80], '**Player Left - ')
+                            line = re.sub(r" ?\([^)]+\)", "", line)
+                            await channel.send(line + '**')
+                else:
+                    for _ in Pygtail(str(logpath / log_name), read_from_end=True):
+                        pass
 
 
 async def check_ban(line):
@@ -166,7 +165,8 @@ async def chat_autostart_func(self):
                 except OSError as e:
                     logging.error(f'Unable to start chat! Failed removing {e.filename}: {e.strerror}')
         while repeat:
-            await chat(self)
+            for configchannel in chat_channels:
+                await chat(self, configchannel)
             await asyncio.sleep(0.5)
 
 
@@ -183,7 +183,8 @@ class Ror2_admin(commands.Cog):
 
         :param ctx: Discord context
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         # Checks to make sure the server is not running before starting it
         if await shared.server(str(ctx.message.channel.id)) is False:
             await ctx.send('Starting Risk of Rain 2 server, please wait')
@@ -191,7 +192,7 @@ class Ror2_admin(commands.Cog):
                 await ctx.send('Risk of Rain 2 server started!')
             else:
                 await ctx.send('Unable to start server! Please check logs for error.')
-                logging.error("Failed to start the server")
+                logging.error(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed to start the server')
         else:
             await ctx.send('Server is already running!')
 
@@ -202,13 +203,14 @@ class Ror2_admin(commands.Cog):
 
         :param ctx: Discord context
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         if await shared.server(str(ctx.message.channel.id)):
             if await shared.server_stop(str(ctx.message.channel.id)):
                 await ctx.send('Risk of Rain 2 server shut down...')
             else:
                 await ctx.send('Unable to stop server!')
-                logging.error("Failed to stop the server")
+                logging.error("[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed to stop the server")
         else:
             await ctx.send('Server is not running!')
 
@@ -225,7 +227,8 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param message: Message to send to the server
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         if await shared.server(str(ctx.message.channel.id)):
             await shared.execute_cmd(str(ctx.message.channel.id), "say '" + message + "'")
         else:
@@ -243,7 +246,8 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param cmd_with_args: Command to be sent to the server
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             await shared.execute_cmd(str(ctx.message.channel.id), cmd_with_args)
@@ -293,7 +297,8 @@ class Ror2_admin(commands.Cog):
         :param playername: Full or partial player name
         :param itemname: Full or partial item name
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
@@ -345,16 +350,16 @@ class Ror2_admin(commands.Cog):
         """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
-                logging.warning(
-                    f'{ctx.message.author.name} caused an error with '
-                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                    + f'Error: {error}')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                                f'{ctx.message.author.name} caused an error with '
+                                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                                + f'Error: {error}')
                 await ctx.send('Please enter a partial or complete player name')
             if error.param.name == 'itemname':
-                logging.warning(
-                    f'{ctx.message.author.name} caused an error with '
-                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                    + f'Error: {error}')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                                f'{ctx.message.author.name} caused an error with '
+                                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                                + f'Error: {error}')
                 await ctx.send('Please enter a valid item name')
 
     @commands.command(
@@ -370,7 +375,8 @@ class Ror2_admin(commands.Cog):
         :param playername: Full or partial player name
         :param equipname: Full or partial equipment name
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
@@ -422,29 +428,30 @@ class Ror2_admin(commands.Cog):
         """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'playername':
-                logging.warning(
-                    f'{ctx.message.author.name} caused an error with '
-                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                    + f'Error: {error}')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                                f'{ctx.message.author.name} caused an error with '
+                                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                                + f'Error: {error}')
                 await ctx.send('Please enter a partial or complete player name')
             if error.param.name == 'equipname':
-                logging.warning(
-                    f'{ctx.message.author.name} caused an error with '
-                    + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                    + f'Error: {error}')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                                f'{ctx.message.author.name} caused an error with '
+                                + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                                + f'Error: {error}')
                 await ctx.send('Please enter a valid equipment name')
 
     # noinspection DuplicatedCode
     @commands.command(name='help_admin', help='Displays this message', usage='cog')
     @commands.check(is_host)
-    async def help_admin(self, ctx, cog='all'):
+    async def help_admin(self, ctx, cog='ror2_admin'):
         """Displays the help options including admin commands.
 
         :param ctx: Discord context
         :param cog: (Optional) Cog name for more in depth information.
         :return: Returns if invalid cog name is specified
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         color_list = [c for c in shared.colors.values()]
         help_embed = discord.Embed(
             title='Help',
@@ -492,7 +499,8 @@ class Ror2_admin(commands.Cog):
 
         :param ctx: Discord context
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             await ctx.send('Restarting server... please wait....')
@@ -511,7 +519,8 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param kick_player: Full or partial steam name of a player
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             author = ctx.author
@@ -522,9 +531,9 @@ class Ror2_admin(commands.Cog):
                     kick_player = player.name
                     break
             if containskickplayer:
-                logging.info(
-                    f'{ctx.message.author.name} kicked {kick_player}')
-                await ctx.send(f'{kick_player} has been kicked by {author.mention})')
+                logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                             f'{ctx.message.author.name} kicked {kick_player}')
+                await ctx.send(f'{kick_player} has been kicked by {author.mention}')
                 await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + kick_player + "'")
             else:
                 await ctx.send(kick_player + ' is not playing on the server')
@@ -549,7 +558,8 @@ class Ror2_admin(commands.Cog):
 
         :param ctx: Discord context
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
@@ -570,8 +580,8 @@ class Ror2_admin(commands.Cog):
         :param ctx: Discord context
         :param number: Amount of messages to delete
         """
-        logging.info(
-            f'{ctx.message.author.name} used {ctx.command.name} on {number} messages.')
+        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                     f'{ctx.message.author.name} used {ctx.command.name} on {number} messages.')
         number = number + 1
         await ctx.message.channel.purge(limit=number)
 
@@ -583,17 +593,17 @@ class Ror2_admin(commands.Cog):
         :param error: Error raised by the command
         """
         if isinstance(error, commands.MissingRequiredArgument):
-            logging.warning(
-                f'{ctx.message.author.name} caused an error with '
-                + f'{ctx.command.name} | Message: {ctx.message.content} | '
-                + f'Error: {error}')
+            logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                            f'{ctx.message.author.name} caused an error with '
+                            + f'{ctx.command.name} | Message: {ctx.message.content} | '
+                            + f'Error: {error}')
             await ctx.send('Please enter the number of messages to delete. '
                            + 'Example: ```delete 5```')
 
     @commands.command(name='addban')
     @commands.check(is_host)
     async def ban(self, ctx, *, player_name):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             for player in serverinfo['server_players']:
@@ -610,23 +620,23 @@ class Ror2_admin(commands.Cog):
                         # Issue the ban in-game command
                         await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + player.name + "'")
                         await ctx.send(f'{player.name} has been banned.')
-                        logging.info(f'{ctx.message.author.name} banned {player.name}')
+                        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} banned {player.name}')
                     except Exception:
                         await ctx.send(f'Failed banning {player.name}')
-                        logging.error(f'Failed banning {player.name}')
+                        logging.error(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed banning {player.name}')
 
 
 def setup(bot):
     """Loads the cog into bot.py."""
     try:
         bot.add_cog(Ror2_admin(bot))
-        logging.info('Loaded cog: ror2_admin.py')
+        logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Loaded cog: ror2_admin.py')
     except Exception as e:
-        logging.warning(f'Unable to load ror2_admin.py. Error: {e}')
+        logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load ror2_admin.py. Error: {e}')
 
 
 def teardown(bot):
     """Prints to terminal when cog is unloaded."""
     global repeat
-    repeat = False
-    logging.info('Unloaded cog: ror2_admin.py')
+    repeat = False  # Stops the chat function
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unloaded cog: ror2_admin.py')

@@ -3,9 +3,11 @@
 """Pyre Bot Risk of Rain 2 user functions."""
 import asyncio
 import logging
+from datetime import datetime
 
 import discord
 from discord.ext import commands
+from config.config import *
 
 import libs.shared as shared
 
@@ -18,6 +20,7 @@ class RoR2(commands.Cog):
 
     This cog handles user functions and features. Anything in here can be used without requiring special roles.
     """
+
     def __init__(self, bot):
         self.bot = bot
 
@@ -50,7 +53,8 @@ class RoR2(commands.Cog):
         """
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
-            logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+            logging.info(
+                f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -62,7 +66,8 @@ class RoR2(commands.Cog):
             await asyncio.sleep(time)
             # Counts vote, if tie does nothing
             if yes == no:
-                logging.info('There were not enough votes to restart the server')
+                logging.info(
+                    f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] There were not enough votes to restart the server')
                 await ctx.send('It was a tie! There must be a majority to restart the '
                                + 'server!')
             # If 75% of player count wants to restart it will
@@ -70,10 +75,15 @@ class RoR2(commands.Cog):
                 await ctx.send('Vote passed! Restarting the server, please wait...')
                 if await shared.restart(str(ctx.message.channel.id)):
                     await ctx.send('Server restarted!')
+                    logging.info(
+                        f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Restart vote passed.')
                 else:
                     await ctx.send('Server could not be restarted')
+                    logging.error(
+                        f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Unable to restart the server')
             else:
-                logging.info('There were not enough votes to restart the server')
+                logging.info(
+                    f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] There were not enough votes to restart the server')
                 await ctx.send('Restart vote failed!')
         else:
             await ctx.send('Server is not running, unable to restart...')
@@ -104,8 +114,8 @@ class RoR2(commands.Cog):
                     kick_player = player.name
                     break
             if containskickplayer == 1:
-                logging.info(
-                    f'{ctx.message.author.name} started a vote to kick {kick_player}')
+                logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                             f'{ctx.message.author.name} started a vote to kick {kick_player}')
                 message = await ctx.send('A vote to kick ' + kick_player
                                          + f' has been initiated by {author.mention}. '
                                          + 'Please react to this message with your '
@@ -121,12 +131,12 @@ class RoR2(commands.Cog):
                     )
                 # If 75% of player count wants to kick it will
                 elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
-                    logging.info(f'{kick_player} was kicked from the game.')
+                    logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {kick_player} was kicked from the game.')
                     await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + kick_player + "'")
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
                 else:
-                    logging.info('Not enough votes to pass')
+                    logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Not enough votes to pass')
                     await ctx.send('Vote failed. There must be a majority to kick '
                                    + kick_player
                                    )
@@ -146,6 +156,7 @@ class RoR2(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'kick_player':
                 await ctx.send('Please insert a partial or complete player name')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Player name not specified')
 
     # TODO: Add the ability to call this command with in-game chat by adding a
     # conditional to the chat command, so players can do it while in-game too.
@@ -163,7 +174,7 @@ class RoR2(commands.Cog):
         """
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
-            logging.info(f'{ctx.message.author.name} started an end run vote')
+            logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} started an end run vote')
             if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress.')
             else:
@@ -179,12 +190,12 @@ class RoR2(commands.Cog):
                 await asyncio.sleep(time)
                 # If 75% of player count wants to end the run it will
                 if (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
-                    logging.info('Vote passed to end the current run')
+                    logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Vote passed to end the current run')
                     await shared.execute_cmd(str(ctx.message.channel.id), 'run_end')
                     await ctx.send('Run ended, all players have been returned to the lobby')
                 # If vote fails
                 else:
-                    logging.info('End run vote failed')
+                    logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] End run vote failed')
                     await ctx.send('Vote failed. There must be a majority to end the run')
         else:
             await ctx.send('Server is not running...')
@@ -199,10 +210,10 @@ class RoR2(commands.Cog):
         Args:
             ctx: Current Discord context.
         """
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
-            stage = '???'
+            stage = '???'  # Handles stages not listed in the dictionary
             # Create embed
             embed = discord.Embed(
                 title='Server Information',
@@ -233,7 +244,8 @@ class RoR2(commands.Cog):
             embed.add_field(name='Current Stage', value=f'{stage}', inline=False)
             embed.add_field(
                 name='Player Count',
-                value=str(serverinfo['server_info'].player_count)+'/'+str(serverinfo['server_info'].max_players), inline=False)
+                value=str(serverinfo['server_info'].player_count) + '/' + str(serverinfo['server_info'].max_players),
+                inline=False)
             if serverinfo['server_info'].player_count == 0:
                 pass
             else:
@@ -251,9 +263,9 @@ class RoR2(commands.Cog):
 def setup(bot):
     """Loads the cog into bot.py."""
     bot.add_cog(RoR2(bot))
-    logging.info('Loaded cog: ror2.py')
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Loaded cog: ror2.py')
 
 
 def teardown(bot):
     """Prints to terminal when cog is unloaded."""
-    logging.info('Unloaded cog: ror2.py')
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unloaded cog: ror2.py')
