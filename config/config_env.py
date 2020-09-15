@@ -3,9 +3,11 @@ import os
 
 import boto3
 from dotenv import load_dotenv
+from pytz import timezone
 
 load_dotenv()
-
+tz = timezone('US/Eastern')  # Sets timezone to Eastern
+t_fmt = '%Y-%m-%d %H:%M:%S %Z%z'  # Configures time output format
 
 # Assigns the variables
 try:
@@ -18,6 +20,7 @@ try:
     chat_channels = os.environ.get('CHAT_CHANNELS').split(',')  # CHANGED TO LIST, MOVED TO GENERAL
     track_stats = os.environ.get('TRACK_STATS')
     server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')  # CHANGED TO LIST
+    server_update_channel = os.environ.get('SERVER_CHANNEL')  # NEW
     logpath = Path(os.environ.get('LOG_PATH'))  # NEW
     chat_autostart = os.environ.get('CHAT_AUTOSTART')
     server_restart = os.environ.get('SERVER_RESTART')
@@ -32,6 +35,7 @@ try:
         stats_table = dynamodb.Table(os.environ.get('STATS_TABLE'))
         stats_players = dynamodb.Table(os.environ.get('PLAYERS_TABLE'))
         discord_table = dynamodb.Table(os.environ.get('DISCORD_TABLE'))
+        ban_table = dynamodb.Table(os.environ.get('BAN_TABLE'))
     except KeyError:
         pass
 
@@ -44,6 +48,7 @@ try:
         server_address = tuple(server_address)
         server_list.append(
             {
+                "server_name": "Server" + str(i + 1),
                 "server_address": server_address,
                 "admin_channel": admin_channels[i],
                 "commands_channel": commands_channels[i],
