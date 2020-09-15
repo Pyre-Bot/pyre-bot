@@ -7,6 +7,7 @@ Usage:
     bot.py
 """
 
+import sys
 import logging
 from datetime import datetime
 
@@ -91,8 +92,8 @@ async def on_ready():
                 logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load cog: {cog}')
 
     # Posts a message to admin channel
-    # admin_channel = bot.get_channel(737812925414244442)
-    # await admin_channel.send('👀 Bot is online.')
+    admin_channel = bot.get_channel(737812925414244442)
+    await admin_channel.send('👀 Bot is online.')
 
 
 # Load and Unload cogs stuff
@@ -150,3 +151,6 @@ try:
     bot.run(discord_token)
 except discord.errors.LoginFailure:
     logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to log in to Discord.')
+except discord.errors.HTTPException as e:
+    logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Error connection to Discord: {e}.')
+    sys.exit(1)
