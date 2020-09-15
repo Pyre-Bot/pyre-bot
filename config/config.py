@@ -19,6 +19,7 @@ try:
     chat_channels = os.environ.get('CHAT_CHANNELS').split(',')  # CHANGED TO LIST, MOVED TO GENERAL
     track_stats = os.environ.get('TRACK_STATS')
     server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')  # CHANGED TO LIST
+    server_update_channel = os.environ.get('SERVER_CHANNEL')  # NEW
     logpath = Path(os.environ.get('LOG_PATH'))  # NEW
     chat_autostart = os.environ.get('CHAT_AUTOSTART')
     server_restart = os.environ.get('SERVER_RESTART')

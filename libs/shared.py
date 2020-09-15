@@ -274,12 +274,30 @@ async def server(channel):
     :return: True if running, otherwise false.
     """
     for serverdict in server_list:
-        if serverdict["commands_channel"] == str(channel) or serverdict["admin_channel"] == str(channel):
+        if serverdict["commands_channel"] == str(channel) or serverdict["admin_channel"] == str(channel) or serverdict["chat_channel"] == str(channel):
             address = serverdict["server_address"]
             break
     try:
         svr_info = a2s.info(address, 1.0)
         svr_players = a2s.players(address)
+        return {"server_info": svr_info, "server_players": svr_players}
+    except Exception as e:
+        logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Error checking server status: {e}')
+        return False
+
+
+async def server_address_test(svr_address):
+    """Checks if the server is running or not.
+
+    This check is used by many of the commands and functions within the bot. It checks the steam server list to
+    determine if the server is running.
+
+    :param channel: Channel the command is executed in, used to determine which server.
+    :return: True if running, otherwise false.
+    """
+    try:
+        svr_info = a2s.info(svr_address, 1.0)
+        svr_players = a2s.players(svr_address)
         return {"server_info": svr_info, "server_players": svr_players}
     except Exception as e:
         logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Error checking server status: {e}')

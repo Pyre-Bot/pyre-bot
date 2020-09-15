@@ -18,6 +18,7 @@ seq_api = str(input('Seq API token: '))
 role = str(input('Privileged Server Role: '))
 admin_channels = str(input('Discord Channel ID for admin commands, separated by commas: '))  # CHANGED
 commands_channels = str(input('Discord Channel ID for normal commands, separated by commas: '))  # CHANGED
+server_update_channel = str(input('Discord Channel ID for server updates: '))  # NEW
 server_addresses = str(input('Server Addresses with ports (i.e. address:port), separated by commas: '))  # CHANGED
 logpath = str(input('Path to Server Logs folder: '))  # NEW
 chat_channels = str(input('Discord Channel ID(s) for game chat output, separated by commas: '))  # CHANGED
@@ -53,6 +54,7 @@ while stats is True:
             "admin-channels": admin_channels,
             "commands-channels": commands_channels,
             "chat-channels": chat_channels,
+            "server-update-channel": server_update_channel,
             "track_stats": "yes"
         }
         config_object["RoR2"] = {
@@ -78,6 +80,7 @@ config_object["General"] = {
     "admin-channels": admin_channels,
     "commands-channels": commands_channels,
     "chat-channels": chat_channels,
+    "server-update-channel": server_update_channel,
     "track_stats": "no"
 }
 config_object["RoR2"] = {

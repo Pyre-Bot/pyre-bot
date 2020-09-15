@@ -25,6 +25,8 @@ repeat = False
 stagenum = 0
 run_timer = 0
 
+# TODO: Track info embeds so that they can be overwritten
+#server_embeds = {}
 
 async def is_host(ctx):
     """Makes sure the command is ran in an admin Discord channel
@@ -43,7 +45,7 @@ async def chat(self, channel):
     serverlogs = await shared.server_logs()
     for log_name in serverlogs:
         if str(channel) in log_name:
-            channel = self.bot.get_channel(int(channel))
+            bot_channel = self.bot.get_channel(int(channel))
             if os.path.exists(logpath / log_name):
                 if os.path.exists(logpath / (log_name + '.offset')):
                     for line in Pygtail(str(logpath / log_name), read_from_end=True):
@@ -54,9 +56,9 @@ async def chat(self, channel):
                             line = line.replace(' issued:', ':** ')
                             line = line.replace(' say ', '')
                             if len(line) < 2000:
-                                await channel.send(pf.censor(line))
+                                await bot_channel.send(pf.censor(line))
                             else:
-                                await channel.send('Error showing message: Message too long')
+                                await bot_channel.send('Error showing message: Message too long')
                         # Run time
                         elif '[Info:Unity Log] Run time is ' in line:
                             line = str(line.replace(line[:70], ''))
@@ -77,36 +79,35 @@ async def chat(self, channel):
                                     break
                             if devstage in (
                                     'bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
-                                await channel.send('**Entering Stage - ' + stage + '**')
+                                await bot_channel.send('**Entering Stage - ' + stage + '**')
+                                await infotest_chat(self, channel, stage, run_timer)
                             # Won't output if the stage is title or splash, done on purpose
                             elif devstage in ('lobby', 'title', 'splash'):
                                 if devstage == 'lobby':
-                                    await channel.send('**Entering ' + stage + '**')
+                                    await bot_channel.send('**Entering ' + stage + '**')
                                     run_timer = 0
                                     stagenum = 0
+                                    await infotest_chat(self, channel, stage, run_timer)
                             else:
                                 if stagenum == 0:
-                                    await channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
+                                    await bot_channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
+                                    await infotest_chat(self, channel, stage, run_timer)
                                 else:
-                                    if (run_timer - (int(run_timer / 60)) * 60) < 10:
-                                        formattedtime = str(
-                                            int(run_timer / 60)) + ':0' + str(run_timer - (int(run_timer / 60)) * 60)
-                                    else:
-                                        formattedtime = str(
-                                            int(run_timer / 60)) + ':' + str(run_timer - (int(run_timer / 60)) * 60)
-                                    await channel.send('**Entering Stage ' + str(
+                                    formattedtime = await format_time(run_timer)
+                                    await bot_channel.send('**Entering Stage ' + str(
                                         stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
+                                    await infotest_chat(self, channel, stage, run_timer)
                         # Player joins
                         elif "[Info:R2DSE] New player :" in line:
                             line = line.replace(line[:67], '**Player Joined - ')
                             line = line.replace(' connected. ', '')
                             line = re.sub(r" ?\([^)]+\)", "", line)
-                            await channel.send(line + '**')
+                            await bot_channel.send(line + '**')
                             # if not check_ban:
                             #     line = line.replace(line[:67], '**Player Joined - ')
                             #     line = line.replace(' connected. ', '')
                             #     line = re.sub(r" ?\([^)]+\)", "", line)
-                            #     await channel.send(line + '**')
+                            #     await bot_channel.send(line + '**')
                             # else:
                             #     line = line.replace(line[:67], '')
                             #     line = line.replace(' connected. ', '')
@@ -116,10 +117,69 @@ async def chat(self, channel):
                         elif "[Info:R2DSE] Ending AuthSession with" in line:
                             line = line.replace(line[:80], '**Player Left - ')
                             line = re.sub(r" ?\([^)]+\)", "", line)
-                            await channel.send(line + '**')
+                            await bot_channel.send(line + '**')
                 else:
                     for _ in Pygtail(str(logpath / log_name), read_from_end=True):
                         pass
+
+
+async def format_time(time):
+    if (time - (int(time / 60)) * 60) < 10:
+        formattedtime = str(
+            int(time / 60)) + ':0' + str(time - (int(time / 60)) * 60)
+    else:
+        formattedtime = str(
+            int(time / 60)) + ':' + str(time - (int(time / 60)) * 60)
+    return formattedtime
+
+
+# TODO: Track info embeds so that they can be overwritten
+async def infotest_chat(self, server_channel, stage, time):
+    """Gathers the current server information and returns an embed message.
+
+    Args:
+        :param self:
+        :param server_channel:
+        :param stage:
+        :param time:
+    """
+    #global server_embeds
+    serverinfo = await shared.server(str(server_channel))
+    if serverinfo:
+        update_channel = self.bot.get_channel(int(server_update_channel))
+        formatted_time = await format_time(time)
+        embed = discord.Embed(
+            title=str(serverinfo['server_info'].server_name),
+            colour=discord.Colour.blue(),
+
+        )
+        embed.set_footer(text='Last Updated: ' + str(datetime.now())
+                         )
+        # Creates the string of player names used in the embed
+        player_names = []
+        for player in serverinfo['server_players']:
+            player_names.append(player.name)
+        player_names = ("\n".join(map(str, player_names)))
+
+        # Embed information
+        embed.add_field(name='Stage', value=f'{stage}', inline=True)
+        embed.add_field(name='Run Time', value=f'{formatted_time}', inline=True)
+        embed.add_field(
+            name='Player Count',
+            value=str(serverinfo['server_info'].player_count) + '/' + str(serverinfo['server_info'].max_players),
+            inline=True)
+        if serverinfo['server_info'].player_count == 0:
+            pass
+        else:
+            embed.add_field(
+                name='Players', value=player_names, inline=True)
+        await update_channel.send(embed=embed)
+        #server_embeds += {
+        #    str(serverinfo['server_info'].address): embed
+        #}
+    else:
+        pass
+
 
 
 async def check_ban(line):
