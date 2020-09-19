@@ -33,7 +33,8 @@ bot = commands.Bot(command_prefix=('>', '$'), case_insensitive=True)
 cogs = [
     'cogs.ror2',
     'cogs.ror2_admin',
-    'cogs.misc'
+    'cogs.misc',
+    'cogs.chat'
 ]
 
 
