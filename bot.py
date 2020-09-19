@@ -150,8 +150,11 @@ bot.remove_command('help')
 # Tells discord.py to run the bot
 try:
     bot.run(discord_token)
-except discord.errors.LoginFailure:
-    logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to log in to Discord.')
+except discord.errors.LoginFailure as e:
+    logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to log in to Discord: {e}')
 except discord.errors.HTTPException as e:
     logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Error connection to Discord: {e}.')
+    sys.exit(1)
+finally:
+    logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Exiting the bot.')
     sys.exit(1)
