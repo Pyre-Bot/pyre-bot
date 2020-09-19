@@ -43,7 +43,7 @@ class Ror2_admin(commands.Cog):
             await ctx.send('Server is already running!')
 
     @commands.command(name='stop', help='Stops the server if currently running')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def stop(self, ctx):
         """Issues a disconnect command to the server.
 
@@ -66,7 +66,7 @@ class Ror2_admin(commands.Cog):
         usage='message',
         aliases=['s']
     )
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def serversay(self, ctx, *, message):
         """Sends a chat message to the server
 
@@ -85,7 +85,7 @@ class Ror2_admin(commands.Cog):
         help='Passes on a command to be interpreted directly by the console',
         usage='command'
     )
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def customcmd(self, ctx, *, cmd_with_args):
         """Issues a custom command to the server.
 
@@ -135,7 +135,7 @@ class Ror2_admin(commands.Cog):
         help='Gives a player a specified quantity of an item',
         usage='playername itemname qty'
     )
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
         """Issues a command on the server to get the player specified equipment.
 
@@ -213,7 +213,7 @@ class Ror2_admin(commands.Cog):
         help='Gives a player a specified equipment',
         usage='playername equipname'
     )
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def giveequip(self, ctx, playername, equipname):
         """Issues a command on the server to get the player specified equipment.
 
@@ -288,7 +288,7 @@ class Ror2_admin(commands.Cog):
 
     # noinspection DuplicatedCode
     @commands.command(name='help_admin', help='Displays this message', usage='cog')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def help_admin(self, ctx, cog='ror2_admin'):
         """Displays the help options including admin commands.
 
@@ -339,7 +339,7 @@ class Ror2_admin(commands.Cog):
         await ctx.send(embed=help_embed)
 
     @commands.command(name='restart_admin', help='Restarts the RoR2 server', usage='time')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def restart_admin(self, ctx):
         """Admin server restart command.
 
@@ -358,7 +358,7 @@ class Ror2_admin(commands.Cog):
             await ctx.send('Server is not running, unable to restart...')
 
     @commands.command(name='kick', help='kick a player from the game', usage='playername')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def kick(self, ctx, *, kick_player):
         """Admin kick/ban of a player from the server.
 
@@ -398,7 +398,7 @@ class Ror2_admin(commands.Cog):
                 await ctx.send('Please insert a partial or complete player name')
 
     @commands.command(name='endrun_admin', help='Begins a vote to end the current run')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def endrun_admin(self, ctx):
         """Admin command to end the current run.
 
@@ -419,7 +419,7 @@ class Ror2_admin(commands.Cog):
     @commands.command(name='delete',
                       help='Deletes the given amount of messages in the channel',
                       usage='number')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def delete(self, ctx, number=5):
         """Deletes messages/embeds/images from the channel.
 
