@@ -447,9 +447,10 @@ class Ror2_admin(commands.Cog):
                            + 'Example: ```delete 5```')
 
     @commands.command(name='addban')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def ban(self, ctx, *, player_name):
-        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             for player in serverinfo['server_players']:
@@ -466,10 +467,12 @@ class Ror2_admin(commands.Cog):
                         # Issue the ban in-game command
                         await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + player.name + "'")
                         await ctx.send(f'{player.name} has been banned.')
-                        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} banned {player.name}')
+                        logging.info(
+                            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} banned {player.name}')
                     except Exception:
                         await ctx.send(f'Failed banning {player.name}')
-                        logging.error(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed banning {player.name}')
+                        logging.error(
+                            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed banning {player.name}')
 
 
 def setup(bot):
