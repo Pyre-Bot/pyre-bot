@@ -7,6 +7,7 @@ Usage:
     bot.py
 """
 
+import sys
 import logging
 from datetime import datetime
 
@@ -32,7 +33,8 @@ bot = commands.Bot(command_prefix=('>', '$'), case_insensitive=True)
 cogs = [
     'cogs.ror2',
     'cogs.ror2_admin',
-    'cogs.misc'
+    'cogs.misc',
+    'cogs.chat'
 ]
 
 
@@ -91,8 +93,8 @@ async def on_ready():
                 logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load cog: {cog}')
 
     # Posts a message to admin channel
-    # admin_channel = bot.get_channel(737812925414244442)
-    # await admin_channel.send('👀 Bot is online.')
+    admin_channel = bot.get_channel(737812925414244442)
+    await admin_channel.send('👀 Bot is online.')
 
 
 # Load and Unload cogs stuff
@@ -148,5 +150,11 @@ bot.remove_command('help')
 # Tells discord.py to run the bot
 try:
     bot.run(discord_token)
-except discord.errors.LoginFailure:
-    logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to log in to Discord.')
+except discord.errors.LoginFailure as e:
+    logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to log in to Discord: {e}')
+except discord.errors.HTTPException as e:
+    logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Error connection to Discord: {e}.')
+    sys.exit(1)
+finally:
+    logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Exiting the bot.')
+    sys.exit(1)

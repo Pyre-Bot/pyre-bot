@@ -368,6 +368,25 @@ async def server_logs():
                 pass
     return serverlogs
 
+
+async def is_host(ctx):
+    """Makes sure the command is ran in an admin Discord channel
+
+    :param ctx: Discord context
+    :return: List of admin channels
+    """
+    return str(ctx.message.channel.id) in admin_channels
+
+
+async def format_time(time):
+    if (time - (int(time / 60)) * 60) < 10:
+        formattedtime = str(
+            int(time / 60)) + ':0' + str(time - (int(time / 60)) * 60)
+    else:
+        formattedtime = str(
+            int(time / 60)) + ':' + str(time - (int(time / 60)) * 60)
+    return formattedtime
+
 # async def server_logs_comprehension_test():
 #     serverlogs = []
 #     serverlogs = [f for f in os.listdir(logpath)

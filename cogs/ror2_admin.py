@@ -2,242 +2,28 @@
 
 """Pyre Bot Risk of Rain 2 admin functions."""
 
-import asyncio
 import logging
-import re
 import random
 from datetime import datetime
 
 import discord
-from profanity_filter import ProfanityFilter
 from discord.ext import commands
 
 import libs.shared as shared
 from config.config import *
-from libs.pygtail import Pygtail
 
-pf = ProfanityFilter()
-pf.censor_char = '&'
-
-# Global variables (yes, I know, not ideal but I'll fix them later)
+# Globals
 yes, no = 0, 0
-repeat = False
 stagenum = 0
 run_timer = 0
-
-# TODO: Track info embeds so that they can be overwritten
-#server_embeds = {}
-
-async def is_host(ctx):
-    """Makes sure the command is ran in an admin Discord channel
-
-    :param ctx: Discord context
-    :return: List of admin channels
-    """
-    return str(ctx.message.channel.id) in admin_channels
-
-
-# TODO: Add anti-spam
-async def chat(self, channel):
-    """Reads the BepInEx output log to send chat to Discord."""
-    global stagenum
-    global run_timer
-    serverlogs = await shared.server_logs()
-    for log_name in serverlogs:
-        if str(channel) in log_name:
-            bot_channel = self.bot.get_channel(int(channel))
-            if os.path.exists(logpath / log_name):
-                if os.path.exists(logpath / (log_name + '.offset')):
-                    for line in Pygtail(str(logpath / log_name), read_from_end=True):
-                        # Player chat
-                        if "issued: say" in line:
-                            line = line.replace(line[:58], '**')
-                            line = re.sub(r" ?\([^)]+\)", "", line)
-                            line = line.replace(' issued:', ':** ')
-                            line = line.replace(' say ', '')
-                            if len(line) < 2000:
-                                await bot_channel.send(pf.censor(line))
-                            else:
-                                await bot_channel.send('Error showing message: Message too long')
-                        # Run time
-                        elif '[Info:Unity Log] Run time is ' in line:
-                            line = str(line.replace(line[:70], ''))
-                            run_timer = float(line)
-                            run_timer = int(run_timer)
-                        # Stages cleared
-                        elif '[Info:Unity Log] Stages cleared: ' in line:
-                            line = str(line.replace(line[:74], ''))
-                            stagenum = int(line)
-                        # Stage change
-                        elif "Active scene changed from" in line:
-                            devstage = '???'
-                            stage = '???'
-                            for key, value in shared.stages.items():
-                                if key in line:
-                                    devstage = key
-                                    stage = value
-                                    break
-                            if devstage in (
-                                    'bazaar', 'goldshores', 'mysteryspace', 'limbo', 'arena', 'artifactworld', 'outro'):
-                                await bot_channel.send('**Entering Stage - ' + stage + '**')
-                                await infotest_chat(self, channel, stage, run_timer)
-                            # Won't output if the stage is title or splash, done on purpose
-                            elif devstage in ('lobby', 'title', 'splash'):
-                                if devstage == 'lobby':
-                                    await bot_channel.send('**Entering ' + stage + '**')
-                                    run_timer = 0
-                                    stagenum = 0
-                                    await infotest_chat(self, channel, stage, run_timer)
-                            else:
-                                if stagenum == 0:
-                                    await bot_channel.send('**Entering Stage ' + str(stagenum + 1) + ' - ' + stage + '**')
-                                    await infotest_chat(self, channel, stage, run_timer)
-                                else:
-                                    formattedtime = await format_time(run_timer)
-                                    await bot_channel.send('**Entering Stage ' + str(
-                                        stagenum + 1) + ' - ' + stage + ' [Time - ' + formattedtime + ']**')
-                                    await infotest_chat(self, channel, stage, run_timer)
-                        # Player joins
-                        elif "[Info:R2DSE] New player :" in line:
-                            line = line.replace(line[:67], '**Player Joined - ')
-                            line = line.replace(' connected. ', '')
-                            line = re.sub(r" ?\([^)]+\)", "", line)
-                            await bot_channel.send(line + '**')
-                            # if not check_ban:
-                            #     line = line.replace(line[:67], '**Player Joined - ')
-                            #     line = line.replace(' connected. ', '')
-                            #     line = re.sub(r" ?\([^)]+\)", "", line)
-                            #     await bot_channel.send(line + '**')
-                            # else:
-                            #     line = line.replace(line[:67], '')
-                            #     line = line.replace(' connected. ', '')
-                            #     line = re.sub(r" ?\([^)]+\)", "", line)
-                            #     await shared.execute_cmd(str(channel), "ban '" + line + "'")
-                        # Player leaves
-                        elif "[Info:R2DSE] Ending AuthSession with" in line:
-                            line = line.replace(line[:80], '**Player Left - ')
-                            line = re.sub(r" ?\([^)]+\)", "", line)
-                            await bot_channel.send(line + '**')
-                else:
-                    for _ in Pygtail(str(logpath / log_name), read_from_end=True):
-                        pass
-
-
-async def format_time(time):
-    if (time - (int(time / 60)) * 60) < 10:
-        formattedtime = str(
-            int(time / 60)) + ':0' + str(time - (int(time / 60)) * 60)
-    else:
-        formattedtime = str(
-            int(time / 60)) + ':' + str(time - (int(time / 60)) * 60)
-    return formattedtime
-
-
-# TODO: Track info embeds so that they can be overwritten
-async def infotest_chat(self, server_channel, stage, time):
-    """Gathers the current server information and returns an embed message.
-
-    Args:
-        :param self:
-        :param server_channel:
-        :param stage:
-        :param time:
-    """
-    #global server_embeds
-    serverinfo = await shared.server(str(server_channel))
-    if serverinfo:
-        update_channel = self.bot.get_channel(int(server_update_channel))
-        formatted_time = await format_time(time)
-        embed = discord.Embed(
-            title=str(serverinfo['server_info'].server_name),
-            colour=discord.Colour.blue(),
-
-        )
-        embed.set_footer(text='Last Updated: ' + str(datetime.now())
-                         )
-        # Creates the string of player names used in the embed
-        player_names = []
-        for player in serverinfo['server_players']:
-            player_names.append(player.name)
-        player_names = ("\n".join(map(str, player_names)))
-
-        # Embed information
-        embed.add_field(name='Stage', value=f'{stage}', inline=True)
-        embed.add_field(name='Run Time', value=f'{formatted_time}', inline=True)
-        embed.add_field(
-            name='Player Count',
-            value=str(serverinfo['server_info'].player_count) + '/' + str(serverinfo['server_info'].max_players),
-            inline=True)
-        if serverinfo['server_info'].player_count == 0:
-            pass
-        else:
-            embed.add_field(
-                name='Players', value=player_names, inline=True)
-        await update_channel.send(embed=embed)
-        #server_embeds += {
-        #    str(serverinfo['server_info'].address): embed
-        #}
-    else:
-        pass
-
-
-
-async def check_ban(line):
-    line = line.replace(line[:67], '')
-    line = line.replace(' connected. ', '')
-    line = re.sub(r" ?\([^)]+\)", "", line)
-
-    try:
-        key = {'SteamName': line}
-        player = ban_table.get_item(Key=key)
-        player = player['Item']['SteamName']
-        return True
-    except KeyError:
-        return False
-
-
-# async def server_restart_func():
-#     """Checks every 120 minutes if no players are active then restarts the server."""
-#     do_restart = server_restart
-#     if do_restart == "true":
-#         while do_restart == "true":
-#             await asyncio.sleep(600)
-#             for server in admin_channels:
-#                 serverinfo = await shared.server(server)
-#                 if serverinfo.player_count == 0:
-#                     if await shared.restart(server):
-#                         logging.info(f'{server} has been automatically restarted')
-#                     else:
-#                         logging.error(f'Failed restarting {server}! Please check and manually restart if needed.')
-
-
-async def chat_autostart_func(self):
-    """Autostarts live chat output if it is enabled."""
-    do_autostart = chat_autostart
-    if do_autostart:
-        global repeat
-        repeat = True
-        serverlogs = await shared.server_logs()
-        for log_name in serverlogs:
-            if os.path.exists(logpath / (log_name + '.offset')):
-                try:
-                    os.remove(logpath / (log_name + '.offset'))
-                except OSError as e:
-                    logging.error(f'Unable to start chat! Failed removing {e.filename}: {e.strerror}')
-        while repeat:
-            for configchannel in chat_channels:
-                await chat(self, configchannel)
-            await asyncio.sleep(0.5)
 
 
 class Ror2_admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        asyncio.gather(chat_autostart_func(self))
-        # asyncio.gather(chat_autostart_func(self), server_restart_func())
 
     @commands.command(name='start', help='Starts the server if it is not running')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def start(self, ctx):
         """Issues a host command to the server.
 
@@ -257,7 +43,7 @@ class Ror2_admin(commands.Cog):
             await ctx.send('Server is already running!')
 
     @commands.command(name='stop', help='Stops the server if currently running')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def stop(self, ctx):
         """Issues a disconnect command to the server.
 
@@ -280,7 +66,7 @@ class Ror2_admin(commands.Cog):
         usage='message',
         aliases=['s']
     )
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def serversay(self, ctx, *, message):
         """Sends a chat message to the server
 
@@ -299,7 +85,7 @@ class Ror2_admin(commands.Cog):
         help='Passes on a command to be interpreted directly by the console',
         usage='command'
     )
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def customcmd(self, ctx, *, cmd_with_args):
         """Issues a custom command to the server.
 
@@ -349,7 +135,7 @@ class Ror2_admin(commands.Cog):
         help='Gives a player a specified quantity of an item',
         usage='playername itemname qty'
     )
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def giveitem(self, ctx, playername, itemname, qty="1"):
         """Issues a command on the server to get the player specified equipment.
 
@@ -427,7 +213,7 @@ class Ror2_admin(commands.Cog):
         help='Gives a player a specified equipment',
         usage='playername equipname'
     )
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def giveequip(self, ctx, playername, equipname):
         """Issues a command on the server to get the player specified equipment.
 
@@ -502,7 +288,7 @@ class Ror2_admin(commands.Cog):
 
     # noinspection DuplicatedCode
     @commands.command(name='help_admin', help='Displays this message', usage='cog')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def help_admin(self, ctx, cog='ror2_admin'):
         """Displays the help options including admin commands.
 
@@ -553,7 +339,7 @@ class Ror2_admin(commands.Cog):
         await ctx.send(embed=help_embed)
 
     @commands.command(name='restart_admin', help='Restarts the RoR2 server', usage='time')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def restart_admin(self, ctx):
         """Admin server restart command.
 
@@ -572,7 +358,7 @@ class Ror2_admin(commands.Cog):
             await ctx.send('Server is not running, unable to restart...')
 
     @commands.command(name='kick', help='kick a player from the game', usage='playername')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def kick(self, ctx, *, kick_player):
         """Admin kick/ban of a player from the server.
 
@@ -612,7 +398,7 @@ class Ror2_admin(commands.Cog):
                 await ctx.send('Please insert a partial or complete player name')
 
     @commands.command(name='endrun_admin', help='Begins a vote to end the current run')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def endrun_admin(self, ctx):
         """Admin command to end the current run.
 
@@ -633,7 +419,7 @@ class Ror2_admin(commands.Cog):
     @commands.command(name='delete',
                       help='Deletes the given amount of messages in the channel',
                       usage='number')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def delete(self, ctx, number=5):
         """Deletes messages/embeds/images from the channel.
 
@@ -661,9 +447,10 @@ class Ror2_admin(commands.Cog):
                            + 'Example: ```delete 5```')
 
     @commands.command(name='addban')
-    @commands.check(is_host)
+    @commands.check(shared.is_host)
     async def ban(self, ctx, *, player_name):
-        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
         serverinfo = await shared.server(str(ctx.message.channel.id))
         if serverinfo:
             for player in serverinfo['server_players']:
@@ -680,10 +467,12 @@ class Ror2_admin(commands.Cog):
                         # Issue the ban in-game command
                         await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + player.name + "'")
                         await ctx.send(f'{player.name} has been banned.')
-                        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} banned {player.name}')
+                        logging.info(
+                            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} banned {player.name}')
                     except Exception:
                         await ctx.send(f'Failed banning {player.name}')
-                        logging.error(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed banning {player.name}')
+                        logging.error(
+                            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Failed banning {player.name}')
 
 
 def setup(bot):
@@ -692,11 +481,10 @@ def setup(bot):
         bot.add_cog(Ror2_admin(bot))
         logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Loaded cog: ror2_admin.py')
     except Exception as e:
-        logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load ror2_admin.py. Error: {e}')
+        logging.warning(
+            f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load ror2_admin.py. Error: {e}')
 
 
 def teardown(bot):
     """Prints to terminal when cog is unloaded."""
-    global repeat
-    repeat = False  # Stops the chat function
     logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unloaded cog: ror2_admin.py')
