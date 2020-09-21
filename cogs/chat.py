@@ -19,6 +19,7 @@ from libs.pygtail import Pygtail
 pf = ProfanityFilter()
 pf.censor_char = '&'
 
+# Chat repeat variable
 repeat = False
 
 # Info chat vars
@@ -124,6 +125,8 @@ async def info_chat(self, server_channel, stage, time):
     global server_embeds
     global start_info
 
+    logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] info_chat called. start_info: {str(start_info)}. server_channel: {server_channel}. stage: {stage}. time: {str(time)}')
+
     if start_info is False:
         return
 
@@ -175,6 +178,7 @@ async def info_chat_load(self):
     self : bot
         Discord bot object
     """
+    logging.debug(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Starting info_chat_load.')
     global server_embeds
     global start_info
 
@@ -198,10 +202,12 @@ async def info_chat_load(self):
 
     # Allows the info_chat to function
     start_info = True
+    logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished info_chat_load.')
 
 
 async def chat_autostart_func(self):
     """Autostarts live chat output if it is enabled."""
+    logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Starting chat_autostart_func.')
     do_autostart = chat_autostart
     if do_autostart:
         global repeat
@@ -231,7 +237,7 @@ def setup(bot):
         bot.add_cog(Chat(bot))
         logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Loaded cog: chat.py')
     except Exception as e:
-        logging.warning(
+        logging.error(
             f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load chat.py. Error: {e}')
 
 
