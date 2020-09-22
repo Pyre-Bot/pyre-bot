@@ -178,12 +178,12 @@ async def info_chat_load(self):
     self : bot
         Discord bot object
     """
-    logging.debug(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Starting info_chat_load.')
+    logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Starting info_chat_load.')
     global server_embeds
     global start_info
 
     update_channel = self.bot.get_channel(int(server_update_channel))  # Gets the server updates channel object
-    await update_channel.purge(limit=100)  # Removes previous messages from the channel
+    # await update_channel.purge(limit=12)  # Removes previous messages from the channel
 
     # Create empty embed for all channels
     for channel in chat_channels:
