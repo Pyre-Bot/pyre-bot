@@ -187,11 +187,15 @@ async def info_chat_load(self):
 
     # Create empty embed for all channels
     for channel in chat_channels:
-        serverinfo = await shared.server(str(channel))
+        try:
+            server_info = await shared.server(str(channel))
+            server_name = server_info.server_name
+        except:
+            server_name = str(channel)
 
         # Embed information
         embed = discord.Embed(
-            title=str(serverinfo['server_info'].server_name),
+            title=str(server_name),
             colour=discord.Colour.blue())
         embed.set_footer(text='Last Updated: ' + str(datetime.now(tz)))
         embed.add_field(name='Waiting for update...', value='Waiting for update...')
