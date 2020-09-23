@@ -183,13 +183,13 @@ async def info_chat_load(self):
     global start_info
 
     update_channel = self.bot.get_channel(int(server_update_channel))  # Gets the server updates channel object
-    # await update_channel.purge(limit=12)  # Removes previous messages from the channel
+    await update_channel.purge(limit=50)  # Removes previous messages from the channel
 
     # Create empty embed for all channels
     for channel in chat_channels:
         try:
             server_info = await shared.server(str(channel))
-            server_name = server_info.server_name
+            server_name = str(server_info.server_name)
         except:
             server_name = str(channel)
 

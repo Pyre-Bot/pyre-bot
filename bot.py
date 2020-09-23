@@ -8,7 +8,6 @@ Usage:
 """
 
 import sys
-import logging
 from datetime import datetime
 
 import discord
@@ -21,7 +20,7 @@ from config.config import *
 seqlog.log_to_seq(
     server_url="http://seq.pyre-bot.com:80",
     api_key=seq_api,
-    level=logging.DEBUG,
+    level=log_level,
     batch_size=5,
     auto_flush_timeout=5,  # seconds
     override_root_logger=True
@@ -93,8 +92,8 @@ async def on_ready():
                 logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load cog: {cog}')
 
     # Posts a message to admin channel
-    admin_channel = bot.get_channel(737812925414244442)
-    await admin_channel.send('👀 Bot is online.')
+    # admin_channel = bot.get_channel(737812925414244442)
+    # await admin_channel.send('👀 Bot is online.')
 
 
 # Load and Unload cogs stuff

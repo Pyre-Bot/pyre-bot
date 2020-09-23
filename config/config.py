@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import logging
 
 from pytz import timezone
 import boto3
@@ -7,6 +8,7 @@ import boto3
 
 tz = timezone('US/Eastern')  # Sets timezone to Eastern
 t_fmt = '%Y-%m-%d %H:%M:%S %Z%z'  # Configures time output format
+i_fmt = '%I:%M%p %Z'
 
 # Assigns the variables
 try:
@@ -24,6 +26,12 @@ try:
     chat_autostart = os.environ.get('CHAT_AUTOSTART')
     server_restart = os.environ.get('SERVER_RESTART')
     server_restart_interval = os.environ.get('SERVER_RESTART_TIME')
+
+    # Logging level
+    if os.environ.get('LOG_LEVEL') == 'info':
+        log_level = logging.getLevelName('INFO')
+    elif os.environ.get('LOG_LEVEL') == 'debug':
+        log_level = logging.getLevelName('DEBUG')
 
     # Stat tracking variables. Try/Except used in case stat tracking is disabled
     try:
