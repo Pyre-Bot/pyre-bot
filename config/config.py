@@ -8,7 +8,7 @@ import boto3
 
 tz = timezone('US/Eastern')  # Sets timezone to Eastern
 t_fmt = '%Y-%m-%d %H:%M:%S %Z%z'  # Configures time output format
-i_fmt = '%I:%M%p %Z'
+i_fmt = '%I:%M%p %Z' # Configures time format for info
 
 # Assigns the variables
 try:

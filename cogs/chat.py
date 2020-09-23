@@ -145,7 +145,7 @@ async def info_chat(self, server_channel, stage, time):
         embed = discord.Embed(
             title=str(serverinfo['server_info'].server_name),
             colour=discord.Colour.blue())
-        embed.set_footer(text='Last Updated: ' + str(datetime.now(tz)))
+        embed.set_footer(text='Last Updated: ' + str(datetime.now(tz).strftime(i_fmt)))
         embed.add_field(name='Stage', value=f'{stage}', inline=True)
         embed.add_field(name='Run Time', value=f'{formatted_time}', inline=True)
         embed.add_field(
@@ -189,8 +189,9 @@ async def info_chat_load(self):
     for channel in chat_channels:
         try:
             server_info = await shared.server(str(channel))
-            server_name = str(server_info.server_name)
-        except:
+            server_name = str(server_info['server_info'].server_name)
+        except Exception as e:
+            print(e)
             server_name = str(channel)
 
         # Embed information
