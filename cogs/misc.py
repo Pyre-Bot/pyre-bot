@@ -254,7 +254,7 @@ class Misc(commands.Cog):
                     for key, value in stats_dict.items():
                         if key == 'totalTimeAlive':
                             value = datetime.timedelta(seconds=int(float(value)))
-                        for k, v in stat_names.items():
+                        for k, v in sorted(stat_names.items(), key=lambda x: x):
                             if k == key:
                                 name = v
                                 embed.add_field(name=str(name), value=str(value), inline=True)
