@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
-"""Pyre Bot Risk of Rain 2 chat functions."""
+"""Functions and methods related to the chat capabilities of the bot."""
 
 import asyncio
-import logging
 import re
 from datetime import datetime
 
@@ -342,7 +341,7 @@ def setup(bot):
 
 
 def teardown(bot):
-    """Prints to terminal when cog is unloaded."""
+    """Disable chat and then updates logs when unloading the cog."""
     global repeat
     repeat = False  # Stops the chat function
     logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unloaded cog: chat.py')

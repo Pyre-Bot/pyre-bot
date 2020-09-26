@@ -3,7 +3,6 @@
 """Pyre Bot Risk of Rain 2 random functions."""
 
 import datetime
-import logging
 import random
 
 import discord

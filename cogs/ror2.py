@@ -2,7 +2,6 @@
 
 """Pyre Bot Risk of Rain 2 user functions."""
 import asyncio
-import logging
 from datetime import datetime
 
 import discord
