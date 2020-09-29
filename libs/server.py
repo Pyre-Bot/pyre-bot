@@ -1,6 +1,3 @@
-import os
-
-import asyncio
 import a2s
 
 servers = {}
@@ -21,7 +18,7 @@ class Server:
         self.player_num = player_num
         self.max_players = max_players
 
-    async def server_info(self):
+    async def info(self):
         server_info = a2s.info(self.address, 1.0)
         server_players = a2s.players(self.address)
 

@@ -11,7 +11,7 @@ from config.config import *
 import libs.shared as shared
 from libs.server import servers
 
-# Global variables (yes, I know, not ideal but I'll fix them later)
+# Global variables
 yes, no = 0, 0
 
 
@@ -220,7 +220,7 @@ class RoR2(commands.Cog):
                 server = value
                 break
 
-        server_info = await server.server_info()
+        server_info = await server.info()
         if server_info:
             stage = '???'  # Handles stages not listed in the dictionary
             # Create embed
