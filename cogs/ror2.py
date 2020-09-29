@@ -9,6 +9,7 @@ from discord.ext import commands
 from config.config import *
 
 import libs.shared as shared
+from libs.server import servers
 
 # Global variables (yes, I know, not ideal but I'll fix them later)
 yes, no = 0, 0
@@ -203,15 +204,24 @@ class RoR2(commands.Cog):
         name='info',
         help='Displays Risk of Rain 2 server information'
     )
-    async def status(self, ctx):
+    async def info(self, ctx):
         """Gathers the current server information and returns an embed message.
 
         Args:
             ctx: Current Discord context.
         """
-        logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
-        serverinfo = await shared.server(str(ctx.message.channel.id))
-        if serverinfo:
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
+
+        # Determines which object to use
+        channel = str(ctx.message.channel.id)
+        for key, value in servers.items():
+            if channel == value.command_channel or channel == value.admin_channel:
+                server = value
+                break
+
+        server_info = await server.server_info()
+        if server_info:
             stage = '???'  # Handles stages not listed in the dictionary
             # Create embed
             embed = discord.Embed(
@@ -219,15 +229,9 @@ class RoR2(commands.Cog):
                 colour=discord.Colour.blue()
             )
 
-            # Creates the string of player names used in the embed
-            player_names = []
-            for player in serverinfo['server_players']:
-                player_names.append(player.name)
-            player_names = ("\n".join(map(str, player_names)))
-
             # Convert Steam map name to game name
             for key, value in shared.stages.items():
-                if key in serverinfo['server_info'].map_name:
+                if key in server_info['server_info'].map_name:
                     stage = value
                     break
 
@@ -239,19 +243,15 @@ class RoR2(commands.Cog):
             embed.set_thumbnail(url=self.bot.user.avatar_url)
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
-                            value=str(serverinfo['server_info'].server_name), inline=False)
+                            value=str(server.name), inline=False)
             embed.add_field(name='Current Stage', value=f'{stage}', inline=False)
             embed.add_field(
                 name='Player Count',
-                value=str(serverinfo['server_info'].player_count) + '/' + str(serverinfo['server_info'].max_players),
+                value=str(server.player_num) + '/' + str(server.max_players),
                 inline=False)
-            if serverinfo['server_info'].player_count == 0:
-                pass
-            else:
+            if server.player_num != 0:
                 embed.add_field(
-                    name='Players', value=player_names, inline=False)
-            embed.add_field(name='Server Ping',
-                            value=int(serverinfo['server_info'].ping * 1000), inline=False)
+                    name='Players', value=server.players, inline=False)
 
             # Send embed
             await ctx.send(embed=embed)
