@@ -112,7 +112,7 @@ class Misc(commands.Cog):
         cogs = [c for c in self.bot.cogs.keys()]
         if cog == 'all':
             for cog in cogs:
-                if 'admin' in cog:
+                if ('admin' in cog) or ('Chat' in cog):
                     pass
                 else:
                     cog_commands = self.bot.get_cog(cog).get_commands()
