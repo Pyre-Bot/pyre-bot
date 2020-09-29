@@ -105,8 +105,8 @@ async def on_ready():
                                                 0)  # Max players
 
     # Posts a message to admin channel
-    # admin_channel = bot.get_channel(737812925414244442)
-    # await admin_channel.send('👀 Bot is online.')
+    admin_channel = bot.get_channel(admin_update_channel)
+    await admin_channel.send(f'👀 {len(server_list)} server class objects created, bot online.')
 
 
 # Load and Unload cogs stuff
