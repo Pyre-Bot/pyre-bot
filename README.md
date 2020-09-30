@@ -1,10 +1,15 @@
 # Pyre Bot
 
-[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)[![DepShield Badge](https://depshield.sonatype.org/badges/InfernalPlacebo/pyre-bot/depshield.svg)](https://depshield.github.io)(https://deepsource.io/gh/InfernalPlacebo/pyre-bot/?ref=repository-badge)![Discord](https://img.shields.io/discord/660914305515913227?label=Discord)[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/InfernalPlacebo/ig-bot/blob/master/LICENSE)[![Documentation Status](https://readthedocs.org/projects/pyre-bot/badge/?version=latest)](https://pyre-bot.readthedocs.io/en/latest/?badge=latest)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![Discord](https://img.shields.io/discord/660914305515913227?label=Discord)](http://discord.pyre-bot.com)
+[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://github.com/Pyre-Bot/pyre-bot/blob/cloud/LICENSE)
+[![Donate](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/PyreBot/donate)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/Pyre-Bot/pyre-bot/pulls)
+[![Open Source Love svg3](https://badges.frapsoft.com/os/v3/open-source.svg?v=103)](https://github.com/Pyre-Bot)
+[![ForTheBadge built-with-love](http://ForTheBadge.com/images/badges/built-with-love.svg)](https://github.com/Pyre-Bot)
+![Docker Pulls](https://img.shields.io/docker/pulls/infernalplacebo/pyre-bot)
 
-Please find complete documentation on [ReadTheDocs](https://docs.pyre-bot.com)
-
-The Pyre Discord Bot has one main goal: Create an easy-to-use way to manage a maintain dedicated game servers from within Discord. From sending commands to the game console to allowing players to initiate a restart vote, Pyre was created to make it as easy as possible.
+Pyre Bot has one main goal: Create an easy-to-use way to manage a maintain dedicated game servers from within Discord. From sending commands to the game console to allowing players to initiate a restart vote, Pyre was created to make it as easy as possible.
 
 Feel free to join our [Discord](http://discord.pyre-bot.com) if you want to discuss the bot or hang out!
 
@@ -14,90 +19,64 @@ These instructions will help make sure your system is ready to run the bot and h
 
 ### Prerequisites
 
-The bot is built upon Python 3.8 but has been tested working with Python 3.7 without any issues. The dependencies for the usage are updated regularly in the requirements.txt file and these can be installed via:
-
-```
-pip install -r requirements.txt
-```
-
-As of writing the current requirements are:
-
-```
-boto3==1.12.37
-python_a2s==1.1.4
-discord.py==1.3.3
-psutil==5.6.7
-requests==2.22.0
-python_valve==0.2.1
-discord==1.0.1
-valve==0.0.0
-```
-
-If you get an aiohttp error while attempting to install discord.py, run the following command:
-
-```
-pip install --no-use-pep517 discord.py
-```
+The bot can be ran without everything listed below, but this is what we recommend:
+* [Python 3.8.5](https://www.python.org/)
+* [Docker](https://www.docker.com/)
+* [Seq](https://datalust.co/seq)
+* [DynamoDB](https://aws.amazon.com/dynamodb/)
+* [BotCommands](https://github.com/Pyre-Bot)
 
 ### Installing
 
-Clone the repo to wherever you want the bot to reside. You can run the bot by calling **bot.py**. You will also need [SteamCMD](https://developer.valvesoftware.com/wiki/SteamCMD) installed on your machine to run the updates for the game servers. When the bot first runs it will open a setup window where it prompts you for configuration settings. The window will also allow you to install the BotCommands plugin, this is required if you want access to functions that utilize in-game commands from Discord.
+Pyre Bot is meant to be ran within Docker; we use [AWS ECS](https://aws.amazon.com/ecs/?nc2=h_ql_prod_ct_ecs) but you can use whatever container service you like. If you prefer not to use containers, install the requirements and it can be ran locally.
 
-#### API Tokens
+The latest pre-built Docker images can be found [here](https://hub.docker.com/repository/docker/infernalplacebo/pyre-bot/general).
 
 ##### Discord
-You need to get an API token from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro). The token is added to the config.ini file in the config folder.
+You need to get an API token from the [Discord Developer Portal](https://discordapp.com/developers/docs/intro). The token will be used later in the environment variables. Invite the bot you create on the developer portal to your server and create the following for each RoR2 server you plan on running:
+
+* Admin commands channel
+* Public commands channel
+* In-game chat channel
+* Role for linked members
+
+Also create a channel for all servers to post updates to.
+
+##### Seq
+Set up a Seq server to ingest the logs from the game, we use [Twiner's GotSeq](https://thunderstore.io/package/Twiner/GotSeq/) plugin to send our logs there. Seq needs te be set up with an API key for each server you plan to host.
 
 ##### AWS
 Pyre Bot uses Amazon DynamoDB to store player stats from the servers and link Discord IDs to SteamIDs. You will need to setup an AWS account an add some tables to DynamoDB for this to work. Create the following tables:
 
-* **Discord_Stats** - Primary key: DiscordID (String)
+* **BotCommands_Stats** - Primary key: DiscordID (String)
 * **Players** - Primary key: DiscordID (String)
-* **Stats** - Primary key: SteamID64 (String)
 
-You also need to setup AWS credentials on your computer. You can use [AWS CLI](https://aws.amazon.com/cli/) to do this.
+###### EFS
+Since we host our Seq server in AWS as well as the bot, it is recommended to use EFS to enable your files to be shared between these services.
 
-#### Setting variables
-Some variables need to be set before using the bot to make sure it is looking in the correct place for files and information. These variables are setup when the bot first runs when it opens the setup window. In the **config/config.ini** file you will be able to config the following:
+#### Environment Variables
+Several variables need to be configured in the environment to make the bot run correctly, without these it will fail to run:
 
-```
-[API]
-discord_token = token
+* ADMIN_CHANNELS
+* ADMIN_ROLE
+* AWS_ACCESS_KEY_ID
+* AWS_SECRET_KEY_ID
+* CHAT_CHANNELS
+* COMMANDS_CHANNELS
+* DISCORD_TOKEN
+* LINKED_ID
+* LOG_LEVEL
+* LOG_PATH
+* PLAYERS_TABLE
+* SEQ_API
+* SERVER_ADDRESSES
+* SERVER_CHANNEL
+* STATS_ENDPOINT
+* STATS_REGION
+* STATS_TABLE
+* TRACK_STATS
 
-[General]
-role = privileged-server-role
-admin-channel = admin-channel-id
-commands-channel = commands-channel-id
-linked-id = linked-role-id
-
-[RoR2]
-server_address = your-server-address
-server_port = your-server-port
-steamcmd = path-to-steamcmd
-ror2ds = path-to-ror2ds
-bepinex = path-to-bepinex
-channel = enter-channel-id
-auto-start-chat = true
-auto-server-restart = true
-hidden_mods = hidden-mods-here
-```
-
-* **discord_token**: The API key you retrieved in the earlier step
-* **role**: The Discord role you want using protected commands
-* **admin-channel**: The channel ID that is used to issue admin commands
-* **linked-id**: The id of the "Linked" Discord role
-* **commands-channel**: The channel ID that anyone can use to issue commands
-* **server_address**: the IP/domain of your server
-* **server_port**: The port configured for queries
-* **steamcmd**: The path to the steamcmd folder
-* **ror2ds**: Used for ror2.py, path to the Risk of Rain 2 Dedicated Server folder
-* **BepInEx**: Path to the BepInEx folder
-* **channel**: The Discord channel ID to output live chat
-* **auto-start-chat**: Set to false to prevent the bot from outputting chat to a Discord channel when it launches
-* **auto-server-restart**: Set to false to prevent the bot from restarting the server every 60 minutes in which no players join the lobby
-* **hidden_mods**: Add mods that you don't want to be listed by the mods command, ships with a default list
-
-*Never upload online or share your config file to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
+*Never upload online or share your configuration to anyone you do not trust. These API keys are private and can result in your access from the services being removed if they get out.*
 
 #### Risk of Rain 2 requirements
 
@@ -106,17 +85,43 @@ The bot requires that you are using the following mods in your RoR2 server. Not 
 **Required Mods**
 * [BepInEx](https://thunderstore.io/package/bbepis/BepInExPack/)
   * Change **redirectOutputLog** to **true** in your doorstop_config.ini to prevent double messages being sent to BepInEx terminal.
-* [BotCommands](https://github.com/SuperRayss/BotCommands)
+* [BotCommands](https://github.com/Pyre-Bot)
   * Used to send commands to the server from Discord
 * [R2DSE](https://thunderstore.io/package/Harb/R2DSEssentials/)
   * Outputs steam player names and IDs
-* [DebugToolkit (Custom Fork by Rayss)](https://github.com/SuperRayss/DebugToolkit)
+* [DebugToolkit](https://thunderstore.io/package/Harb/DebugToolkit/)
   * Outputs run time and stages cleared
   * Enables additional commands to be sent to the server (i.e. give_item, give_equip)
 
 ## Running and using the bot
 
-The bot can be used by running **bot.py** in the main directory. The bot will output a message stating that it is connected to Discord and ready to listen when it starts. Once you get the confirmation message you are able to start issuing commands to your bot using one of the command prefixes ('r!', 'ig!', '>').
+If running in Docker, launch the bot using the following example command; consult your hosting server if using another container platform.
+
+```shell script
+docker build -f Dockerfile -t pyre-bot:latest . 
+&& docker run
+-v path/to/your/log/folder:/data
+--env ADMIN_CHANNELS=list,of,channels
+--env ADMIN_ROLE=Admin
+--env AWS_ACCESS_KEY_ID=
+--env AWS_SECRET_ACCESS_KEY=
+--env CHAT_CHANNELS=list,of,channels
+--env COMMANDS_CHANNELS=list,of,channels
+--env DISCORD_TOKEN=
+--env LINKED_ID=
+--env LOG_PATH=/data/
+--env SEQ_API=
+--env SERVER_ADDRESSES=list_of_server_address:with_ports
+--env SERVER_CHANNEL=
+--env STATS_ENDPOINT=https://dynamodb.us-east-2.amazonaws.com
+--env STATS_REGION=us-east-2
+--env STATS_TABLE=BotCommands_Stats
+--env TRACK_STATS=yes
+--env LOG_LEVEL=info
+--name pyre-bot
+--rm
+pyre-bot:latest
+```
 
 ## Bot Commands
 
@@ -133,22 +138,19 @@ The bot can be used by running **bot.py** in the main directory. The bot will ou
   * Assigns the "Linked" role (NOTE: requires further config to not be hardcoded)
 * stats : Outputs your player stats to chat
   * Currently supported stats are Time Played, Stages Cleared, and Runs Completed
-* mods : Outputs a list of mods to chat
-* config : Outputs the current server config to chat
-  * Coming soon!
+* help : Displays all commands
 
 ### Admin only
 * start : Starts the Risk of Rain 2 server
 * stop : Stops the Risk of Rain 2 server
-* update : Updates the Risk of Rain 2 server
 * delete {number} : Deletes the given amount of messages in the channel
-* start_chat : Reads the Risk of Rain 2 server logs and outputs live chat from the game to a specified Discord chat channel
-* stop_chat : Stops reading out Risk of Rain 2 server chat
 * say {message} : Sends an in-game message from the perspective of the server
 * cmd {command with args} : Passes on a command to execute by the server
   * Very experimental as of now, only use when you are sure of the results, as passing commands in certain contexts can cause unhandled exceptions with BotCommands
 * giveitem {player} {item} {quantity (default - 1)} : Gives a player a specified quantity of an item
 * giveequip {player} {equip} : Gives a player a specified equipment
+* restart_admin : Restarts the server without votes
+* help_admin : Displays information on how to use admin commands
 
 ## Modifying the commands
 
@@ -161,22 +163,31 @@ By default the bot is configured to manage a Risk of Rain 2 server. This can be 
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/InfernalPlacebo/pyre-bot/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/Pyre-bot/pyre-bot/blob/cloud/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 To add functionality for other games or servers, add a new file in the **cogs** folder.
 
 ## Authors
 
-* **Wade Fox** - *Creator* - [GitHub](https://github.com/InfernalPlacebo), [Discord](http://discord.pyre-bot.com)
-* **Rayss** - *Contributor and BotCommands creator* - [GitHub](https://github.com/SuperRayss), [Discord](http://discord.pyre-bot.com)
+* **Wade Fox** - [GitHub](https://github.com/InfernalPlacebo), [Discord](http://discord.pyre-bot.com)
+* **Rayss** - [GitHub](https://github.com/SuperRayss), [Discord](http://discord.pyre-bot.com)
 
-See also the list of [contributors](https://github.com/InfernalPlacebo/pyre-bot/graphs/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/Pyre-bot/pyre-bot/graphs/contributors) who participated in this project.
 
 ## License
 
 This project is licensed under the GPL-3.0 License - see the [LICENSE](LICENSE) file for details
 
 ## Changelog
+
+### 0.10.0
+* Moved chat to its on cog
+* Server now posts updates to server update channel
+* Created Server class
+* **Finally** updated the README?
+
+### 0.9.0
+* These updates got lost somewhere :)
 
 ### 0.8.0
 * Moved all stat tracking to Amazon DynamoDB for a better experience

@@ -2,7 +2,6 @@
 
 """Pyre Bot Risk of Rain 2 admin functions."""
 
-import logging
 import random
 from datetime import datetime
 

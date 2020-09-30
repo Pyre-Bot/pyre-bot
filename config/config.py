@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import logging
 
 from pytz import timezone
 import boto3
@@ -7,23 +8,27 @@ import boto3
 
 tz = timezone('US/Eastern')  # Sets timezone to Eastern
 t_fmt = '%Y-%m-%d %H:%M:%S %Z%z'  # Configures time output format
+i_fmt = '%I:%M%p %Z'  # Configures time format for info
 
 # Assigns the variables
 try:
     discord_token = os.environ.get('DISCORD_TOKEN')
     seq_api = os.environ.get('SEQ_API')
     role = os.environ.get('ADMIN_ROLE')
-    # Creating ordered lists, will create dict objects for each one
-    admin_channels = os.environ.get('ADMIN_CHANNELS').split(',')  # CHANGED TO LIST
-    commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')  # CHANGED TO LIST
-    chat_channels = os.environ.get('CHAT_CHANNELS').split(',')  # CHANGED TO LIST, MOVED TO GENERAL
+    admin_channels = os.environ.get('ADMIN_CHANNELS').split(',')
+    commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')
+    chat_channels = os.environ.get('CHAT_CHANNELS').split(',')
     track_stats = os.environ.get('TRACK_STATS')
-    server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')  # CHANGED TO LIST
-    server_update_channel = os.environ.get('SERVER_CHANNEL')  # NEW
-    logpath = Path(os.environ.get('LOG_PATH'))  # NEW
-    chat_autostart = os.environ.get('CHAT_AUTOSTART')
-    server_restart = os.environ.get('SERVER_RESTART')
-    server_restart_interval = os.environ.get('SERVER_RESTART_TIME')
+    server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')
+    admin_update_channel = int(os.environ.get('SERVER_UPDATES'))
+    server_update_channel = os.environ.get('SERVER_CHANNEL')
+    logpath = Path(os.environ.get('LOG_PATH'))
+
+    # Logging level
+    if os.environ.get('LOG_LEVEL') == 'info':
+        log_level = logging.getLevelName('INFO')
+    elif os.environ.get('LOG_LEVEL') == 'debug':
+        log_level = logging.getLevelName('DEBUG')
 
     # Stat tracking variables. Try/Except used in case stat tracking is disabled
     try:

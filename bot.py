@@ -8,7 +8,6 @@ Usage:
 """
 
 import sys
-import logging
 from datetime import datetime
 
 import discord
@@ -16,12 +15,13 @@ import seqlog
 from discord.ext import commands
 
 from config.config import *
+from libs.server import servers, Server
 
 # Seq configuration
 seqlog.log_to_seq(
     server_url="http://seq.pyre-bot.com:80",
     api_key=seq_api,
-    level=logging.INFO,
+    level=log_level,
     batch_size=5,
     auto_flush_timeout=5,  # seconds
     override_root_logger=True
@@ -80,21 +80,33 @@ async def on_ready():
     await bot.change_presence(
         status=discord.Status.online
     )
+
     logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Bot connected as {bot.user.name}(id: {bot.user.id})')
+
+    # Load cogs into the bot
     for cog in cogs:
         try:
             bot.load_extension(cog)
         except Exception:
-            logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Error loading {cog}, trying second method.')
-            try:
-                bot.unload_extension(cog)
-                bot.load_extension(cog)
-            except Exception:
-                logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to load cog: {cog}')
+            logging.warning(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Error loading {cog}.')
+
+    # Create server class objects
+    for server in server_list:
+        servers[server['server_name']] = Server(server['server_name'],
+                                                server['server_address'],
+                                                'lobby',  # Stage
+                                                0,  # Stage number
+                                                0,  # Run time
+                                                server['admin_channel'],
+                                                server['commands_channel'],
+                                                server['chat_channel'],
+                                                None,  # Players
+                                                0,  # Number of current players
+                                                0)  # Max players
 
     # Posts a message to admin channel
-    admin_channel = bot.get_channel(737812925414244442)
-    await admin_channel.send('👀 Bot is online.')
+    admin_channel = bot.get_channel(admin_update_channel)
+    await admin_channel.send(f'👀 {len(server_list)} server class objects created, bot online.')
 
 
 # Load and Unload cogs stuff
