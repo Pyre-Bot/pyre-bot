@@ -43,7 +43,6 @@ try:
     except KeyError:
         pass
 
-    # Other configuration variables not set by setup.py
     request_url = 'https://steamid.io/lookup/'
     server_list = []
     for i in range(len(server_addresses)):

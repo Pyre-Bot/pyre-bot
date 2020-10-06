@@ -225,7 +225,7 @@ async def info_chat(self, server):
         return
 
     try:
-        await server.server_info()  # Updates object information
+        await server.info()  # Updates object information
 
         update_channel = self.bot.get_channel(int(server_update_channel))
         formatted_time = await shared.format_time(server.runtime)
