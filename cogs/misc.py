@@ -31,64 +31,6 @@ class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    # Update DB when a member joins the server
-    @commands.Cog.listener()
-    async def on_member_join(self, member, ctx):
-        """Adds Discord member to database when they join the server.
-
-        This is used to track member retention in the server.
-
-        :param ctx: Discord context
-        :param member: Discord member class
-        """
-        logging.info(f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] {member.name} joined the server! Discord ID: {member.id}')
-        if await stat_tracking(ctx):
-            try:
-                await discord_table.put_item(
-                    Item={
-                        'DiscordID': str(member.id),
-                        'DiscordName': str(member.name),
-                        'JoinDate': str(datetime.datetime.utcnow())
-                    }
-                )
-            except TypeError:
-                # put_item doesn't like async so we pass the error because we know it happens.
-                pass
-
-    # Update DB when a member leaves the server
-    @commands.Cog.listener()
-    async def on_member_remove(self, member, ctx):
-        """Updates the database with the user leave date.
-
-        :param member: Discord member class
-        :param ctx: Discord context
-        """
-        if await stat_tracking(ctx):
-            try:
-                r_key = {'DiscordID': str(member.id)}
-                try:
-                    response = discord_table.get_item(Key=r_key)
-                except TypeError:
-                    # get_item doesn't like async so we pass the error because we know it happens.
-                    pass
-                response = response['Item']
-                response['LeaveDate'] = str(datetime.datetime.utcnow())
-                try:
-                    discord_table.put_item(
-                        Item={
-                            'DiscordID': str(response['DiscordID']),
-                            'DiscordName': str(response['DiscordName']),
-                            'JoinDate': str(response['JoinDate']),
-                            'LeaveDate': str(response['LeaveDate'])
-                        }
-                    )
-                except TypeError:
-                    # put_item doesn't like async so we pass the error because we know it happens.
-                    pass
-            except TypeError:
-                # boto3 doesn't like async so we pass teh error because we know it happens.
-                pass
-
     # noinspection DuplicatedCode
     @commands.command(name='help', help='Displays this message', usage='cog')
     async def help(self, ctx, cog='all'):

@@ -164,6 +164,7 @@ try:
     bot.run(discord_token)
 except discord.errors.LoginFailure as e:
     logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unable to log in to Discord: {e}')
+    sys.exit(1)
 except discord.errors.HTTPException as e:
     logging.error(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Error connection to Discord: {e}.')
     sys.exit(1)

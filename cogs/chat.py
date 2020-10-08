@@ -4,6 +4,7 @@
 
 import asyncio
 import re
+import sys
 from datetime import datetime
 
 import discord
@@ -294,8 +295,7 @@ async def info_chat_load(self):
         message = await update_channel.send(embed=embed)
         server_embeds[servers[server].chat_channel] = message
 
-    # Allows info_chat
-    start_info = True
+    start_info = True # Allows info_chat
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished info_chat_load.')
 
 
@@ -327,7 +327,11 @@ class Chat(commands.Cog):
     """Cog used to load and manage chat capabilities"""
     def __init__(self, bot):
         self.bot = bot
-        asyncio.gather(chat_autostart_func(self), info_chat_load(self))
+        try:
+            asyncio.gather(chat_autostart_func(self), info_chat_load(self))
+        except Exception as e:
+            logging.error(f'[Pyre-Bot:Error][{datetime.now(tz).strftime(t_fmt)}] Chat Module error: {e}')
+            sys.exit(2)  # Restarts bot on chat error
 
 
 def setup(bot):
