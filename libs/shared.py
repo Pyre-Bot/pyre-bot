@@ -9,6 +9,7 @@ import json
 import requests
 from datetime import datetime, date, timedelta
 
+
 from config.config import *
 
 
@@ -362,7 +363,7 @@ async def is_host(ctx):
 
 
 async def format_time(time):
-    value = datetime.timedelta(seconds=int(float(time)))
+    value = timedelta(seconds=int(float(time)))
     total_hours = int(value.total_seconds() // 3600)
     if total_hours < 10:
         total_hours = "0" + str(total_hours)
