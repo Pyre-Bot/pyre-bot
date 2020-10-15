@@ -159,7 +159,7 @@ class Misc(commands.Cog):
                 'totalDeaths': 'Deaths',
                 'totalItemsCollected': 'Items Collected',
                 'totalGoldCollected': 'Gold Collected',
-                'highestLevel': 'Highest Level',
+                #'highestLevel': 'Highest Level',
                 'totalTimesCleared.moon': 'Games Beat'
             }
             proceed = False
@@ -203,10 +203,11 @@ class Misc(commands.Cog):
                 except KeyError:
                     # Called if the SteamID isn't linked in the Players table
                     await ctx.send(
-                        'Your Steam ID does not have any stats associated with it. Play on the server at least once to '
-                        'create a stats profile')
+                        'Your Steam ID does not have any stats associated with it. Play on Pyre servers '
+                        'at least once to create a stats profile')
             else:
-                await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
+                await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]. '
+                               'To find your SteamID, use https://steamid.io/lookup')
         except Exception as e:
             logging.warning(e)
         logging.info(f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] {user.name} used {ctx.command.name}')
