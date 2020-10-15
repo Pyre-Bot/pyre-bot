@@ -193,13 +193,12 @@ class Misc(commands.Cog):
                     embed.set_thumbnail(url=user.avatar_url)
                     embed.set_author(name=self.bot.guilds[0])
                     for key, value in stats_dict.items():
-                        time_string = await shared.format_time(0.0)
                         if key == 'totalTimeAlive':
-                            time_string = await shared.format_time(value)
+                            value = await shared.format_time(value)
                         for k, v in stat_names.items():
                             if k == key:
                                 name = v
-                                embed.add_field(name=str(name), value=time_string, inline=True)
+                                embed.add_field(name=str(name), value=str(value), inline=True)
                     await ctx.send(embed=embed)
                 except KeyError:
                     # Called if the SteamID isn't linked in the Players table
