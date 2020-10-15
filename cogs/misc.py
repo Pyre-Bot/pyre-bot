@@ -194,7 +194,7 @@ class Misc(commands.Cog):
                     embed.set_author(name=self.bot.guilds[0])
                     for key, value in stats_dict.items():
                         if key == 'totalTimeAlive':
-                            time_string = shared.format_time(value)
+                            time_string = await shared.format_time(value)
                         for k, v in stat_names.items():
                             if k == key:
                                 name = v
