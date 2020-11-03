@@ -234,7 +234,8 @@ stages = {
     'splash': 'Splash Screen',
     'moon': 'Moon',
     'outro': 'Outro',
-    'dampcavesimple': 'Abyssal Depths'
+    'dampcavesimple': 'Abyssal Depths',
+    'rootjungle': 'Sundered Grove'
 }
 
 # These get assigned / updated every time server() is called
