@@ -319,7 +319,10 @@ async def chat_autostart_func(self):
                 logging.error(f'Unable to start chat! Failed removing {e.filename}: {e.strerror}')
     while repeat:
         for config_channel in chat_channels:
-            await chat(self, config_channel)
+            try:
+                await chat(self, config_channel)
+            except Exception as e:
+                logging.error(f'[Pyre-Bot:Error][{datetime.now(tz).strftime(t_fmt)}] Chat error: {e}')
         await asyncio.sleep(0.5)
 
 
