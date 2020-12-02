@@ -16,6 +16,7 @@ from discord.ext import commands
 
 from config.config import *
 from libs.server import servers, Server
+from libs.leaderboard import leaderboards, Leaderboard, stats
 
 # Seq configuration
 seqlog.log_to_seq(
@@ -29,7 +30,9 @@ seqlog.log_to_seq(
 
 logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Bot started')
 
-bot = commands.Bot(command_prefix=('>', '$'), case_insensitive=True)
+intents = discord.Intents.default()
+intents.members = True
+bot = commands.Bot(command_prefix=('>', '$'), case_insensitive=True, intents=intents)
 cogs = [
     'cogs.ror2',
     'cogs.ror2_admin',
@@ -103,6 +106,11 @@ async def on_ready():
                                                 None,  # Players
                                                 0,  # Number of current players
                                                 0)  # Max players
+
+    # Create leaderboard class objects
+    for stat in stats:
+        leaderboards[stat] = Leaderboard(stat)
+        await leaderboards[stat].only10()
 
     # Posts a message to admin channel
     admin_channel = bot.get_channel(admin_update_channel)

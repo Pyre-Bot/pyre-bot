@@ -3,6 +3,7 @@
 """Functions and methods related to the chat capabilities of the bot."""
 
 import asyncio
+import random
 import re
 import sys
 from datetime import datetime
@@ -15,6 +16,7 @@ import libs.shared as shared
 from config.config import *
 from libs.pygtail import Pygtail
 from libs.server import servers
+from libs.leaderboard import leaderboards
 
 # Profanity filter settings
 pf = ProfanityFilter()
@@ -26,6 +28,10 @@ repeat = False
 # Info chat vars
 server_embeds = {}
 start_info = False  # Without this the info function can post an update before all messages are sent
+
+# Leaderboard vars
+leaderboards_embeds = None
+start_leaderboards = False
 
 
 # TODO: Add anti-spam
@@ -299,6 +305,63 @@ async def info_chat_load(self):
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished info_chat_load.')
 
 
+async def leaderboards_load(self):
+    """Creates the embeds for the leaderboards.
+
+    Parameters
+    ----------
+    self : Chat
+        Discord bot object
+    """
+    logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Starting leaderboards_load.')
+    global leaderboards_embeds
+    global start_leaderboards
+
+    leaderboard_channel = self.bot.get_channel(int(leaderboard_update_channel))  # Gets Discord channel
+    await leaderboard_channel.purge(limit=50)
+
+    embed = await create_leaderboards(self, 'Stages Completed')  # Create and send embed
+    leaderboards_embeds = await leaderboard_channel.send(embed=embed)  # Store message ID
+
+    # Add reactions for changing the leaderboard
+    emojis = ['🗺', '☠', '⌛', '💰', '💀', '📦', '💹']
+    for emoji in emojis:
+        await leaderboards_embeds.add_reaction(emoji)
+    start_leaderboards = True
+
+    logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished leaderboards_load.')
+
+
+async def create_leaderboards(self, category):
+    color_list = [c for c in shared.colors.values()]  # Gets random colors for embed
+    ranks = await leaderboards[category].results()  # Gets results from Leaderboard class
+
+    # Create embed
+    embed = discord.Embed(
+        title=f'{category} Leaderboard',
+        color=random.choice(color_list)
+    )
+    embed.set_footer(text='Last Updated: ' + str(datetime.now(tz).strftime(i_fmt)))
+    place = 0
+    for rank, amount in ranks.items():
+        place += 1
+        player = self.bot.get_user(int(rank))
+        if str(player) == 'None':
+            player = rank  # If player no longer in Discord
+        else:
+            player = str(player)[:-5]  # Removed numbers from DiscordID
+        if place == 1:
+            embed.add_field(name=f'🥇 {player}', value=amount, inline=False)
+        elif place == 2:
+            embed.add_field(name=f'🥈 {player}', value=amount, inline=False)
+        elif place == 3:
+            embed.add_field(name=f'🥉 {player}', value=amount, inline=False)
+        else:
+            embed.add_field(name=player, value=amount, inline=False)
+
+    return embed
+
+
 async def chat_autostart_func(self):
     """Starts and runs the chat function.
 
@@ -331,10 +394,41 @@ class Chat(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         try:
-            asyncio.gather(chat_autostart_func(self), info_chat_load(self))
+            asyncio.gather(chat_autostart_func(self), info_chat_load(self), leaderboards_load(self))
         except Exception as e:
             logging.error(f'[Pyre-Bot:Error][{datetime.now(tz).strftime(t_fmt)}] Chat Module error: {e}')
             sys.exit(2)  # Restarts bot on chat error
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        """Determines which leaderboard to change to.
+
+        Parameters
+        ----------
+        payload : discord.Message
+            The object containing the message reaction information.
+        """
+        if start_info and payload.message_id == leaderboards_embeds.id:
+            embed = False
+            if payload.emoji.name == '🗺':
+                embed = await create_leaderboards(self, 'Stages Completed')
+            elif payload.emoji.name == '☠':
+                embed = await create_leaderboards(self, 'Kills')
+            elif payload.emoji.name == '⌛':
+                embed = await create_leaderboards(self, 'Time Alive')
+            elif payload.emoji.name == '💰':
+                embed = await create_leaderboards(self, 'Purchases')
+            elif payload.emoji.name == '💀':
+                embed = await create_leaderboards(self, 'Deaths')
+            elif payload.emoji.name == '📦':
+                embed = await create_leaderboards(self, 'Items Collected')
+            elif payload.emoji.name == '💹':
+                embed = await create_leaderboards(self, 'Gold Collected')
+
+            if embed:
+                await leaderboards_embeds.edit(embed=embed)
+                await leaderboards_embeds.remove_reaction(payload.emoji.name, self.bot.get_user(payload.user_id))
+
 
 
 def setup(bot):

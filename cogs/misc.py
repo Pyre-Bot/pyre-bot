@@ -11,6 +11,7 @@ from discord.ext import commands
 
 import libs.shared as shared
 from config.config import *
+from libs.leaderboard import leaderboards
 
 
 # Checks if stats are being tracked
@@ -188,6 +189,12 @@ class Misc(commands.Cog):
                                     stats_dict[k] = int(float(stats_dict[k])) + int(float(v))
                                 else:
                                     stats_dict[k] = int(float(v))
+
+                    # Check and update leaderboard
+                    for stat, amt in stats_dict.items():
+                        for k, v in stat_names.items():
+                            if k == stat:
+                                await leaderboards[v].check(user.id, amt)
 
                     embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
                     embed.set_thumbnail(url=user.avatar_url)

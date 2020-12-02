@@ -22,6 +22,7 @@ try:
     server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')
     admin_update_channel = int(os.environ.get('SERVER_UPDATES'))
     server_update_channel = os.environ.get('SERVER_CHANNEL')
+    leaderboard_update_channel = os.environ.get('LEADERBOARD_CHANNEL')
     logpath = Path(os.environ.get('LOG_PATH'))
 
     # Logging level
@@ -40,6 +41,7 @@ try:
         stats_players = dynamodb.Table(os.environ.get('PLAYERS_TABLE'))
         discord_table = dynamodb.Table(os.environ.get('DISCORD_TABLE'))
         ban_table = dynamodb.Table(os.environ.get('BAN_TABLE'))
+        leaderboard_table = dynamodb.Table(os.environ.get('LEADERBOARD_TABLE'))
     except KeyError:
         pass
 
