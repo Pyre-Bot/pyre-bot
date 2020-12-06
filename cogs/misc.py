@@ -194,7 +194,11 @@ class Misc(commands.Cog):
                     for stat, amt in stats_dict.items():
                         for k, v in stat_names.items():
                             if k == stat:
-                                await leaderboards[v].check(user.id, amt)
+                                try:
+                                    await leaderboards[v].check(user.id, amt)
+                                except KeyError:
+                                    logging.info(f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] '
+                                                 f'incorrect value sent to leaderboards.')
 
                     embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
                     embed.set_thumbnail(url=user.avatar_url)
