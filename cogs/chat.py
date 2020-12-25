@@ -59,11 +59,11 @@ async def chat(self, channel):
                 if os.path.exists(logpath / (log_name + '.offset')):
                     for line in Pygtail(str(logpath / log_name), read_from_end=True):
                         # Player chat
-                        if "issued: say" in line:
-                            await chat_say(line, bot_channel)
+                        # if "issued: say" in line:
+                        #     await chat_say(line, bot_channel)
 
                         # Run time
-                        elif '[Info:Unity Log] Run time is ' in line:
+                        if '[Info:Unity Log] Run time is ' in line:
                             await chat_runtime(line, server)
 
                         # Stages cleared
@@ -72,12 +72,12 @@ async def chat(self, channel):
 
                         # Stage change
                         elif "Active scene changed from" in line:
-                            await chat_stage_change(line, server, bot_channel)
+                            # await chat_stage_change(line, server, bot_channel)
                             await info_chat(self, server)
 
                         # Player updates
                         elif "[Info:R2DSE] New player :" in line or "[Info:R2DSE] Ending AuthSession with" in line:
-                            await chat_players(line, bot_channel)
+                            # await chat_players(line, bot_channel)
                             await info_chat(self, server)
                 else:
                     for _ in Pygtail(str(logpath / log_name), read_from_end=True):
@@ -301,7 +301,7 @@ async def info_chat_load(self):
         message = await update_channel.send(embed=embed)
         server_embeds[servers[server].chat_channel] = message
 
-    start_info = True # Allows info_chat
+    start_info = True  # Allows info_chat
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished info_chat_load.')
 
 

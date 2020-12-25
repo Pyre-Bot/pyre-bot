@@ -60,5 +60,6 @@ try:
                 "chat_channel": chat_channels[i]
             }
         )
+
 except KeyError:
     pass
