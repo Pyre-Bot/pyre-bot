@@ -242,7 +242,6 @@ async def info_chat(self, server):
             title=str(server.name),
             colour=discord.Colour.blue())
         embed.set_footer(text='Last Updated: ' + str(datetime.now(tz).strftime(i_fmt)))
-        embed.add_field(name='Stage', value=f'{server.stage}', inline=True)
         embed.add_field(name='Run Time', value=f'{formatted_time}', inline=True)
         embed.add_field(
             name='Player Count',
