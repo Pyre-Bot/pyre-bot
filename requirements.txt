@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
-aiohttp==3.6.3            # via -r requirements.in, discord.py
+aiohttp==3.7.4            # via -r requirements.in, discord.py
 async-timeout==3.0.1      # via -r requirements.in, aiohttp
 attrs==20.2.0             # via -r requirements.in, aiohttp
 blis==0.7.1               # via spacy, thinc
