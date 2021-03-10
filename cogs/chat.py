@@ -51,7 +51,7 @@ async def info_chat(self, server):
 
     try:
         await server.info()  # Updates object information
-        update_channel = self.bot.get_channel(int(server_update_channel))
+        update_channel = self.bot.get_channel(server_update_channel)
         # Embed information
         embed = discord.Embed(
             title=str(server.name),
@@ -92,7 +92,7 @@ async def info_chat_load(self):
     global server_embeds
     global start_info
 
-    update_channel = self.bot.get_channel(int(server_update_channel))  # Gets the server updates channel object
+    update_channel = self.bot.get_channel(server_update_channel)  # Gets the server updates channel object
     await update_channel.purge(limit=50)  # Removes previous messages from the channel
 
     # Create empty embed for all channels
@@ -113,7 +113,8 @@ async def info_chat_load(self):
 
         # Send embed and store in dictionary for later use
         message = await update_channel.send(embed=embed)
-        server_embeds[servers[server].command_channel] = message  # I think this just prints the channel name if nothing else is given, seen this with servers that don't get made
+        server_embeds[servers[
+            server].command_channel] = message  # I think this just prints the channel name if nothing else is given, seen this with servers that don't get made
 
     start_info = True  # Allows info_chat, need this before auto refreshing info chat is started
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished info_chat_load.')
@@ -131,7 +132,7 @@ async def leaderboards_load(self):
     global leaderboards_embeds
     global start_leaderboards
 
-    leaderboard_channel = self.bot.get_channel(int(leaderboard_update_channel))  # Gets Discord channel
+    leaderboard_channel = self.bot.get_channel(leaderboard_update_channel)  # Gets Discord channel
     await leaderboard_channel.purge(limit=50)
 
     embed = await create_leaderboards(self, 'Stages Completed')  # Create and send embed
@@ -192,12 +193,15 @@ async def autoupdate_info(self):
         for server in servers:
             await info_chat(self, server)
 
+
 class Chat(commands.Cog):
     """Cog used to load and manage chat capabilities"""
+
     def __init__(self, bot):
         self.bot = bot
         try:
-            asyncio.gather(info_chat_load(self), leaderboards_load(self), autoupdate_info(self))
+            asyncio.gather(info_chat_load(self), leaderboards_load(self))
+            await autoupdate_info(self)
         except Exception as e:
             logging.error(f'[Pyre-Bot:Error][{datetime.now(tz).strftime(t_fmt)}] Chat Module error: {e}')
             sys.exit(2)  # Restarts bot on chat error
@@ -231,7 +235,6 @@ class Chat(commands.Cog):
             if embed:
                 await leaderboards_embeds.edit(embed=embed)
                 await leaderboards_embeds.remove_reaction(payload.emoji.name, self.bot.get_user(payload.user_id))
-
 
 
 def setup(bot):
