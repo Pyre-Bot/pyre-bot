@@ -13,7 +13,6 @@ from config.config import *
 
 # Globals
 yes, no = 0, 0
-stagenum = 0
 run_timer = 0
 
 

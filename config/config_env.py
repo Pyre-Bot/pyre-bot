@@ -17,14 +17,10 @@ try:
     # Creating ordered lists, will create dict objects for each one
     admin_channels = os.environ.get('ADMIN_CHANNELS').split(',')  # CHANGED TO LIST
     commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')  # CHANGED TO LIST
-    chat_channels = os.environ.get('CHAT_CHANNELS').split(',')  # CHANGED TO LIST, MOVED TO GENERAL
     track_stats = os.environ.get('TRACK_STATS')
     server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')  # CHANGED TO LIST
     server_update_channel = os.environ.get('SERVER_CHANNEL')  # NEW
     logpath = Path(os.environ.get('LOG_PATH'))  # NEW
-    chat_autostart = os.environ.get('CHAT_AUTOSTART')
-    server_restart = os.environ.get('SERVER_RESTART')
-    server_restart_interval = os.environ.get('SERVER_RESTART_TIME')
 
     # Stat tracking variables. Try/Except used in case stat tracking is disabled
     try:
@@ -51,8 +47,7 @@ try:
                 "server_name": "Server" + str(i + 1),
                 "server_address": server_address,
                 "admin_channel": admin_channels[i],
-                "commands_channel": commands_channels[i],
-                "chat_channel": chat_channels[i]
+                "commands_channel": commands_channels[i]
             }
         )
 except KeyError:
