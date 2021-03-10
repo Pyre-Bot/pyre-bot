@@ -137,3 +137,6 @@ config/config.ini
 cogs/config
 .vscode/
 *.json
+tests/
+.idea
+/.github/

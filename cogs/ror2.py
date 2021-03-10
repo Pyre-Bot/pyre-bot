@@ -1,131 +1,36 @@
 #!/usr/bin/env python3
 
 """Pyre Bot Risk of Rain 2 user functions."""
-
-import ast
 import asyncio
-import logging
-import os
-from configparser import ConfigParser
-from pathlib import Path
+from datetime import datetime
 
-import a2s
 import discord
-import psutil
 from discord.ext import commands
+from config.config import *
 
-config_object = ConfigParser()
-config_file = Path.cwd().joinpath('config', 'config.ini')
-config_object.read(config_file)
-ror2 = config_object["RoR2"]
-general = config_object["General"]
+import libs.shared as shared
+from libs.server import servers
 
-# Config variables
-server_address = config_object.get(
-    'RoR2', 'server_address'), config_object.getint('RoR2', 'server_port')
-steamcmd = Path(ror2["steamcmd"])
-ror2ds = Path(ror2["ror2ds"])
-BepInEx = Path(ror2["BepInEx"])
-role = general["role"]
-c_autostart = ror2['auto-start-chat']
-s_restart = ror2['auto-server-restart']
-hidden_mods = ast.literal_eval(config_object.get('RoR2', 'hidden_mods'))
-botcmd = Path.joinpath(BepInEx, 'plugins', 'BotCommands')
-
-# Global variables (yes, I know, not ideal but I'll fix them later)
+# Global variables
 yes, no = 0, 0
-
-logfile = (BepInEx / "LogOutput.log")
-
-# These get assigned / updated every time server() is called
-# Only using string type as a placeholder to avoid exceptions if the server is not online when the bot initializes
-server_info = ''
-server_players = ''
-
-# Dictionaries used for functions
-stages = {
-    'title': 'Title',  # Time not started (keep stage at 0)
-    'lobby': 'Game Lobby',  # Time not started (keep stage at 0)
-    'blackbeach': 'Distant Roost',
-    'blackbeach2': 'Distant Roost',
-    'golemplains': 'Titanic Plains',
-    'golemplains2': 'Titanic Plains',
-    'foggyswamp': 'Wetland Aspect',
-    'goolake': 'Abandoned Aqueduct',
-    'frozenwall': 'Rallypoint Delta',
-    'wispgraveyard': 'Scorched Acres',
-    'dampcave': 'Abyssal Depths',
-    'shipgraveyard': "Siren's Call",
-    # Time paused, no stage progression on following stage
-    'bazaar': 'Hidden Realm: Bazaar Between Time',
-    # Time paused, no stage progression on following stage
-    'goldshores': 'Hidden Realm: Glided Coast',
-    # Time paused, no stage progression on following stage
-    'mysteryspace': 'Hidden Realm: A Moment, Fractured',
-    # Time paused, no stage progression on following stage
-    'limbo': 'Hidden Realm: A Moment, Whole',
-    # Time is NOT paused, no stage progression on following stage
-    'arena': 'Hidden Realm: Void Fields'
-}
-
-
-async def server():
-    """
-    Checks if the server is running or not.
-    Returns:
-        Boolean: Used by functions calling this to check if running
-    """
-    global server_info
-    global server_players
-    try:
-        server_info = a2s.info(server_address, 1.0)
-        server_players = a2s.players(server_address)
-        return True
-    except:
-        #        print("Server error:", sys.exc_info()[0], sys.exc_info()[1]) #  Used for debugging
-        return False
-
-
-async def server_stop():
-    """
-    Stops the server.
-    Returns:
-        Boolean: Indicates whether server stopped or not
-    """
-    for proc in psutil.process_iter():
-        exe = Path.cwd().joinpath(ror2ds, 'Risk of Rain 2.exe')
-        try:
-            processExe = proc.exe()
-            if str(exe) == processExe:
-                proc.kill()
-                logging.info('Server stopped')
-                return True
-        except:
-            pass
-    return False
-
-
-async def find_dll():
-    """
-    Checks to see if the BotCommands plugin is installed on server.
-    Returns:
-        Boolean: If true it is, otherwise it is not
-    """
-    plugin_dir = (BepInEx / 'plugins')
-    files = [file.name for file in plugin_dir.glob('**/*') if file.is_file()]
-    if 'BotCommands.dll' in files:
-        return True
-    logging.warning('Unable to find BotCommands.dll!')
-    return False
 
 
 class RoR2(commands.Cog):
+    """Handles all of the functions for the RoR2 cog.
+
+    This cog handles user functions and features. Anything in here can be used without requiring special roles.
+    """
+
     def __init__(self, bot):
         self.bot = bot
 
-    # Counts reactions of commands with votes
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
+        """Counts the number of votes added to messages. Used solely for vote kick.
+
+        Args:
+            payload: The object containing the message reaction information.
+        """
         global yes, no
         if payload.emoji.name == "✅":
             yes = yes + 1
@@ -134,15 +39,22 @@ class RoR2(commands.Cog):
         else:
             pass
 
-    # Restart the server with votes
     @commands.command(
         name='restart',
         help='Initializes a vote to restart the RoR2 server',
         usage='time'
     )
     async def restart(self, ctx, time=15):
-        if await server():
-            logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
+        """Used to start a vote to restart the game server.
+
+        Args:
+            ctx: Current Discord context.
+            time: How long to let the vote run, by default 15 seconds.
+        """
+        serverinfo = await shared.server(str(ctx.message.channel.id))
+        if serverinfo:
+            logging.info(
+                f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
             global yes, no
             yes, no = 0, 0
             author = ctx.author
@@ -154,71 +66,56 @@ class RoR2(commands.Cog):
             await asyncio.sleep(time)
             # Counts vote, if tie does nothing
             if yes == no:
-                logging.info('There were not enoough votes to restart the server')
+                logging.info(
+                    f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] There were not enough votes to restart the server')
                 await ctx.send('It was a tie! There must be a majority to restart the '
                                + 'server!')
             # If 75% of player count wants to restart it will
-            elif (yes - 1) >= (server_info.player_count * 0.75):
-                started = 1
-                stopped = await server_stop()
-                if stopped is True:
-                    await ctx.send('Risk of Rain 2 server shut down...')
-                elif stopped is False:
-                    await ctx.send('Unable to stop server!')
-                await asyncio.sleep(5)
-
-                # Path of log file, removes before starting
-                if os.path.exists(BepInEx / "LogOutput.log"):
-                    try:
-                        os.remove(BepInEx / "LogOutput.log")
-                    except Exception:
-                        print('Unable to remove log file')
-
-                # Starts the server
-                os.startfile(ror2ds / "Risk of Rain 2.exe")
-                await ctx.send('Starting Risk of Rain 2 Server, please wait...')
-                await asyncio.sleep(15)
-
-                # After 15 seconds checks logs to see if server started
-                while started == 1:
-                    with open(BepInEx / "LogOutput.log") as f:
-                        for line in f:
-                            if "Loaded scene lobby" in line:
-                                await ctx.send('Server started successfully...')
-                                started = 2
-                                break
-                # All other options
+            elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
+                await ctx.send('Vote passed! Restarting the server, please wait...')
+                if await shared.restart(str(ctx.message.channel.id)):
+                    await ctx.send('Server restarted!')
+                    logging.info(
+                        f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Restart vote passed.')
+                else:
+                    await ctx.send('Server could not be restarted')
+                    logging.error(
+                        f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Unable to restart the server')
             else:
-                logging.info('There were not enoough votes to restart the server')
+                logging.info(
+                    f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] There were not enough votes to restart the server')
                 await ctx.send('Restart vote failed!')
         else:
             await ctx.send('Server is not running, unable to restart...')
 
-    # Kick a player with a majority vote
-    # TODO: Add the ability to call this command with in-game chat by adding a
-    # conditional to the chat command, so players can do it while in-game too.
-    # Would have to add functionality for votes to count with in-game chat
-    # though. (or not, if I want to leave that to the discord).
+    # TODO: Add the ability to call this command with in-game chat
     @commands.command(
         name='votekick',
         help='Begins a vote to kick a player from the game',
         usage='playername'
     )
     async def votekick(self, ctx, *, kick_player):
-        if await server() and await find_dll() is True:
+        """Player initiated function that creates a vote to remove a player from the game.
+
+        Args:
+            ctx: Current Discord context.
+            kick_player: Full or partial steam name of the player.
+        """
+        serverinfo = await shared.server(str(ctx.message.channel.id))
+        if serverinfo:
             global yes, no
             yes, no = 0, 0
             author = ctx.author
             time = 30
             containskickplayer = 0
-            for player in server_players:
+            for player in serverinfo['server_players']:
                 if kick_player.upper() in player.name.upper():
                     containskickplayer = 1
                     kick_player = player.name
                     break
             if containskickplayer == 1:
-                logging.info(
-                    f'{ctx.message.author.name} started a vote to kick {kick_player}')
+                logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] '
+                             f'{ctx.message.author.name} started a vote to kick {kick_player}')
                 message = await ctx.send('A vote to kick ' + kick_player
                                          + f' has been initiated by {author.mention}. '
                                          + 'Please react to this message with your '
@@ -233,32 +130,34 @@ class RoR2(commands.Cog):
                         + kick_player
                     )
                 # If 75% of player count wants to kick it will
-                elif (yes - 1) >= (server_info.player_count * 0.75):
-                    logging.info(f'{kick_player} was kicked from the game.')
-                    append = open(botcmd / "botcmd.txt", 'a')
-                    append.write('ban "' + kick_player + '"\n')
-                    append.close()
+                elif (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
+                    logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {kick_player} was kicked from the game.')
+                    await shared.execute_cmd(str(ctx.message.channel.id), "ban '" + kick_player + "'")
                     await ctx.send('Kicked player ' + kick_player)
                 # If vote fails
                 else:
-                    logging.info('Not enough votes to pass')
+                    logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Not enough votes to pass')
                     await ctx.send('Vote failed. There must be a majority to kick '
                                    + kick_player
                                    )
             else:
                 await ctx.send(kick_player + ' is not playing on the server')
-        elif await server() is False:
+        else:
             await ctx.send('Server is not running...')
-        elif await find_dll() is False:
-            await ctx.send('BotCommands plugin is not loaded on the server!')
 
     @votekick.error
     async def votekick_handler(self, ctx, error):
+        """Handles errors related to an incomplete player name with votekick.
+
+        Args:
+            ctx: Current Discord context.
+            error: The error raised by the votekick command.
+        """
         if isinstance(error, commands.MissingRequiredArgument):
             if error.param.name == 'kick_player':
                 await ctx.send('Please insert a partial or complete player name')
+                logging.warning(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Player name not specified')
 
-    # Ends the run with a majority vote
     # TODO: Add the ability to call this command with in-game chat by adding a
     # conditional to the chat command, so players can do it while in-game too.
     # Would have to add functionality for votes to count with in-game chat
@@ -268,10 +167,15 @@ class RoR2(commands.Cog):
         help='Begins a vote to end the current run',
     )
     async def endrun(self, ctx):
-        if await server() and await find_dll() is True:
-            logging.info(f'{ctx.message.author.name} started an end run vote')
-            global server_info
-            if server_info.map_name in ('lobby', 'title'):
+        """Begins a vote to end the run if enough players agree.
+
+        Args:
+            ctx: Current Discord context.
+        """
+        serverinfo = await shared.server(str(ctx.message.channel.id))
+        if serverinfo:
+            logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} started an end run vote')
+            if serverinfo['server_info'].map_name in ('lobby', 'title', 'splash'):
                 await ctx.send('No run in progress.')
             else:
                 global yes, no
@@ -285,44 +189,49 @@ class RoR2(commands.Cog):
                     await message.add_reaction(emoji)
                 await asyncio.sleep(time)
                 # If 75% of player count wants to end the run it will
-                if (yes - 1) >= (server_info.player_count * 0.75):
-                    logging.info('Vote passed to end the current run')
-                    append = open(botcmd / "botcmd.txt", 'a')
-                    append.write('run_end' + '\n')
-                    append.close()
+                if (yes - 1) >= (serverinfo['server_info'].player_count * 0.75):
+                    logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] Vote passed to end the current run')
+                    await shared.execute_cmd(str(ctx.message.channel.id), 'run_end')
                     await ctx.send('Run ended, all players have been returned to the lobby')
                 # If vote fails
                 else:
-                    logging.info('End run vote failed')
+                    logging.info(f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] End run vote failed')
                     await ctx.send('Vote failed. There must be a majority to end the run')
-        elif await server() is False:
+        else:
             await ctx.send('Server is not running...')
-        elif await find_dll() is False:
-            await ctx.send('BotCommands plugin is not loaded on the server!')
 
-    # Displays the status of the server
     @commands.command(
         name='info',
         help='Displays Risk of Rain 2 server information'
     )
-    async def status(self, ctx):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        if await server():
+    async def info(self, ctx):
+        """Gathers the current server information and returns an embed message.
+
+        Args:
+            ctx: Current Discord context.
+        """
+        logging.info(
+            f'[Pyre-Bot:Commands][{datetime.now(tz).strftime(t_fmt)}] {ctx.message.author.name} used {ctx.command.name}')
+
+        # Determines which object to use
+        channel = str(ctx.message.channel.id)
+        for key, value in servers.items():
+            if channel == value.command_channel or channel == value.admin_channel:
+                server = value
+                break
+
+        server_info = await server.info()
+        if server_info:
+            stage = '???'  # Handles stages not listed in the dictionary
             # Create embed
             embed = discord.Embed(
                 title='Server Information',
                 colour=discord.Colour.blue()
             )
 
-            # Creates the string of player names used in the embed
-            player_names = []
-            for player in server_players:
-                player_names.append(player.name)
-            player_names = ("\n".join(map(str, player_names)))
-
             # Convert Steam map name to game name
-            for key, value in stages.items():
-                if key in server_info.map_name:
+            for key, value in shared.stages.items():
+                if key in server_info['server_info'].map_name:
                     stage = value
                     break
 
@@ -334,58 +243,28 @@ class RoR2(commands.Cog):
             embed.set_thumbnail(url=self.bot.user.avatar_url)
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
-                            value=f'{server_info.server_name}', inline=False)
+                            value=str(server.name), inline=False)
             embed.add_field(name='Current Stage', value=f'{stage}', inline=False)
             embed.add_field(
                 name='Player Count',
-                value=f'{server_info.player_count}/{server_info.max_players}', inline=False)
-            if server_info.player_count == 0:
-                pass
-            else:
+                value=str(server.player_num) + '/' + str(server.max_players),
+                inline=False)
+            if server.player_num != 0:
                 embed.add_field(
-                    name='Players', value=player_names, inline=False)
-            embed.add_field(name='Server Ping',
-                            value=int(server_info.ping * 1000), inline=False)
+                    name='Players', value=server.players, inline=False)
 
             # Send embed
             await ctx.send(embed=embed)
         else:
             await ctx.send('Server is currently offline.')
 
-    # Send modlist to chat
-    @commands.command(
-        name='mods',
-        help='Lists all the mods currently running on the server'
-    )
-    async def mods(self, ctx):
-        logging.info(f'{ctx.message.author.name} used {ctx.command.name}')
-        mods = []
-        with open(BepInEx / "LogOutput.log") as f:
-            for line in f:
-                if "[Info   :   BepInEx] Loading" in line:
-                    line = line[30:]
-                    head, sep, tail = line.partition(' ')
-                    if head in hidden_mods:
-                        pass
-                    else:
-                        mods.append(head)
-        mods = ("\n".join(map(str, mods)))
-        mod_embed = discord.Embed(colour=discord.Colour.blue())
-        mod_embed.set_footer(
-            text=f'Requested by {ctx.message.author.name}',
-            icon_url=self.bot.user.avatar_url
-        )
-        mod_embed.add_field(name='Mods', value=mods, inline=False)
-        await ctx.send(embed=mod_embed)
-
 
 def setup(bot):
     """Loads the cog into bot.py."""
     bot.add_cog(RoR2(bot))
-    print('Loaded cog: RoR2.py')
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Loaded cog: ror2.py')
 
 
 def teardown(bot):
-    """Prints to termianl when cog is unloaded."""
-    print('Unloaded cog: RoR2.py')
-    
+    """Prints to terminal when cog is unloaded."""
+    logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unloaded cog: ror2.py')
