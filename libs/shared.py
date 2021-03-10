@@ -9,6 +9,7 @@ import json
 import requests
 from datetime import datetime, date, timedelta
 
+
 from config.config import *
 
 
@@ -233,7 +234,8 @@ stages = {
     'splash': 'Splash Screen',
     'moon': 'Moon',
     'outro': 'Outro',
-    'dampcavesimple': 'Abyssal Depths'
+    'dampcavesimple': 'Abyssal Depths',
+    'rootjungle': 'Sundered Grove'
 }
 
 # These get assigned / updated every time server() is called
@@ -362,13 +364,17 @@ async def is_host(ctx):
 
 
 async def format_time(time):
-    if (time - (int(time / 60)) * 60) < 10:
-        formattedtime = str(
-            int(time / 60)) + ':0' + str(time - (int(time / 60)) * 60)
-    else:
-        formattedtime = str(
-            int(time / 60)) + ':' + str(time - (int(time / 60)) * 60)
-    return formattedtime
+    value = timedelta(seconds=int(float(time)))
+    total_hours = int(value.total_seconds() // 3600)
+    if total_hours < 10:
+        total_hours = "0" + str(total_hours)
+    total_minutes = int((value.total_seconds() // 60) % 60)
+    if total_minutes < 10:
+        total_minutes = "0" + str(total_minutes)
+    total_seconds = int(value.total_seconds() % 60)
+    if total_seconds < 10:
+        total_seconds = "0" + str(total_seconds)
+    return str(total_hours) + ":" + str(total_minutes) + ":" + str(total_seconds)
 
 # async def server_logs_comprehension_test():
 #     serverlogs = []

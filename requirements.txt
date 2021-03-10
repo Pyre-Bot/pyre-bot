@@ -4,52 +4,52 @@
 #
 #    pip-compile
 #
-aiohttp==3.6.2            # via -r requirements.in, discord.py
+aiohttp==3.6.3            # via -r requirements.in, discord.py
 async-timeout==3.0.1      # via -r requirements.in, aiohttp
-attrs==19.3.0             # via -r requirements.in, aiohttp
-blis==0.4.1               # via spacy, thinc
+attrs==20.2.0             # via -r requirements.in, aiohttp
+blis==0.7.1               # via spacy, thinc
 boto3==1.14.26            # via -r requirements.in
 botocore==1.17.26         # via -r requirements.in, boto3, s3transfer
-cached-property==1.5.1    # via profanity-filter
-catalogue==1.0.0          # via spacy, thinc
+cached-property==1.5.2    # via profanity-filter
+catalogue==2.0.1          # via spacy, thinc
 certifi==2020.6.20        # via -r requirements.in, requests
 chardet==3.0.4            # via -r requirements.in, aiohttp, requests
 cymem==2.0.3              # via preshed, spacy, thinc
-discord.py==1.4.1         # via -r requirements.in
+discord.py==1.5.1         # via -r requirements.in
 docopt==0.6.2             # via -r requirements.in, pipreqs
 docutils==0.15            # via -r requirements.in, botocore
 idna==2.10                # via -r requirements.in, requests, yarl
 jmespath==0.10.0          # via -r requirements.in, boto3, botocore
 more-itertools==8.5.0     # via profanity-filter
-multidict==4.7.6          # via -r requirements.in, aiohttp, yarl
+multidict==5.0.0          # via -r requirements.in, aiohttp, yarl
 murmurhash==1.0.2         # via preshed, spacy, thinc
-numpy==1.19.1             # via blis, spacy, thinc
+numpy==1.19.2             # via blis, spacy, thinc
 ordered-set-stubs==0.1.3  # via profanity-filter
-ordered-set==3.1.1        # via profanity-filter
+ordered-set==4.0.2        # via profanity-filter
 pipreqs==0.4.10           # via -r requirements.in
-plac==1.1.3               # via spacy, thinc
+plac==1.2.0               # via spacy, thinc
 poetry-version==0.1.5     # via profanity-filter
 preshed==3.0.2            # via spacy, thinc
 profanity-filter==1.3.3   # via -r requirements.in
 pydantic==1.6.1           # via profanity-filter
-python-a2s==1.1.5         # via -r requirements.in
+python-a2s==1.2.1         # via -r requirements.in
 python-dateutil==2.8.1    # via -r requirements.in, botocore
 redis==3.5.3              # via profanity-filter
 requests==2.24.0          # via -r requirements.in, spacy, yarg
-ruamel.yaml==0.15.100     # via profanity-filter
+ruamel.yaml==0.16.12      # via profanity-filter
 s3transfer==0.3.3         # via -r requirements.in, boto3
 six==1.15.0               # via -r requirements.in, python-dateutil
 spacy==2.3.2              # via profanity-filter
-srsly==1.0.2              # via spacy, thinc
+srsly==2.3.0              # via spacy, thinc
 thinc==7.4.1              # via spacy
-tomlkit==0.5.11           # via poetry-version
-tqdm==4.48.2              # via spacy, thinc
-urllib3==1.25.10          # via -r requirements.in, botocore, requests
+tomlkit==0.7.0            # via poetry-version
+tqdm==4.50.2              # via spacy, thinc
+urllib3==1.25.11          # via -r requirements.in, botocore, requests
 wasabi==0.8.0             # via spacy, thinc
 websockets==8.1           # via -r requirements.in
 yarg==0.1.9               # via -r requirements.in, pipreqs
-yarl==1.4.2               # via -r requirements.in, aiohttp
-seqlog~=0.3.17            # Support seq logging
+yarl==1.6.2               # via -r requirements.in, aiohttp
+seqlog~=0.3.19            # Support seq logging
 pytz~=2020.1              # Timezone management for Seq logging
 
 # The following packages are considered to be unsafe in a requirements file:

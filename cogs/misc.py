@@ -11,6 +11,7 @@ from discord.ext import commands
 
 import libs.shared as shared
 from config.config import *
+from libs.leaderboard import leaderboards
 
 
 # Checks if stats are being tracked
@@ -159,7 +160,7 @@ class Misc(commands.Cog):
                 'totalDeaths': 'Deaths',
                 'totalItemsCollected': 'Items Collected',
                 'totalGoldCollected': 'Gold Collected',
-                'highestLevel': 'Highest Level',
+                #'highestLevel': 'Highest Level',
                 'totalTimesCleared.moon': 'Games Beat'
             }
             proceed = False
@@ -189,12 +190,22 @@ class Misc(commands.Cog):
                                 else:
                                     stats_dict[k] = int(float(v))
 
+                    # Check and update leaderboard
+                    for stat, amt in stats_dict.items():
+                        for k, v in stat_names.items():
+                            if k == stat:
+                                try:
+                                    await leaderboards[v].check(user.id, amt)
+                                except KeyError:
+                                    logging.info(f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] '
+                                                 f'incorrect value sent to leaderboards.')
+
                     embed = discord.Embed(title=f'Stats for {user.name}', colour=discord.Colour.orange())
                     embed.set_thumbnail(url=user.avatar_url)
                     embed.set_author(name=self.bot.guilds[0])
                     for key, value in stats_dict.items():
                         if key == 'totalTimeAlive':
-                            value = datetime.timedelta(seconds=int(float(value)))
+                            value = await shared.format_time(value)
                         for k, v in stat_names.items():
                             if k == key:
                                 name = v
@@ -203,10 +214,11 @@ class Misc(commands.Cog):
                 except KeyError:
                     # Called if the SteamID isn't linked in the Players table
                     await ctx.send(
-                        'Your Steam ID does not have any stats associated with it. Play on the server at least once to '
-                        'create a stats profile')
+                        'Your Steam ID does not have any stats associated with it. Play on Pyre servers '
+                        'at least once to create a stats profile')
             else:
-                await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]')
+                await ctx.send('You have not linked your Steam ID. To do so, use the command >link [your Steam ID]. '
+                               'To find your SteamID, use https://steamid.io/lookup')
         except Exception as e:
             logging.warning(e)
         logging.info(f'[Pyre-Bot:Commands][{datetime.datetime.now(tz).strftime(t_fmt)}] {user.name} used {ctx.command.name}')

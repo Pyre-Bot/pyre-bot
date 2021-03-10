@@ -17,11 +17,11 @@ try:
     role = os.environ.get('ADMIN_ROLE')
     admin_channels = os.environ.get('ADMIN_CHANNELS').split(',')
     commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')
-    chat_channels = os.environ.get('CHAT_CHANNELS').split(',')
     track_stats = os.environ.get('TRACK_STATS')
     server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')
     admin_update_channel = int(os.environ.get('SERVER_UPDATES'))
     server_update_channel = os.environ.get('SERVER_CHANNEL')
+    leaderboard_update_channel = os.environ.get('LEADERBOARD_CHANNEL')
     logpath = Path(os.environ.get('LOG_PATH'))
 
     # Logging level
@@ -40,6 +40,7 @@ try:
         stats_players = dynamodb.Table(os.environ.get('PLAYERS_TABLE'))
         discord_table = dynamodb.Table(os.environ.get('DISCORD_TABLE'))
         ban_table = dynamodb.Table(os.environ.get('BAN_TABLE'))
+        leaderboard_table = dynamodb.Table(os.environ.get('LEADERBOARD_TABLE'))
     except KeyError:
         pass
 
@@ -51,12 +52,12 @@ try:
         server_address = tuple(server_address)
         server_list.append(
             {
-                "server_name": "Server" + str(i + 1),
+                "server_name": "Server" + str(i + 1),  # Change to use steam info fetch?
                 "server_address": server_address,
                 "admin_channel": admin_channels[i],
-                "commands_channel": commands_channels[i],
-                "chat_channel": chat_channels[i]
+                "commands_channel": commands_channels[i]
             }
         )
+
 except KeyError:
     pass
