@@ -276,8 +276,7 @@ async def server(channel):
         Server info if server is online otherwise False.
     """
     for serverdict in server_list:
-        if serverdict["commands_channel"] == str(channel) or serverdict["admin_channel"] == str(channel)\
-                or serverdict["chat_channel"] == str(channel):
+        if serverdict["commands_channel"] == str(channel) or serverdict["admin_channel"] == str(channel):
             address = serverdict["server_address"]
             break
     try:
@@ -329,31 +328,6 @@ async def start(channel):
         await execute_cmd(channel, "host 1")
         return True
 
-
-async def server_logs():
-    """Parses over all logs cached and creates the list used to determine which ones to use, removes old logs.
-
-    :return: List of logs that are to be used
-    """
-    serverlogs_ = os.listdir(logpath)
-    serverlogs = []
-    today_date = date.today().strftime("%Y%m%d")
-    yesterday_date = (date.today() - timedelta(days=1)).strftime("%Y%m%d")
-    for log in serverlogs_:
-        if len(serverlogs) >= len(server_addresses):  # Stop counting logs after they are all accounted for, save time
-            break
-        elif log.endswith('-' + today_date + '.log'):
-            serverlogs.append(log)
-        elif not log.endswith('-' + today_date + '.log.offset')\
-                and not log.endswith('-' + yesterday_date + '.log')\
-                and not log.endswith('-' + yesterday_date + '.log.offset'):
-            try:
-                os.remove(log)
-            except OSError as e:
-                pass
-    return serverlogs
-
-
 async def is_host(ctx):
     """Makes sure the command is ran in an admin Discord channel
 
@@ -375,10 +349,3 @@ async def format_time(time):
     if total_seconds < 10:
         total_seconds = "0" + str(total_seconds)
     return str(total_hours) + ":" + str(total_minutes) + ":" + str(total_seconds)
-
-# async def server_logs_comprehension_test():
-#     serverlogs = []
-#     serverlogs = [f for f in os.listdir(logpath)
-#                   if f.endswith('-' + datetime.date.today().strftime("%Y%m%d") + '.log')
-#                   and len(serverlogs) < len(server_addresses)]
-#     return serverlogs

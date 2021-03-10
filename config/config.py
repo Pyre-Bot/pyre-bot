@@ -19,10 +19,9 @@ try:
     commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')
     track_stats = os.environ.get('TRACK_STATS')
     server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')
-    admin_update_channel = int(os.environ.get('SERVER_UPDATES'))
+    admin_update_channel = os.environ.get('SERVER_UPDATES')
     server_update_channel = os.environ.get('SERVER_CHANNEL')
     leaderboard_update_channel = os.environ.get('LEADERBOARD_CHANNEL')
-    logpath = Path(os.environ.get('LOG_PATH'))
 
     # Logging level
     if os.environ.get('LOG_LEVEL') == 'info':

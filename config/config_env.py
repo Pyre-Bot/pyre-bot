@@ -1,9 +1,12 @@
 from pathlib import Path
 import os
+import logging
 
 import boto3
 from dotenv import load_dotenv
 from pytz import timezone
+
+# Is this class even being used anymore?
 
 load_dotenv()
 tz = timezone('US/Eastern')  # Sets timezone to Eastern
@@ -14,13 +17,19 @@ try:
     discord_token = os.environ.get('DISCORD_TOKEN')
     seq_api = os.environ.get('SEQ_API')
     role = os.environ.get('ADMIN_ROLE')
-    # Creating ordered lists, will create dict objects for each one
-    admin_channels = os.environ.get('ADMIN_CHANNELS').split(',')  # CHANGED TO LIST
-    commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')  # CHANGED TO LIST
+    admin_channels = os.environ.get('ADMIN_CHANNELS').split(',')
+    commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')
     track_stats = os.environ.get('TRACK_STATS')
-    server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')  # CHANGED TO LIST
-    server_update_channel = os.environ.get('SERVER_CHANNEL')  # NEW
-    logpath = Path(os.environ.get('LOG_PATH'))  # NEW
+    server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')
+    admin_update_channel = os.environ.get('SERVER_UPDATES')
+    server_update_channel = os.environ.get('SERVER_CHANNEL')
+    leaderboard_update_channel = os.environ.get('LEADERBOARD_CHANNEL')
+
+    # Logging level
+    if os.environ.get('LOG_LEVEL') == 'info':
+        log_level = logging.getLevelName('INFO')
+    elif os.environ.get('LOG_LEVEL') == 'debug':
+        log_level = logging.getLevelName('DEBUG')
 
     # Stat tracking variables. Try/Except used in case stat tracking is disabled
     try:
@@ -32,6 +41,7 @@ try:
         stats_players = dynamodb.Table(os.environ.get('PLAYERS_TABLE'))
         discord_table = dynamodb.Table(os.environ.get('DISCORD_TABLE'))
         ban_table = dynamodb.Table(os.environ.get('BAN_TABLE'))
+        leaderboard_table = dynamodb.Table(os.environ.get('LEADERBOARD_TABLE'))
     except KeyError:
         pass
 
