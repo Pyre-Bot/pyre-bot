@@ -2,7 +2,7 @@ from config.config import *
 
 
 leaderboards = {}
-stats = ['Stages Completed', 'Kills', 'Time Alive', 'Purchases', 'Deaths', 'Items Collected', 'Gold Collected']
+lb_stats = ['Stages Completed', 'Kills', 'Time Alive', 'Purchases', 'Deaths', 'Items Collected', 'Gold Collected']
 
 
 class Leaderboard:

@@ -16,7 +16,7 @@ from discord.ext import commands
 
 from config.config import *
 from libs.server import servers, Server
-from libs.leaderboard import leaderboards, Leaderboard, stats
+from libs.leaderboard import leaderboards, Leaderboard, lb_stats
 
 # Seq configuration
 seqlog.log_to_seq(
@@ -95,20 +95,18 @@ async def on_ready():
 
     # Create server class objects
     for server in server_list:
-        servers[server['server_name']] = Server(server['server_name'],
+        servers[server['server_name']] = Server(server['server_name'],  # Change to use steam info fetch?
                                                 server['server_address'],
-                                                'lobby',  # Stage
-                                                0,  # Stage number
-                                                0,  # Run time
+                                                'Lobby',  # Stage
+                                                '0:00',  # Run time
                                                 server['admin_channel'],
                                                 server['commands_channel'],
-                                                server['chat_channel'],
                                                 None,  # Players
                                                 0,  # Number of current players
                                                 0)  # Max players
 
     # Create leaderboard class objects
-    for stat in stats:
+    for stat in lb_stats:
         leaderboards[stat] = Leaderboard(stat)
         await leaderboards[stat].only10()
 
