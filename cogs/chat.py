@@ -115,7 +115,7 @@ async def info_chat_load(self):
         message = await update_channel.send(embed=embed)
         server_embeds[servers[server].command_channel] = message  # I think this just prints the channel name if nothing else is given, seen this with servers that don't get made
 
-    start_info = True  # Allows info_chat
+    start_info = True  # Allows info_chat, need this before auto refreshing info chat is started
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished info_chat_load.')
 
 
@@ -159,6 +159,7 @@ async def create_leaderboards(self, category):
     place = 0
     for rank, amount in ranks.items():
         player = self.bot.get_user(int(rank))
+        #
         if str(player) == 'None':
             continue  # Don't list users who have left the discord
         else:
@@ -187,7 +188,7 @@ async def autoupdate_info(self):
     """
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Starting autoupdate_info_func.')
     while True:
-        await asyncio.sleep(5)  # Setting to 5 for debugging, real time will be 60
+        await asyncio.sleep(10)  # Setting to 10 for debugging, real time will be 60
         for server in servers:
             await info_chat(self, server)
 
@@ -196,7 +197,7 @@ class Chat(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         try:
-            asyncio.gather(autoupdate_info(self), info_chat_load(self), leaderboards_load(self))
+            asyncio.gather(info_chat_load(self), leaderboards_load(self), autoupdate_info(self))
         except Exception as e:
             logging.error(f'[Pyre-Bot:Error][{datetime.now(tz).strftime(t_fmt)}] Chat Module error: {e}')
             sys.exit(2)  # Restarts bot on chat error
