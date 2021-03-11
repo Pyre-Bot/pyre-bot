@@ -222,18 +222,11 @@ class RoR2(commands.Cog):
 
         server_info = await server.info()
         if server_info:
-            stage = '???'  # Handles stages not listed in the dictionary
             # Create embed
             embed = discord.Embed(
                 title='Server Information',
                 colour=discord.Colour.blue()
             )
-
-            # Convert Steam map name to game name
-            for key, value in shared.stages.items():
-                if key in server_info['server_info'].map_name:
-                    stage = value
-                    break
 
             # Embed information
             embed.set_footer(
@@ -244,7 +237,8 @@ class RoR2(commands.Cog):
             embed.set_author(name=self.bot.guilds[0])
             embed.add_field(name='Server Name',
                             value=str(server.name), inline=False)
-            embed.add_field(name='Current Stage', value=f'{stage}', inline=False)
+            embed.add_field(name='Stage', value=f'{server.stage}', inline=False)
+            embed.add_field(name='Run Time', value=f'{server.runtime}', inline=False)
             embed.add_field(
                 name='Player Count',
                 value=str(server.player_num) + '/' + str(server.max_players),

@@ -57,6 +57,7 @@ async def info_chat(self, server):
             title=str(server.name),
             colour=discord.Colour.blue())
         embed.set_footer(text='Last Updated: ' + str(datetime.now(tz).strftime(i_fmt)))
+        embed.add_field(name='Stage', value=f'{server.stage}', inline=True)
         embed.add_field(name='Run Time', value=f'{server.runtime}', inline=True)
         embed.add_field(
             name='Player Count',
@@ -118,11 +119,11 @@ async def info_chat_load(self):
 
     start_info = True  # Allows info_chat, need this before auto refreshing info chat is started
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished info_chat_load.')
-    # Auto refresh time
+    # Auto refresh every 60 seconds
     while start_info:
         for servername, serverobj in servers.items():
             await info_chat(self, serverobj)
-        await asyncio.sleep(10)  # Setting to 10 for debugging, real time will be 60
+        await asyncio.sleep(60)
 
 
 async def leaderboards_load(self):
@@ -152,6 +153,7 @@ async def leaderboards_load(self):
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished leaderboards_load.')
 
 
+# TODO: Fix issue with not showing up to 10, I believe it's due to overflow on large values
 async def create_leaderboards(self, category):
     color_list = [c for c in shared.colors.values()]  # Gets random colors for embed
     ranks = await leaderboards[category].results()  # Gets results from Leaderboard class
@@ -165,7 +167,6 @@ async def create_leaderboards(self, category):
     place = 0
     for rank, amount in ranks.items():
         player = self.bot.get_user(int(rank))
-        #
         if str(player) == 'None':
             continue  # Don't list users who have left the discord
         else:
@@ -179,27 +180,7 @@ async def create_leaderboards(self, category):
             embed.add_field(name=f'🥉 {player}', value=amount, inline=False)
         else:
             embed.add_field(name=player, value=amount, inline=False)
-
     return embed
-
-
-# Should update server info every x seconds
-async def autoupdate_info(self):
-    """Starts and runs the autoupdate function.
-
-    Parameters
-    ----------
-    self : bot.py
-        Discord bot object
-    """
-    logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Starting autoupdate_info_func.')
-    while True:
-        print('autoupdate')  # DEBUG
-        await asyncio.sleep(10)  # Setting to 10 for debugging, real time will be 60
-        for server in servers:
-            shared.server(str(servers[server].command_channel))
-            str(servers[server].command_channel)
-            await info_chat(self, server)
 
 
 class Chat(commands.Cog):
@@ -209,7 +190,6 @@ class Chat(commands.Cog):
         self.bot = bot
         try:
             asyncio.gather(info_chat_load(self), leaderboards_load(self))
-            #asyncio.gather(autoupdate_info(self))
         except Exception as e:
             logging.error(f'[Pyre-Bot:Error][{datetime.now(tz).strftime(t_fmt)}] Chat Module error: {e}')
             sys.exit(2)  # Restarts bot on chat error
