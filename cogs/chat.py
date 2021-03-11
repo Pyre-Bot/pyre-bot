@@ -118,6 +118,11 @@ async def info_chat_load(self):
 
     start_info = True  # Allows info_chat, need this before auto refreshing info chat is started
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Finished info_chat_load.')
+    # Auto refresh time
+    while start_info:
+        for servername, serverobj in servers.items():
+            await info_chat(self, serverobj)
+        await asyncio.sleep(10)  # Setting to 10 for debugging, real time will be 60
 
 
 async def leaderboards_load(self):
@@ -192,6 +197,8 @@ async def autoupdate_info(self):
         print('autoupdate')  # DEBUG
         await asyncio.sleep(10)  # Setting to 10 for debugging, real time will be 60
         for server in servers:
+            shared.server(str(servers[server].command_channel))
+            str(servers[server].command_channel)
             await info_chat(self, server)
 
 
@@ -202,7 +209,7 @@ class Chat(commands.Cog):
         self.bot = bot
         try:
             asyncio.gather(info_chat_load(self), leaderboards_load(self))
-            asyncio.gather(autoupdate_info(self))
+            #asyncio.gather(autoupdate_info(self))
         except Exception as e:
             logging.error(f'[Pyre-Bot:Error][{datetime.now(tz).strftime(t_fmt)}] Chat Module error: {e}')
             sys.exit(2)  # Restarts bot on chat error
