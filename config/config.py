@@ -19,8 +19,11 @@ try:
     commands_channels = os.environ.get('COMMANDS_CHANNELS').split(',')
     track_stats = os.environ.get('TRACK_STATS')
     server_addresses = os.environ.get('SERVER_ADDRESSES').split(',')
+    print('addresses:' + str(server_addresses))  # DEBUG
     admin_update_channel = int(os.environ.get('SERVER_UPDATES'))
+    print('admin:' + str(admin_update_channel))  # DEBUG
     server_update_channel = int(os.environ.get('SERVER_CHANNEL'))
+    print('updates:' + str(server_update_channel))  # DEBUG
     leaderboard_update_channel = int(os.environ.get('LEADERBOARD_CHANNEL'))
 
     # Logging level

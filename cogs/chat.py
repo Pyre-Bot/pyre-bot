@@ -189,6 +189,7 @@ async def autoupdate_info(self):
     """
     logging.debug(f'[Pyre-Bot:Debug][{datetime.now(tz).strftime(t_fmt)}] Starting autoupdate_info_func.')
     while True:
+        print('autoupdate')  # DEBUG
         await asyncio.sleep(10)  # Setting to 10 for debugging, real time will be 60
         for server in servers:
             await info_chat(self, server)
@@ -201,7 +202,7 @@ class Chat(commands.Cog):
         self.bot = bot
         try:
             asyncio.gather(info_chat_load(self), leaderboards_load(self))
-            await autoupdate_info(self)
+            asyncio.gather(autoupdate_info(self))
         except Exception as e:
             logging.error(f'[Pyre-Bot:Error][{datetime.now(tz).strftime(t_fmt)}] Chat Module error: {e}')
             sys.exit(2)  # Restarts bot on chat error
@@ -249,6 +250,4 @@ def setup(bot):
 
 def teardown(bot):
     """Disable chat and then updates logs when unloading the cog."""
-    global repeat
-    repeat = False  # Stops the chat function
     logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Unloaded cog: chat.py')
