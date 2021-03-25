@@ -46,6 +46,7 @@ colors = {
 }
 
 # Available equipment to give players
+# TODO: Update with most recent list of equipment
 equip = {
     'CommandMissile': 'Disposable Missile Launcher',
     'Saw': 'Saw',
@@ -89,6 +90,7 @@ equip = {
 }
 
 # Available items to give players
+# TODO: Update with most recent list of items
 item = {
     'Syringe': "Soldier's Syringe",
     'Bear': 'Tougher Times',
@@ -235,7 +237,8 @@ stages = {
     'moon': 'Moon',
     'outro': 'Outro',
     'dampcavesimple': 'Abyssal Depths',
-    'rootjungle': 'Sundered Grove'
+    'rootjungle': 'Sundered Grove',
+    'moon2': 'Moon'
 }
 
 # These get assigned / updated every time server() is called
