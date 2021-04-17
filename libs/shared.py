@@ -262,7 +262,7 @@ async def execute_cmd(channel, command):
         "Channel": channel
     }
     jsondata = json.dumps(postdict)
-    result = requests.post(url=f"http://seq.pyre-bot.com/api/events/raw?clef&apiKey={seq_api}",
+    result = requests.post(url=f"{seq_url}/api/events/raw?clef&apiKey={seq_api}",
                            data=jsondata, headers={"ContentType": "application/vnd.serilog.clef"})
 
 

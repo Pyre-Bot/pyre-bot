@@ -14,6 +14,7 @@ print('--------------------------')
 print('Enter the values to configure the bot')
 
 discord_api = str(input('Discord API token: '))
+seq_url = str(input('Seq URL: '))
 seq_api = str(input('Seq API token: '))
 role = str(input('Privileged Server Role: '))
 admin_channels = str(input('Discord Channel ID for admin commands, separated by commas: '))  # CHANGED
@@ -37,6 +38,7 @@ while stats is True:
 
         config_object["API"] = {
             "discord_token": discord_api,
+            "seq-url": seq_url,
             "seq-api-key": seq_api
         }
         config_object["AWS"] = {
@@ -66,6 +68,7 @@ while stats is True:
 # TODO: Change this to not re-write values for every field
 config_object["API"] = {
     "discord_token": discord_api,
+    "seq-url": seq_url,
     "seq-api-key": seq_api
 }
 config_object["General"] = {

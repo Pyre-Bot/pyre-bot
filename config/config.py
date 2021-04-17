@@ -13,6 +13,7 @@ i_fmt = '%I:%M%p %Z'  # Configures time format for info
 # Assigns the variables
 try:
     discord_token = os.environ.get('DISCORD_TOKEN')
+    seq_url = os.environ.get('SEQ_URL')
     seq_api = os.environ.get('SEQ_API')
     role = os.environ.get('ADMIN_ROLE')
     admin_channels = os.environ.get('ADMIN_CHANNELS').split(',')
