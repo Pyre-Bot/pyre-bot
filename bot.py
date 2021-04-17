@@ -20,7 +20,7 @@ from libs.leaderboard import leaderboards, Leaderboard, lb_stats
 
 # Seq configuration
 seqlog.log_to_seq(
-    server_url=f"{seq_url}:80",
+    server_url=seq_url,
     api_key=seq_api,
     level=log_level,
     batch_size=5,
