@@ -20,7 +20,7 @@ from libs.leaderboard import leaderboards, Leaderboard, lb_stats
 
 # Seq configuration
 seqlog.log_to_seq(
-    server_url="http://seq.pyre-bot.com:80",
+    server_url=seq_url,  # Need port in the url
     api_key=seq_api,
     level=log_level,
     batch_size=5,
