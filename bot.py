@@ -11,7 +11,7 @@ import sys
 from datetime import datetime
 
 import discord
-#import seqlog
+import seqlog
 from discord.ext import commands
 
 from config.config import *
@@ -19,14 +19,14 @@ from libs.server import servers, Server
 from libs.leaderboard import leaderboards, Leaderboard, lb_stats
 
 # Seq configuration
-#seqlog.log_to_seq(
-#    server_url=f"{seq_url}:80",
-#    api_key=seq_api,
-#    level=log_level,
-#    batch_size=5,
-#    auto_flush_timeout=5,  # seconds
-#    override_root_logger=True
-#)
+seqlog.log_to_seq(
+    server_url=f"{seq_url}:80",
+    api_key=seq_api,
+    level=log_level,
+    batch_size=5,
+    auto_flush_timeout=5,  # seconds
+    override_root_logger=True
+)
 
 logging.info(f'[Pyre-Bot:Admin][{datetime.now(tz).strftime(t_fmt)}] Bot started')
 
