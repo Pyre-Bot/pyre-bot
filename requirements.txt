@@ -44,7 +44,7 @@ srsly==2.3.0              # via spacy, thinc
 thinc==7.4.1              # via spacy
 tomlkit==0.7.0            # via poetry-version
 tqdm==4.50.2              # via spacy, thinc
-urllib3==1.25.11          # via -r requirements.in, botocore, requests
+urllib3==1.26.5          # via -r requirements.in, botocore, requests
 wasabi==0.8.0             # via spacy, thinc
 websockets==8.1           # via -r requirements.in
 yarg==0.1.9               # via -r requirements.in, pipreqs
