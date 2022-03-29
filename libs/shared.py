@@ -238,7 +238,19 @@ stages = {
     'outro': 'Outro',
     'dampcavesimple': 'Abyssal Depths',
     'rootjungle': 'Sundered Grove',
-    'moon2': 'Moon'
+    'moon2': 'Commencement',
+    'ancientloft': 'Aphelian Sanctuary',
+    'snowyforest': 'Siphoned Forest',
+    'sulfurpools': 'Sulfur Pools',
+    'voidraid': 'Void Locus',
+    'voidstage': 'The Planetarium',
+    'itancientloft': 'The Simulacrum',
+    'itdampcave': 'The Simulacrum',
+    'itfrozenwall': 'The Simulacrum',
+    'itgolemplains': 'The Simulacrum',
+    'itgoolake': 'The Simulacrum',
+    'itmoon': 'The Simulacrum',
+    'itskymeadow': 'The Simulacrum'
 }
 
 # These get assigned / updated every time server() is called
