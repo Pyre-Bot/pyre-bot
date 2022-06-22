@@ -23,7 +23,7 @@ jmespath==0.10.0          # via -r requirements.in, boto3, botocore
 more-itertools==8.5.0     # via profanity-filter
 multidict==5.0.0          # via -r requirements.in, aiohttp, yarl
 murmurhash==1.0.2         # via preshed, spacy, thinc
-numpy==1.19.2             # via blis, spacy, thinc
+numpy==1.22.0             # via blis, spacy, thinc
 ordered-set-stubs==0.1.3  # via profanity-filter
 ordered-set==4.0.2        # via profanity-filter
 pipreqs==0.4.10           # via -r requirements.in
