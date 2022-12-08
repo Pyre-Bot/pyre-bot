@@ -12,7 +12,7 @@ boto3==1.14.26            # via -r requirements.in
 botocore==1.17.26         # via -r requirements.in, boto3, s3transfer
 cached-property==1.5.2    # via profanity-filter
 catalogue==2.0.1          # via spacy, thinc
-certifi==2020.6.20        # via -r requirements.in, requests
+certifi==2022.12.7        # via -r requirements.in, requests
 chardet==3.0.4            # via -r requirements.in, aiohttp, requests
 cymem==2.0.3              # via preshed, spacy, thinc
 discord.py==1.5.1         # via -r requirements.in
